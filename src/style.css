@@ -36,6 +36,51 @@ body {
   margin: 0.5em 0;
 }
 
+.content h1.title--s {
+  font-size: 2.2rem;
+}
+
+.content h1.title--m {
+  font-size: 3rem;
+}
+
+.content h1.title--l {
+  font-size: 3.6rem;
+}
+
+.section-description {
+  max-width: 56ch;
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  opacity: 0.92;
+  text-align: center;
+}
+
+.section-description--s {
+  font-size: 0.95rem;
+}
+
+.section-description--m {
+  font-size: 1.05rem;
+}
+
+.section-description--l {
+  font-size: 1.2rem;
+}
+
+.eyebrow--s {
+  font-size: 0.7rem;
+}
+
+.eyebrow--m {
+  font-size: 0.8rem;
+}
+
+.eyebrow--l {
+  font-size: 0.95rem;
+}
+
 .content--on-image {
   color: #ffffff;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
@@ -122,6 +167,12 @@ body {
   top: 20px;
   left: 20px;
   z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.16s ease;
+}
+
+.flow-creator:hover {
+  opacity: 1;
 }
 
 button:not(.flow-handle):not(.flow-node__delete) {
@@ -363,10 +414,12 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
 .block-settings-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.2);
   z-index: 1200;
   display: grid;
-  place-items: center;
+  align-items: start;
+  justify-items: start;
+  padding: 72px 0 0 20px;
 }
 
 .block-settings {
@@ -396,6 +449,45 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
   border-radius: 8px;
   padding: 0.45rem 0.55rem;
   background: #fff;
+}
+
+.block-settings textarea {
+  width: 100%;
+  border: 1px solid #c9d0d8;
+  border-radius: 8px;
+  padding: 0.45rem 0.55rem;
+  background: #fff;
+  resize: vertical;
+}
+
+.text-input-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.text-size-picker {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: min-content;
+  gap: 0.25rem;
+}
+
+.text-size-picker__btn {
+  min-width: 26px;
+  height: 22px;
+  padding: 0 0.35rem;
+  font-size: 0.68rem;
+  border-radius: 6px;
+  opacity: 0.9;
+}
+
+.text-size-picker__btn.active {
+  background: #24303c;
+  color: #fff;
+  border-color: #24303c;
+  opacity: 1;
 }
 
 .block-settings select {

@@ -18,22 +18,32 @@ const MODAL_MIN_WIDTH = '360px'
 const MODAL_MIN_HEIGHT = '260px'
 const PANEL_CLASS_POOL = ['contrast', 'outro', 'red', 'danger', 'ocean', 'forest', 'violet', 'amber'] as const
 
-export function useFlowCreator(
-  panelsRef: Ref<Panel[]>,
-  emitUpdatePanels: (panels: Panel[]) => void
-) {
+const DEFAULT_DIRECTION: Direction = 'down'
+const DEFAULT_EYEBROW = 'Section SUBTITLE'
+const DEFAULT_TITLE_PREFIX = 'New Panel'
+const DEFAULT_TEXT_SIZE = 'm' as const
+const SCROLL_DELAY_MS = 80
+const MIN_PANELS_ALLOWED = 1
+const DELETE_LAST_PANEL_ERROR = 'No puedes eliminar el único panel del flujo.'
+const INVALID_STRUCTURE_TITLE = 'Estructura inválida:'
+const ID_PREFIX = 'panel'
+const ALLOWED_INSERT_DIRECTIONS: Exclude<Direction, 'up'>[] = ['down', 'left', 'right']
+const NEW_PANEL_TITLE_REGEX = /^New Panel \d+$/i
+const SECTION_TITLE_REGEX = /^Section \d+(?::\s*)?/i
+const SECTION_TITLE_REPLACEMENT = (n: number) => `Section ${n}: `
+
+export function useFlowCreator(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels: Panel[]) => void) {
   const showModal = ref(false)
   const localPanels = ref<Panel[]>([])
   const canvasRef = ref<HTMLElement | null>(null)
   const showSettings = ref(false)
   const selectedIndex = ref<number | null>(null)
   const pendingScrollToLast = ref(false)
-  const pendingScrollToPanelId = ref<string | null>(null)
 
   watch(
     () => panelsRef.value,
     (value) => {
-      localPanels.value = value.map((p) => ({ ...p, nextPanelPosition: p.nextPanelPosition ?? 'down' }))
+      localPanels.value = value.map((p) => ({ ...p, nextPanelPosition: p.nextPanelPosition ?? DEFAULT_DIRECTION }))
     },
     { immediate: true, deep: true }
   )
@@ -71,7 +81,7 @@ export function useFlowCreator(
 
     localPanels.value.forEach((panel, index) => {
       placed.push({ panel, index, x, y })
-      const direction = (panel.nextPanelPosition ?? 'down') as Direction
+      const direction = (panel.nextPanelPosition ?? DEFAULT_DIRECTION) as Direction
       const nextPos = moveByDirection(x, y, direction)
       x = nextPos.x
       y = nextPos.y
@@ -83,14 +93,13 @@ export function useFlowCreator(
   watch(
     () => positionedPanels.value.length,
     async () => {
-      if (!pendingScrollToLast.value && !pendingScrollToPanelId.value) return
+      if (!pendingScrollToLast.value) return
       await nextTick()
       await nextTick()
       setTimeout(() => {
         forceScrollToBottom()
-        pendingScrollToPanelId.value = null
         pendingScrollToLast.value = false
-      }, 80)
+      }, SCROLL_DELAY_MS)
     }
   )
 
@@ -98,7 +107,6 @@ export function useFlowCreator(
     if (!positionedPanels.value.length) {
       return { minX: 0, maxX: 0, minY: 0, maxY: 0 }
     }
-
     const xs = positionedPanels.value.map((n) => n.x)
     const ys = positionedPanels.value.map((n) => n.y)
     return {
@@ -143,19 +151,16 @@ export function useFlowCreator(
 
   const flowLinks = computed(() => {
     if (positionedPanels.value.length <= 1) return []
-
     return positionedPanels.value.slice(0, -1).map((from, index) => {
       const to = positionedPanels.value[index + 1]
       const fromCenterX = (from.x - bounds.value.minX) * STEP + CANVAS_PADDING + BLOCK_WIDTH / 2
       const fromCenterY = (from.y - bounds.value.minY) * STEP + CANVAS_PADDING + BLOCK_HEIGHT / 2
       const toCenterX = (to.x - bounds.value.minX) * STEP + CANVAS_PADDING + BLOCK_WIDTH / 2
       const toCenterY = (to.y - bounds.value.minY) * STEP + CANVAS_PADDING + BLOCK_HEIGHT / 2
-
       const dx = toCenterX - fromCenterX
       const dy = toCenterY - fromCenterY
       const length = Math.sqrt(dx * dx + dy * dy)
       const angle = Math.atan2(dy, dx) * (180 / Math.PI)
-
       return {
         id: `${from.panel.id}-${to.panel.id}-${index}`,
         style: {
@@ -175,36 +180,32 @@ export function useFlowCreator(
     right: 'left'
   }
 
-  const normalizePanels = (list: Panel[]): Panel[] => {
-    return list.map((p) => ({ ...p, nextPanelPosition: (p.nextPanelPosition ?? 'down') as Direction }))
-  }
+  const normalizePanels = (list: Panel[]): Panel[] =>
+    list.map((p) => ({ ...p, nextPanelPosition: (p.nextPanelPosition ?? DEFAULT_DIRECTION) as Direction }))
 
-  const renumberPanels = (list: Panel[]): Panel[] => {
-    return list.map((panel, index) => {
+  const renumberPanels = (list: Panel[]): Panel[] =>
+    list.map((panel, index) => {
       const n = index + 1
       const title = panel.title.trim()
       let nextTitle = title
 
-      if (/^New Panel \d+$/i.test(title)) {
-        nextTitle = `New Panel ${n}`
-      } else if (/^Section \d+(?::\s*)?/i.test(title)) {
-        nextTitle = title.replace(/^Section \d+(?::\s*)?/i, `Section ${n}: `)
+      if (NEW_PANEL_TITLE_REGEX.test(title)) {
+        nextTitle = `${DEFAULT_TITLE_PREFIX} ${n}`
+      } else if (SECTION_TITLE_REGEX.test(title)) {
+        nextTitle = title.replace(SECTION_TITLE_REGEX, SECTION_TITLE_REPLACEMENT(n))
       }
 
       return {
         ...panel,
-        id: `panel-${n}`,
+        id: `${ID_PREFIX}-${n}`,
         title: nextTitle
       }
     })
-  }
 
   const allowedDirections = (index: number): Exclude<Direction, 'up'>[] => {
-    const all: Exclude<Direction, 'up'>[] = ['down', 'left', 'right']
-    if (index === 0) return all
-
-    const prev = (localPanels.value[index - 1]?.nextPanelPosition ?? 'down') as Direction
-    return all.filter((d) => d !== opposite[prev])
+    if (index === 0) return ALLOWED_INSERT_DIRECTIONS
+    const prev = (localPanels.value[index - 1]?.nextPanelPosition ?? DEFAULT_DIRECTION) as Direction
+    return ALLOWED_INSERT_DIRECTIONS.filter((d) => d !== opposite[prev])
   }
 
   const canCommitPanels = (nextPanels: Panel[]) => {
@@ -212,32 +213,35 @@ export function useFlowCreator(
     return validateContentSchema({ panels: sanitized }).ok
   }
 
-  const insertableDirections = (index: number): Exclude<Direction, 'up'>[] => {
-    return allowedDirections(index).filter((direction) => {
+  const buildNewPanel = (position: number, previousNext: Direction, previousClass?: string): Panel => ({
+    id: makeId(),
+    eyebrow: DEFAULT_EYEBROW,
+    title: `${DEFAULT_TITLE_PREFIX} ${position}`,
+    description: '',
+    titleSize: DEFAULT_TEXT_SIZE,
+    eyebrowSize: DEFAULT_TEXT_SIZE,
+    descriptionSize: DEFAULT_TEXT_SIZE,
+    panelClass: getRandomPanelClass(previousClass),
+    nextPanelPosition: previousNext
+  })
+
+  const insertableDirections = (index: number): Exclude<Direction, 'up'>[] =>
+    allowedDirections(index).filter((direction) => {
       const current = localPanels.value[index]
       if (!current) return false
-      const previousNext = (current.nextPanelPosition ?? 'down') as Direction
+      const previousNext = (current.nextPanelPosition ?? DEFAULT_DIRECTION) as Direction
       const nextPanels = localPanels.value.map((p) => ({ ...p }))
       nextPanels[index].nextPanelPosition = direction
-      const candidate: Panel = {
-        id: makeId(),
-        eyebrow: 'Section SUBTITLE',
-        title: `New Panel ${nextPanels.length + 1}`,
-        panelClass: getRandomPanelClass(nextPanels[index].panelClass),
-        nextPanelPosition: previousNext
-      }
+      const candidate = buildNewPanel(nextPanels.length + 1, previousNext, nextPanels[index].panelClass)
       nextPanels.splice(index + 1, 0, candidate)
       return canCommitPanels(nextPanels)
     })
-  }
 
   const commitPanels = (nextPanels: Panel[], showAlert = true) => {
     const sanitized = renumberPanels(normalizePanels(nextPanels))
     const validation = validateContentSchema({ panels: sanitized })
     if (!validation.ok) {
-      if (showAlert) {
-        alert(`Estructura inválida:\n\n${validation.errors.join('\n')}`)
-      }
+      if (showAlert) alert(`${INVALID_STRUCTURE_TITLE}\n\n${validation.errors.join('\n')}`)
       return false
     }
 
@@ -246,28 +250,18 @@ export function useFlowCreator(
     return true
   }
 
-  const makeId = () => `panel-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+  const makeId = () => `${ID_PREFIX}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
 
   const insertAfter = (index: number, direction: Exclude<Direction, 'up'>) => {
     const current = localPanels.value[index]
     if (!current) return
 
-    const previousNext = (current.nextPanelPosition ?? 'down') as Direction
+    const previousNext = (current.nextPanelPosition ?? DEFAULT_DIRECTION) as Direction
     const nextPanels = localPanels.value.map((p) => ({ ...p }))
     nextPanels[index].nextPanelPosition = direction
-
-    const newPanel: Panel = {
-      id: makeId(),
-      eyebrow: 'Section SUBTITLE',
-      title: `New Panel ${nextPanels.length + 1}`,
-      panelClass: getRandomPanelClass(nextPanels[index].panelClass),
-      nextPanelPosition: previousNext
-    }
-
+    const newPanel = buildNewPanel(nextPanels.length + 1, previousNext, nextPanels[index].panelClass)
     nextPanels.splice(index + 1, 0, newPanel)
-    if (commitPanels(nextPanels, false)) {
-      pendingScrollToLast.value = true
-    }
+    if (commitPanels(nextPanels, false)) pendingScrollToLast.value = true
   }
 
   const openSettings = (index: number) => {
@@ -289,32 +283,25 @@ export function useFlowCreator(
     if (selectedIndex.value === null) return
     const nextPanels = localPanels.value.map((p) => ({ ...p }))
     nextPanels[selectedIndex.value] = { ...updated }
-    if (commitPanels(nextPanels)) {
-      closeSettings()
-    }
+    if (commitPanels(nextPanels)) closeSettings()
   }
 
   const deletePanel = () => {
     if (selectedIndex.value === null) return
-    if (localPanels.value.length <= 1) {
-      alert('No puedes eliminar el único panel del flujo.')
+    if (localPanels.value.length <= MIN_PANELS_ALLOWED) {
+      alert(DELETE_LAST_PANEL_ERROR)
       return
     }
-
     const nextPanels = localPanels.value.map((p) => ({ ...p }))
     nextPanels.splice(selectedIndex.value, 1)
-
-    if (commitPanels(nextPanels)) {
-      closeSettings()
-    }
+    commitPanels(nextPanels)
   }
 
   const deletePanelAt = (index: number) => {
-    if (localPanels.value.length <= 1) {
-      alert('No puedes eliminar el único panel del flujo.')
+    if (localPanels.value.length <= MIN_PANELS_ALLOWED) {
+      alert(DELETE_LAST_PANEL_ERROR)
       return
     }
-
     const nextPanels = localPanels.value.map((p) => ({ ...p }))
     nextPanels.splice(index, 1)
     commitPanels(nextPanels)

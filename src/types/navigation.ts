@@ -1,9 +1,14 @@
-﻿export type Direction = 'up' | 'down' | 'left' | 'right'
+export type Direction = 'up' | 'down' | 'left' | 'right'
+export type TextSize = 's' | 'm' | 'l'
 
 export interface Panel {
   id: string
   eyebrow: string
   title: string
+  description?: string
+  titleSize?: TextSize
+  eyebrowSize?: TextSize
+  descriptionSize?: TextSize
   panelClass: string
   image?: string
   nextPanelPosition?: Direction
@@ -26,3 +31,4 @@ export type RenderBlock = PanelBlock | HorizontalBlock
 export interface ContentSchema {
   panels: Panel[]
 }
+

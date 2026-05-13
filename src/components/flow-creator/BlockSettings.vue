@@ -1,16 +1,39 @@
 ﻿<template>
-  <div v-if="open" class="block-settings-overlay" @click.self="$emit('close')">
+  <div v-if="open" class="block-settings-overlay">
     <div class="block-settings">
       <h4>Block Settings</h4>
 
       <label>
         Name
-        <input v-model="draft.title" type="text" />
+        <div class="text-input-row">
+          <input v-model="draft.title" type="text" />
+          <TextSizePicker
+            :model-value="draft.titleSize ?? 'm'"
+            @update:model-value="(value) => { draft.titleSize = value; save() }"
+          />
+        </div>
       </label>
 
       <label>
         Eyebrow
-        <input v-model="draft.eyebrow" type="text" />
+        <div class="text-input-row">
+          <input v-model="draft.eyebrow" type="text" />
+          <TextSizePicker
+            :model-value="draft.eyebrowSize ?? 'm'"
+            @update:model-value="(value) => { draft.eyebrowSize = value; save() }"
+          />
+        </div>
+      </label>
+
+      <label>
+        Description
+        <div class="text-input-row">
+          <textarea v-model="draft.description" rows="3" />
+          <TextSizePicker
+            :model-value="draft.descriptionSize ?? 'm'"
+            @update:model-value="(value) => { draft.descriptionSize = value; save() }"
+          />
+        </div>
       </label>
 
       <label>
@@ -44,7 +67,7 @@
             @change="onFileChange"
           />
           <div class="image-dropzone__content">
-            <p>{{ draft.image ? 'Image loaded' : 'Drop image here or choose file' }}</p>
+            <p>{{ draft.image ? DROP_IMAGE_LOADED_TEXT : DROP_IMAGE_EMPTY_TEXT }}</p>
             <div class="image-dropzone__actions">
               <button type="button" @click="openFilePicker">Choose Image</button>
               <button type="button" @click="setRandomImage">Random Image</button>
@@ -56,7 +79,7 @@
 
       <div class="block-settings__actions">
         <button class="danger" @click="$emit('delete')">Delete Panel</button>
-        <button @click="$emit('close')">Cancel</button>
+        <button @click="resetDraft">Cancel</button>
         <button @click="save">Save</button>
       </div>
     </div>
@@ -65,7 +88,8 @@
 
 <script setup lang="ts">
 import { reactive, ref, watch } from 'vue'
-import type { Panel } from '../types/navigation'
+import type { Panel } from '../../types/navigation'
+import TextSizePicker from '../atoms/TextSizePicker.vue'
 
 const panelClassOptions = [
   { value: '', label: 'Default' },
@@ -78,6 +102,13 @@ const panelClassOptions = [
   { value: 'violet', label: 'Violet' },
   { value: 'amber', label: 'Amber' }
 ]
+
+const DEFAULT_TEXT_SIZE = 'm' as const
+const RANDOM_IMAGE_WIDTH = 2400
+const RANDOM_IMAGE_HEIGHT = 1350
+const RANDOM_IMAGE_BASE_URL = 'https://picsum.photos'
+const DROP_IMAGE_LOADED_TEXT = 'Image loaded'
+const DROP_IMAGE_EMPTY_TEXT = 'Drop image here or choose file'
 
 const props = defineProps<{
   open: boolean
@@ -94,6 +125,10 @@ const draft = reactive<Panel>({
   id: '',
   title: '',
   eyebrow: '',
+  description: '',
+  titleSize: DEFAULT_TEXT_SIZE,
+  eyebrowSize: DEFAULT_TEXT_SIZE,
+  descriptionSize: DEFAULT_TEXT_SIZE,
   panelClass: '',
   image: '',
   nextPanelPosition: 'down'
@@ -109,6 +144,10 @@ watch(
     draft.id = panel.id
     draft.title = panel.title
     draft.eyebrow = panel.eyebrow
+    draft.description = panel.description ?? ''
+    draft.titleSize = panel.titleSize ?? DEFAULT_TEXT_SIZE
+    draft.eyebrowSize = panel.eyebrowSize ?? DEFAULT_TEXT_SIZE
+    draft.descriptionSize = panel.descriptionSize ?? DEFAULT_TEXT_SIZE
     draft.panelClass = panel.panelClass
     draft.image = panel.image ?? ''
     draft.nextPanelPosition = panel.nextPanelPosition ?? 'down'
@@ -151,11 +190,26 @@ const clearImage = () => {
 const setRandomImage = () => {
   // Public random stock-like image service, landscape and high resolution.
   const seed = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
-  draft.image = `https://picsum.photos/2400/1350?random=${seed}`
+  draft.image = `${RANDOM_IMAGE_BASE_URL}/${RANDOM_IMAGE_WIDTH}/${RANDOM_IMAGE_HEIGHT}?random=${seed}`
   save()
 }
 
 const save = () => {
   emit('save', { ...draft })
+}
+
+const resetDraft = () => {
+  const panel = props.panel
+  if (!panel) return
+  draft.id = panel.id
+  draft.title = panel.title
+  draft.eyebrow = panel.eyebrow
+  draft.description = panel.description ?? ''
+  draft.titleSize = panel.titleSize ?? DEFAULT_TEXT_SIZE
+  draft.eyebrowSize = panel.eyebrowSize ?? DEFAULT_TEXT_SIZE
+  draft.descriptionSize = panel.descriptionSize ?? DEFAULT_TEXT_SIZE
+  draft.panelClass = panel.panelClass
+  draft.image = panel.image ?? ''
+  draft.nextPanelPosition = panel.nextPanelPosition ?? 'down'
 }
 </script>

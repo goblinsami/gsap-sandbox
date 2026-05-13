@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <main class="sandbox">
     <FlowCreator :panels="panelsState" @update:panels="handlePanelsUpdate" />
     <template v-for="(block, index) in blocks" :key="makeBlockKey(block, index)">
@@ -6,23 +6,27 @@
         v-if="block.type === 'panel'"
         :title="block.panel.title"
         :eyebrow="block.panel.eyebrow"
+        :description="block.panel.description"
+        :title-size="block.panel.titleSize"
+        :eyebrow-size="block.panel.eyebrowSize"
+        :description-size="block.panel.descriptionSize"
         :panel-class="block.panel.panelClass"
         :image="block.panel.image"
         animate-key="intro"
         :direction="block.direction"
       />
 
-      <section
-        v-else
-        class="h-scroll"
-        :data-direction="block.direction"
-      >
+      <section v-else class="h-scroll" :data-direction="block.direction">
         <div class="h-track">
           <SectionPanel
-            v-for="panel in (block.direction === 'left' ? [...block.panels].reverse() : block.panels)"
+            v-for="panel in (block.direction === DIRECTION_LEFT ? [...block.panels].reverse() : block.panels)"
             :key="panel.id"
             :title="panel.title"
             :eyebrow="panel.eyebrow"
+            :description="panel.description"
+            :title-size="panel.titleSize"
+            :eyebrow-size="panel.eyebrowSize"
+            :description-size="panel.descriptionSize"
             :panel-class="`${panel.panelClass} h-panel`"
             :image="panel.image"
             :direction="panel.nextPanelPosition ?? block.direction"
@@ -38,13 +42,15 @@ import { onMounted, nextTick, ref, watch } from 'vue'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import SectionPanel from './components/SectionPanel.vue'
-import FlowCreator from './components/FlowCreator.vue'
+import FlowCreator from './components/flow-creator/FlowCreator.vue'
 import content from './data/content.json'
 import type { ContentSchema, Panel } from './types/navigation'
 import { validateContentSchema } from './utils/validateContent'
 import { useFlowBlocks } from './composables/useFlowBlocks'
 
 gsap.registerPlugin(ScrollTrigger)
+
+const DIRECTION_LEFT = 'left' as const
 
 const validation = validateContentSchema(content)
 const isValid = validation.ok
@@ -82,7 +88,7 @@ const initAnimations = async () => {
 
     const direction = container.dataset.direction
 
-    if (direction === 'left') {
+    if (direction === DIRECTION_LEFT) {
       gsap.set(track, { x: -distance })
       gsap.to(track, {
         x: 0,
@@ -121,7 +127,6 @@ const initAnimations = async () => {
 const handlePanelsUpdate = (updated: Panel[]) => {
   panelsState.value = updated.map((p) => ({ ...p }))
 }
-
 
 onMounted(() => {
   if (!isValid) {

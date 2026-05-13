@@ -1,6 +1,7 @@
-﻿import type { ContentSchema, Direction, Panel } from '../types/navigation'
+import type { ContentSchema, Direction, Panel } from '../types/navigation'
 
 const VALID_DIRECTIONS: Direction[] = ['up', 'down', 'left', 'right']
+const VALID_TEXT_SIZES = ['s', 'm', 'l'] as const
 
 const OPPOSITE: Record<Direction, Direction> = {
   up: 'down',
@@ -49,6 +50,22 @@ export function validateContentSchema(raw: unknown): ValidationResult {
       errors.push(`${label}: title obligatorio.`)
     }
 
+    if (p.description !== undefined && typeof p.description !== 'string') {
+      errors.push(`${label}: description debe ser string.`)
+    }
+
+    if (p.titleSize !== undefined && !VALID_TEXT_SIZES.includes(p.titleSize)) {
+      errors.push(`${label}: titleSize inválido (${String(p.titleSize)}).`)
+    }
+
+    if (p.eyebrowSize !== undefined && !VALID_TEXT_SIZES.includes(p.eyebrowSize)) {
+      errors.push(`${label}: eyebrowSize inválido (${String(p.eyebrowSize)}).`)
+    }
+
+    if (p.descriptionSize !== undefined && !VALID_TEXT_SIZES.includes(p.descriptionSize)) {
+      errors.push(`${label}: descriptionSize inválido (${String(p.descriptionSize)}).`)
+    }
+
     if (typeof p.eyebrow !== 'string') {
       errors.push(`${label}: eyebrow debe ser string.`)
     }
@@ -66,8 +83,6 @@ export function validateContentSchema(raw: unknown): ValidationResult {
     }
   })
 
-  // Direction transition rule: no consecutive opposite directions.
-  // Example requested: if panel 1 is down, panel 2 can't be up.
   for (let i = 0; i < content.panels.length - 1; i += 1) {
     const currentDir = (content.panels[i].nextPanelPosition ?? 'down') as Direction
     const nextDir = (content.panels[i + 1].nextPanelPosition ?? 'down') as Direction
@@ -81,3 +96,4 @@ export function validateContentSchema(raw: unknown): ValidationResult {
 
   return { ok: errors.length === 0, errors }
 }
+

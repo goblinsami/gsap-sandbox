@@ -69,8 +69,8 @@
 import { toRef } from 'vue'
 import FlowBlock from './FlowBlock.vue'
 import BlockSettings from './BlockSettings.vue'
-import type { Panel } from '../types/navigation'
-import { useFlowCreator } from '../composables/useFlowCreator'
+import type { Panel } from '../../types/navigation'
+import { useFlowCreator } from '../../composables/useFlowCreator'
 
 const props = defineProps<{
   panels: Panel[]

@@ -9,8 +9,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { Panel } from '../types/navigation'
-import { getDirectionArrow } from '../composables/useDirectionArrow'
+import type { Panel } from '../../types/navigation'
+import { getDirectionArrow } from '../../composables/useDirectionArrow'
 
 const props = defineProps<{
   block: Panel
