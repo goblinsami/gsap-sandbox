@@ -6,48 +6,6 @@
       "title": "Section 1: Intro Vertical",
       "panelClass": "",
       "nextPanelPosition": "down"
-    },
-    {
-      "id": "chapter-2",
-      "eyebrow": "GSAP Sandbox",
-      "title": "Section 2: Horizontal Start",
-      "panelClass": "contrast",
-      "nextPanelPosition": "right"
-    },
-    {
-      "id": "chapter-3",
-      "eyebrow": "GSAP Sandbox",
-      "title": "Section 3: Horizontal End",
-      "panelClass": "",
-      "nextPanelPosition": "right"
-    },
-    {
-      "id": "chapter-4",
-      "eyebrow": "GSAP Sandbox",
-      "title": "Section 4: Back to Vertical",
-      "panelClass": "contrast",
-      "nextPanelPosition": "down"
-    },
-    {
-      "id": "chapter-5",
-      "eyebrow": "GSAP Sandbox",
-      "title": "Section 5: Back to Vertical",
-      "panelClass": "",
-      "nextPanelPosition": "down"
-    },
-    {
-      "id": "chapter-6",
-      "eyebrow": "GSAP Sandbox",
-      "title": "Section 6: Back to Vertical",
-      "panelClass": "red",
-      "nextPanelPosition": "left"
-    },
-    {
-      "id": "outro",
-      "eyebrow": "GSAP Sandbox",
-      "title": "Section 7: Outro Vertical",
-      "panelClass": "red",
-      "nextPanelPosition": ""
     }
   ]
 }

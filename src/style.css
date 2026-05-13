@@ -71,3 +71,329 @@ body {
 .red {
   background-color: #ff4d4d;
 }
+
+.ocean {
+  background-color: #0e7490;
+  color: #ecfeff;
+}
+
+.forest {
+  background-color: #166534;
+  color: #ecfdf5;
+}
+
+.violet {
+  background-color: #6d28d9;
+  color: #f5f3ff;
+}
+
+.amber {
+  background-color: #f59e0b;
+  color: #1f2937;
+}
+
+.flow-creator {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+}
+
+button:not(.flow-handle):not(.flow-node__delete) {
+  appearance: none;
+  border: 1px solid #cfd6de;
+  background: #ffffff;
+  color: #24303c;
+  border-radius: 10px;
+  height: 32px;
+  padding: 0 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+
+button:not(.flow-handle):not(.flow-node__delete):hover {
+  background: #f6f8fa;
+  border-color: #b9c4cf;
+}
+
+button:not(.flow-handle):not(.flow-node__delete):focus-visible {
+  outline: 2px solid #9fb3c8;
+  outline-offset: 2px;
+}
+
+.flow-toggle {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: #d7d7d7;
+  border-radius: 10px;
+  padding: 0 0.8rem;
+}
+
+.flow-toggle h3 {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.flow-modal {
+  margin-top: 0.6rem;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid #d8d8d8;
+  border-radius: 12px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
+  padding: 0.8rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.flow-modal__debug {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
+}
+
+.flow-modal--resizable {
+  resize: both;
+  overflow: hidden;
+}
+
+.flow-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: grid;
+  align-items: start;
+  justify-items: start;
+  padding: 56px 0 0 20px;
+}
+
+.flow-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.7rem;
+  font-size: 0.85rem;
+}
+
+.flow-toolbar p {
+  margin: 0;
+}
+
+.flow-toolbar__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.flow-canvas {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  position: relative;
+  border: 1px dashed #cfcfcf;
+  border-radius: 10px;
+  background: #f9fafb;
+  overflow: auto;
+}
+
+.flow-stage {
+  position: relative;
+}
+
+.flow-links {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.flow-link {
+  position: absolute;
+  height: 2px;
+  background: #9fb3c8;
+  transform-origin: left center;
+  opacity: 0.9;
+}
+
+.flow-node {
+  position: absolute;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.flow-node__delete {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid #b42318;
+  background: #fff;
+  color: #b42318;
+  font-size: 12px;
+  line-height: 1;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.14s ease;
+}
+
+.flow-block {
+  position: relative;
+  min-width: 66px;
+  min-height: 66px;
+  border: 1px solid #cfd6de;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  padding: 0.45rem;
+  display: grid;
+  place-items: center;
+}
+
+.flow-block__index {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font-size: 0.75rem;
+  line-height: 1;
+  color: #3b4652;
+}
+
+.flow-block span {
+  font-size: 0.72rem;
+  word-break: break-word;
+}
+
+.flow-block small {
+  font-size: 0.68rem;
+  color: #5d6a78;
+  text-transform: uppercase;
+}
+
+.flow-block__direction {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.flow-handle {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid #7b8a97;
+  background: #fff;
+  color: #3c4954;
+  font-size: 12px;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.14s ease;
+}
+
+.flow-node:hover .flow-node__delete,
+.flow-node:hover .flow-handle {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.flow-handle--up {
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.flow-handle--down {
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.flow-handle--left {
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.flow-handle--right {
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.block-settings-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+}
+
+.block-settings {
+  width: min(420px, 92vw);
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #d7d7d7;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.block-settings h4 {
+  margin: 0;
+}
+
+.block-settings label {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+}
+
+.block-settings input {
+  width: 100%;
+  border: 1px solid #c9d0d8;
+  border-radius: 8px;
+  padding: 0.45rem 0.55rem;
+  background: #fff;
+}
+
+.block-settings select {
+  width: 100%;
+  border: 1px solid #c9d0d8;
+  border-radius: 8px;
+  padding: 0.45rem 0.55rem;
+  background: #fff;
+}
+
+.block-settings__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.danger {
+  background: #b42318;
+  color: #fff;
+  border: 1px solid #9f1f16;
+}
+
+.danger:hover {
+  background: #9f1f16;
+  border-color: #8f1b14;
+}
