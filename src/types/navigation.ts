@@ -5,6 +5,7 @@ export interface Panel {
   eyebrow: string
   title: string
   panelClass: string
+  image?: string
   nextPanelPosition?: Direction
 }
 

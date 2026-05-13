@@ -101,5 +101,6 @@ const {
   insertableDirections,
   insertAfter
 } = useFlowCreator(toRef(props, 'panels'), (panels) => emit('update:panels', panels))
-</script>
 
+void canvasRef
+</script>

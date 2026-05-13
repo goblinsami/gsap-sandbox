@@ -26,6 +26,34 @@
         </select>
       </label>
 
+      <label>
+        Panel Image
+        <div
+          class="image-dropzone"
+          :class="{ 'image-dropzone--active': isDragging }"
+          @dragenter.prevent="isDragging = true"
+          @dragover.prevent="isDragging = true"
+          @dragleave.prevent="isDragging = false"
+          @drop.prevent="onDropImage"
+        >
+          <input
+            ref="fileInputRef"
+            type="file"
+            accept="image/*"
+            class="image-dropzone__input"
+            @change="onFileChange"
+          />
+          <div class="image-dropzone__content">
+            <p>{{ draft.image ? 'Image loaded' : 'Drop image here or choose file' }}</p>
+            <div class="image-dropzone__actions">
+              <button type="button" @click="openFilePicker">Choose Image</button>
+              <button type="button" @click="setRandomImage">Random Image</button>
+              <button v-if="draft.image" type="button" @click="clearImage">Remove</button>
+            </div>
+          </div>
+        </div>
+      </label>
+
       <div class="block-settings__actions">
         <button class="danger" @click="$emit('delete')">Delete Panel</button>
         <button @click="$emit('close')">Cancel</button>
@@ -36,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, watch } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import type { Panel } from '../types/navigation'
 
 const panelClassOptions = [
@@ -67,8 +95,12 @@ const draft = reactive<Panel>({
   title: '',
   eyebrow: '',
   panelClass: '',
+  image: '',
   nextPanelPosition: 'down'
 })
+
+const fileInputRef = ref<HTMLInputElement | null>(null)
+const isDragging = ref(false)
 
 watch(
   () => props.panel,
@@ -78,10 +110,50 @@ watch(
     draft.title = panel.title
     draft.eyebrow = panel.eyebrow
     draft.panelClass = panel.panelClass
+    draft.image = panel.image ?? ''
     draft.nextPanelPosition = panel.nextPanelPosition ?? 'down'
   },
   { immediate: true }
 )
+
+const openFilePicker = () => {
+  fileInputRef.value?.click()
+}
+
+const readImageFile = (file: File) => {
+  if (!file.type.startsWith('image/')) return
+  const reader = new FileReader()
+  reader.onload = () => {
+    draft.image = typeof reader.result === 'string' ? reader.result : ''
+    save()
+  }
+  reader.readAsDataURL(file)
+}
+
+const onFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (file) readImageFile(file)
+  target.value = ''
+}
+
+const onDropImage = (event: DragEvent) => {
+  isDragging.value = false
+  const file = event.dataTransfer?.files?.[0]
+  if (file) readImageFile(file)
+}
+
+const clearImage = () => {
+  draft.image = ''
+  save()
+}
+
+const setRandomImage = () => {
+  // Public random stock-like image service, landscape and high resolution.
+  const seed = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+  draft.image = `https://picsum.photos/2400/1350?random=${seed}`
+  save()
+}
 
 const save = () => {
   emit('save', { ...draft })

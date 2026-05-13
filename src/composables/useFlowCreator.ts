@@ -221,7 +221,7 @@ export function useFlowCreator(
       nextPanels[index].nextPanelPosition = direction
       const candidate: Panel = {
         id: makeId(),
-        eyebrow: 'GSAP Sandbox',
+        eyebrow: 'Section SUBTITLE',
         title: `New Panel ${nextPanels.length + 1}`,
         panelClass: getRandomPanelClass(nextPanels[index].panelClass),
         nextPanelPosition: previousNext
@@ -258,7 +258,7 @@ export function useFlowCreator(
 
     const newPanel: Panel = {
       id: makeId(),
-      eyebrow: 'GSAP Sandbox',
+      eyebrow: 'Section SUBTITLE',
       title: `New Panel ${nextPanels.length + 1}`,
       panelClass: getRandomPanelClass(nextPanels[index].panelClass),
       nextPanelPosition: previousNext

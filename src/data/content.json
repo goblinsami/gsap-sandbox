@@ -2,7 +2,7 @@
   "panels": [
     {
       "id": "intro",
-      "eyebrow": "GSAP Sandbox",
+      "eyebrow": "Section SUBTITLE",
       "title": "Section 1: Intro Vertical",
       "panelClass": "",
       "nextPanelPosition": "down"

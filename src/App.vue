@@ -7,6 +7,7 @@
         :title="block.panel.title"
         :eyebrow="block.panel.eyebrow"
         :panel-class="block.panel.panelClass"
+        :image="block.panel.image"
         animate-key="intro"
         :direction="block.direction"
       />
@@ -23,6 +24,7 @@
             :title="panel.title"
             :eyebrow="panel.eyebrow"
             :panel-class="`${panel.panelClass} h-panel`"
+            :image="panel.image"
             :direction="panel.nextPanelPosition ?? block.direction"
           />
         </div>

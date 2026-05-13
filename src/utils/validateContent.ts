@@ -57,6 +57,10 @@ export function validateContentSchema(raw: unknown): ValidationResult {
       errors.push(`${label}: panelClass debe ser string.`)
     }
 
+    if (p.image !== undefined && typeof p.image !== 'string') {
+      errors.push(`${label}: image debe ser string.`)
+    }
+
     if (p.nextPanelPosition !== undefined && !VALID_DIRECTIONS.includes(p.nextPanelPosition)) {
       errors.push(`${label}: nextPanelPosition inválido (${String(p.nextPanelPosition)}).`)
     }
