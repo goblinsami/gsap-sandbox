@@ -1,10 +1,55 @@
-﻿{
+{
   "panels": [
     {
-      "id": "intro",
+      "id": "panel-1",
       "eyebrow": "Section SUBTITLE",
       "title": "Section 1: Intro Vertical",
-      "panelClass": "",
+      "description": "Default slide with square random image.",
+      "useMarkdown": false,
+      "titleSize": "m",
+      "eyebrowSize": "m",
+      "descriptionSize": "m",
+      "panelClass": "outro",
+      "image": "https://picsum.photos/1200/1200?random=flow-1",
+      "nextPanelPosition": "right"
+    },
+    {
+      "id": "panel-2",
+      "eyebrow": "Section SUBTITLE",
+      "title": "Section 2: Flow Continuation",
+      "description": "Second default slide with a square random image.",
+      "useMarkdown": false,
+      "titleSize": "m",
+      "eyebrowSize": "m",
+      "descriptionSize": "m",
+      "panelClass": "ocean",
+      "image": "https://picsum.photos/1200/1200?random=flow-2",
+      "nextPanelPosition": "down"
+    },
+    {
+      "id": "panel-3",
+      "eyebrow": "Section SUBTITLE",
+      "title": "Section 3: Detail",
+      "description": "Third default slide with square image ratio.",
+      "useMarkdown": false,
+      "titleSize": "m",
+      "eyebrowSize": "m",
+      "descriptionSize": "m",
+      "panelClass": "forest",
+      "image": "https://picsum.photos/1200/1200?random=flow-3",
+      "nextPanelPosition": "left"
+    },
+    {
+      "id": "panel-4",
+      "eyebrow": "Section SUBTITLE",
+      "title": "Section 4: Closing",
+      "description": "Fourth default slide with random square visual.",
+      "useMarkdown": false,
+      "titleSize": "m",
+      "eyebrowSize": "m",
+      "descriptionSize": "m",
+      "panelClass": "violet",
+      "image": "https://picsum.photos/1200/1200?random=flow-4",
       "nextPanelPosition": "down"
     }
   ]

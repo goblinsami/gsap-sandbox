@@ -218,6 +218,7 @@ export function useFlowCreator(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panel
     eyebrow: DEFAULT_EYEBROW,
     title: `${DEFAULT_TITLE_PREFIX} ${position}`,
     description: '',
+    useMarkdown: false,
     titleSize: DEFAULT_TEXT_SIZE,
     eyebrowSize: DEFAULT_TEXT_SIZE,
     descriptionSize: DEFAULT_TEXT_SIZE,
@@ -329,4 +330,3 @@ export function useFlowCreator(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panel
     insertAfter
   }
 }
-

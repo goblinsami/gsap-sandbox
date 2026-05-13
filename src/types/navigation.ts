@@ -6,6 +6,7 @@ export interface Panel {
   eyebrow: string
   title: string
   description?: string
+  useMarkdown?: boolean
   titleSize?: TextSize
   eyebrowSize?: TextSize
   descriptionSize?: TextSize
@@ -31,4 +32,3 @@ export type RenderBlock = PanelBlock | HorizontalBlock
 export interface ContentSchema {
   panels: Panel[]
 }
-

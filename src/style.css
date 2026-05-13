@@ -443,6 +443,12 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
   font-size: 0.85rem;
 }
 
+.block-settings__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
 .block-settings input {
   width: 100%;
   border: 1px solid #c9d0d8;
@@ -488,6 +494,25 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
   color: #fff;
   border-color: #24303c;
   opacity: 1;
+}
+
+.md-editor {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.md-editor__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.md-editor__toolbar button {
+  min-width: 24px;
+  height: 22px;
+  padding: 0 0.35rem;
+  font-size: 0.68rem;
+  border-radius: 6px;
 }
 
 .block-settings select {

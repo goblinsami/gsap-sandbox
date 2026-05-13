@@ -6,7 +6,8 @@
       <label>
         Name
         <div class="text-input-row">
-          <input v-model="draft.title" type="text" />
+          <input v-if="!draft.useMarkdown" v-model="draft.title" type="text" />
+          <MarkdownEditor v-else v-model="draft.title" :rows="3" />
           <TextSizePicker
             :model-value="draft.titleSize ?? 'm'"
             @update:model-value="(value) => { draft.titleSize = value; save() }"
@@ -17,7 +18,8 @@
       <label>
         Eyebrow
         <div class="text-input-row">
-          <input v-model="draft.eyebrow" type="text" />
+          <input v-if="!draft.useMarkdown" v-model="draft.eyebrow" type="text" />
+          <MarkdownEditor v-else v-model="draft.eyebrow" :rows="2" />
           <TextSizePicker
             :model-value="draft.eyebrowSize ?? 'm'"
             @update:model-value="(value) => { draft.eyebrowSize = value; save() }"
@@ -28,12 +30,23 @@
       <label>
         Description
         <div class="text-input-row">
-          <textarea v-model="draft.description" rows="3" />
+          <textarea v-if="!draft.useMarkdown" v-model="draft.description" rows="3" />
+          <MarkdownEditor
+            v-else
+            :model-value="draft.description ?? ''"
+            :rows="6"
+            @update:model-value="(value) => { draft.description = value; save() }"
+          />
           <TextSizePicker
             :model-value="draft.descriptionSize ?? 'm'"
             @update:model-value="(value) => { draft.descriptionSize = value; save() }"
           />
         </div>
+      </label>
+
+      <label class="block-settings__toggle">
+        <input v-model="draft.useMarkdown" type="checkbox" @change="save" />
+        Enable Markdown Editor for text fields
       </label>
 
       <label>
@@ -90,6 +103,7 @@
 import { reactive, ref, watch } from 'vue'
 import type { Panel } from '../../types/navigation'
 import TextSizePicker from '../atoms/TextSizePicker.vue'
+import MarkdownEditor from '../atoms/MarkdownEditor.vue'
 
 const panelClassOptions = [
   { value: '', label: 'Default' },
@@ -126,6 +140,7 @@ const draft = reactive<Panel>({
   title: '',
   eyebrow: '',
   description: '',
+  useMarkdown: false,
   titleSize: DEFAULT_TEXT_SIZE,
   eyebrowSize: DEFAULT_TEXT_SIZE,
   descriptionSize: DEFAULT_TEXT_SIZE,
@@ -145,6 +160,7 @@ watch(
     draft.title = panel.title
     draft.eyebrow = panel.eyebrow
     draft.description = panel.description ?? ''
+    draft.useMarkdown = panel.useMarkdown ?? false
     draft.titleSize = panel.titleSize ?? DEFAULT_TEXT_SIZE
     draft.eyebrowSize = panel.eyebrowSize ?? DEFAULT_TEXT_SIZE
     draft.descriptionSize = panel.descriptionSize ?? DEFAULT_TEXT_SIZE
@@ -205,6 +221,7 @@ const resetDraft = () => {
   draft.title = panel.title
   draft.eyebrow = panel.eyebrow
   draft.description = panel.description ?? ''
+  draft.useMarkdown = panel.useMarkdown ?? false
   draft.titleSize = panel.titleSize ?? DEFAULT_TEXT_SIZE
   draft.eyebrowSize = panel.eyebrowSize ?? DEFAULT_TEXT_SIZE
   draft.descriptionSize = panel.descriptionSize ?? DEFAULT_TEXT_SIZE

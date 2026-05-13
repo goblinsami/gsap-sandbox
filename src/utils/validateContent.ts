@@ -54,6 +54,10 @@ export function validateContentSchema(raw: unknown): ValidationResult {
       errors.push(`${label}: description debe ser string.`)
     }
 
+    if (p.useMarkdown !== undefined && typeof p.useMarkdown !== 'boolean') {
+      errors.push(`${label}: useMarkdown debe ser boolean.`)
+    }
+
     if (p.titleSize !== undefined && !VALID_TEXT_SIZES.includes(p.titleSize)) {
       errors.push(`${label}: titleSize inválido (${String(p.titleSize)}).`)
     }
@@ -96,4 +100,3 @@ export function validateContentSchema(raw: unknown): ValidationResult {
 
   return { ok: errors.length === 0, errors }
 }
-
