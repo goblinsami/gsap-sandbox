@@ -1,7 +1,36 @@
-import { Direction, type ContentSchema, type Panel } from '../types/navigation'
+import {
+  ContentAlignValues,
+  ContentWidthModeValues,
+  Direction,
+  TextSizeValues,
+  type ContentSchema,
+  type Panel
+} from '../types/navigation'
+import {
+  MAX_CONTENT_MAX_WIDTH,
+  MAX_DESCRIPTION_LINE_HEIGHT,
+  MAX_DESCRIPTION_MAX_WIDTH,
+  MAX_EYEBROW_LETTER_SPACING,
+  MAX_EYEBROW_TITLE_GAP,
+  MAX_OVERLAY_INTENSITY,
+  MAX_TITLE_DESCRIPTION_GAP,
+  MAX_TITLE_LINE_HEIGHT,
+  MAX_TITLE_MAX_WIDTH,
+  MIN_CONTENT_MAX_WIDTH,
+  MIN_DESCRIPTION_LINE_HEIGHT,
+  MIN_DESCRIPTION_MAX_WIDTH,
+  MIN_EYEBROW_LETTER_SPACING,
+  MIN_EYEBROW_TITLE_GAP,
+  MIN_OVERLAY_INTENSITY,
+  MIN_TITLE_DESCRIPTION_GAP,
+  MIN_TITLE_LINE_HEIGHT,
+  MIN_TITLE_MAX_WIDTH
+} from '../constants/slideStyle'
 
 const VALID_DIRECTIONS: Direction[] = [Direction.Up, Direction.Down, Direction.Left, Direction.Right]
-const VALID_TEXT_SIZES = ['s', 'm', 'l'] as const
+const VALID_TEXT_SIZES = [...TextSizeValues]
+const VALID_CONTENT_ALIGNS = [...ContentAlignValues]
+const VALID_CONTENT_WIDTH_MODES = [...ContentWidthModeValues]
 
 const OPPOSITE: Record<Direction, Direction> = {
   [Direction.Up]: Direction.Down,
@@ -19,7 +48,7 @@ export function validateContentSchema(raw: unknown): ValidationResult {
   const errors: string[] = []
 
   if (!raw || typeof raw !== 'object') {
-    return { ok: false, errors: ['content.json debe ser un objeto válido.'] }
+    return { ok: false, errors: ['content.json debe ser un objeto valido.'] }
   }
 
   const content = raw as Partial<ContentSchema>
@@ -44,7 +73,7 @@ export function validateContentSchema(raw: unknown): ValidationResult {
     const p = panel as Partial<Panel>
 
     if (!p || typeof p !== 'object') {
-      errors.push(`${label}: valor inválido.`)
+      errors.push(`${label}: valor invalido.`)
       return
     }
 
@@ -69,15 +98,107 @@ export function validateContentSchema(raw: unknown): ValidationResult {
     }
 
     if (p.titleSize !== undefined && !VALID_TEXT_SIZES.includes(p.titleSize)) {
-      errors.push(`${label}: titleSize inválido (${String(p.titleSize)}).`)
+      errors.push(`${label}: titleSize invalido (${String(p.titleSize)}).`)
     }
 
     if (p.eyebrowSize !== undefined && !VALID_TEXT_SIZES.includes(p.eyebrowSize)) {
-      errors.push(`${label}: eyebrowSize inválido (${String(p.eyebrowSize)}).`)
+      errors.push(`${label}: eyebrowSize invalido (${String(p.eyebrowSize)}).`)
     }
 
     if (p.descriptionSize !== undefined && !VALID_TEXT_SIZES.includes(p.descriptionSize)) {
-      errors.push(`${label}: descriptionSize inválido (${String(p.descriptionSize)}).`)
+      errors.push(`${label}: descriptionSize invalido (${String(p.descriptionSize)}).`)
+    }
+
+    if (p.contentAlign !== undefined && !VALID_CONTENT_ALIGNS.includes(p.contentAlign)) {
+      errors.push(`${label}: contentAlign invalido (${String(p.contentAlign)}).`)
+    }
+
+    if (p.contentWidthMode !== undefined && !VALID_CONTENT_WIDTH_MODES.includes(p.contentWidthMode)) {
+      errors.push(`${label}: contentWidthMode invalido (${String(p.contentWidthMode)}).`)
+    }
+
+    if (p.eyebrowTitleGap !== undefined) {
+      if (typeof p.eyebrowTitleGap !== 'number' || Number.isNaN(p.eyebrowTitleGap)) {
+        errors.push(`${label}: eyebrowTitleGap debe ser number.`)
+      } else if (p.eyebrowTitleGap < MIN_EYEBROW_TITLE_GAP || p.eyebrowTitleGap > MAX_EYEBROW_TITLE_GAP) {
+        errors.push(`${label}: eyebrowTitleGap fuera de rango (${MIN_EYEBROW_TITLE_GAP}-${MAX_EYEBROW_TITLE_GAP}).`)
+      }
+    }
+
+    if (p.titleDescriptionGap !== undefined) {
+      if (typeof p.titleDescriptionGap !== 'number' || Number.isNaN(p.titleDescriptionGap)) {
+        errors.push(`${label}: titleDescriptionGap debe ser number.`)
+      } else if (
+        p.titleDescriptionGap < MIN_TITLE_DESCRIPTION_GAP ||
+        p.titleDescriptionGap > MAX_TITLE_DESCRIPTION_GAP
+      ) {
+        errors.push(
+          `${label}: titleDescriptionGap fuera de rango (${MIN_TITLE_DESCRIPTION_GAP}-${MAX_TITLE_DESCRIPTION_GAP}).`
+        )
+      }
+    }
+
+    if (p.titleLineHeight !== undefined) {
+      if (typeof p.titleLineHeight !== 'number' || Number.isNaN(p.titleLineHeight)) {
+        errors.push(`${label}: titleLineHeight debe ser number.`)
+      } else if (p.titleLineHeight < MIN_TITLE_LINE_HEIGHT || p.titleLineHeight > MAX_TITLE_LINE_HEIGHT) {
+        errors.push(`${label}: titleLineHeight fuera de rango (${MIN_TITLE_LINE_HEIGHT}-${MAX_TITLE_LINE_HEIGHT}).`)
+      }
+    }
+
+    if (p.descriptionLineHeight !== undefined) {
+      if (typeof p.descriptionLineHeight !== 'number' || Number.isNaN(p.descriptionLineHeight)) {
+        errors.push(`${label}: descriptionLineHeight debe ser number.`)
+      } else if (
+        p.descriptionLineHeight < MIN_DESCRIPTION_LINE_HEIGHT ||
+        p.descriptionLineHeight > MAX_DESCRIPTION_LINE_HEIGHT
+      ) {
+        errors.push(
+          `${label}: descriptionLineHeight fuera de rango (${MIN_DESCRIPTION_LINE_HEIGHT}-${MAX_DESCRIPTION_LINE_HEIGHT}).`
+        )
+      }
+    }
+
+    if (p.eyebrowLetterSpacing !== undefined) {
+      if (typeof p.eyebrowLetterSpacing !== 'number' || Number.isNaN(p.eyebrowLetterSpacing)) {
+        errors.push(`${label}: eyebrowLetterSpacing debe ser number.`)
+      } else if (
+        p.eyebrowLetterSpacing < MIN_EYEBROW_LETTER_SPACING ||
+        p.eyebrowLetterSpacing > MAX_EYEBROW_LETTER_SPACING
+      ) {
+        errors.push(
+          `${label}: eyebrowLetterSpacing fuera de rango (${MIN_EYEBROW_LETTER_SPACING}-${MAX_EYEBROW_LETTER_SPACING}).`
+        )
+      }
+    }
+
+    if (p.contentMaxWidth !== undefined) {
+      if (typeof p.contentMaxWidth !== 'number' || Number.isNaN(p.contentMaxWidth)) {
+        errors.push(`${label}: contentMaxWidth debe ser number.`)
+      } else if (p.contentMaxWidth < MIN_CONTENT_MAX_WIDTH || p.contentMaxWidth > MAX_CONTENT_MAX_WIDTH) {
+        errors.push(`${label}: contentMaxWidth fuera de rango (${MIN_CONTENT_MAX_WIDTH}-${MAX_CONTENT_MAX_WIDTH}).`)
+      }
+    }
+
+    if (p.titleMaxWidth !== undefined) {
+      if (typeof p.titleMaxWidth !== 'number' || Number.isNaN(p.titleMaxWidth)) {
+        errors.push(`${label}: titleMaxWidth debe ser number.`)
+      } else if (p.titleMaxWidth < MIN_TITLE_MAX_WIDTH || p.titleMaxWidth > MAX_TITLE_MAX_WIDTH) {
+        errors.push(`${label}: titleMaxWidth fuera de rango (${MIN_TITLE_MAX_WIDTH}-${MAX_TITLE_MAX_WIDTH}).`)
+      }
+    }
+
+    if (p.descriptionMaxWidth !== undefined) {
+      if (typeof p.descriptionMaxWidth !== 'number' || Number.isNaN(p.descriptionMaxWidth)) {
+        errors.push(`${label}: descriptionMaxWidth debe ser number.`)
+      } else if (
+        p.descriptionMaxWidth < MIN_DESCRIPTION_MAX_WIDTH ||
+        p.descriptionMaxWidth > MAX_DESCRIPTION_MAX_WIDTH
+      ) {
+        errors.push(
+          `${label}: descriptionMaxWidth fuera de rango (${MIN_DESCRIPTION_MAX_WIDTH}-${MAX_DESCRIPTION_MAX_WIDTH}).`
+        )
+      }
     }
 
     if (typeof p.eyebrow !== 'string') {
@@ -92,8 +213,22 @@ export function validateContentSchema(raw: unknown): ValidationResult {
       errors.push(`${label}: image debe ser string.`)
     }
 
+    if (p.overlayEnabled !== undefined && typeof p.overlayEnabled !== 'boolean') {
+      errors.push(`${label}: overlayEnabled debe ser boolean.`)
+    }
+
+    if (p.overlayIntensity !== undefined) {
+      if (typeof p.overlayIntensity !== 'number' || Number.isNaN(p.overlayIntensity)) {
+        errors.push(`${label}: overlayIntensity debe ser number.`)
+      } else if (p.overlayIntensity < MIN_OVERLAY_INTENSITY || p.overlayIntensity > MAX_OVERLAY_INTENSITY) {
+        errors.push(
+          `${label}: overlayIntensity fuera de rango (${MIN_OVERLAY_INTENSITY}-${MAX_OVERLAY_INTENSITY}).`
+        )
+      }
+    }
+
     if (p.nextPanelPosition !== undefined && !VALID_DIRECTIONS.includes(p.nextPanelPosition)) {
-      errors.push(`${label}: nextPanelPosition inválido (${String(p.nextPanelPosition)}).`)
+      errors.push(`${label}: nextPanelPosition invalido (${String(p.nextPanelPosition)}).`)
     }
   })
 
@@ -103,7 +238,7 @@ export function validateContentSchema(raw: unknown): ValidationResult {
 
     if (nextDir === OPPOSITE[currentDir]) {
       errors.push(
-        `Regla de flujo: panel ${i + 2} no puede ser '${nextDir}' justo después de '${currentDir}' (panel ${i + 1}).`
+        `Regla de flujo: panel ${i + 2} no puede ser '${nextDir}' justo despues de '${currentDir}' (panel ${i + 1}).`
       )
     }
   }

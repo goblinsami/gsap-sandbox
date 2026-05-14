@@ -1,0 +1,61 @@
+{
+  "autoSnapEnabled": true,
+  "loopEnabled": true,
+  "panels": [
+    {
+      "id": "panel-1",
+      "eyebrow": "WELCOME TO STORYFLOW",
+      "title": "Create interactive storytelling experiences",
+      "description": "Build cinematic scroll stories, visual narratives and immersive content blocks that can be embedded directly into Framer websites and modern landing pages.",
+      "useMarkdown": false,
+      "titleSize": "m",
+      "eyebrowSize": "m",
+      "descriptionSize": "m",
+      "panelClass": "outro",
+      "image": "/images/slides/storyflow_slide_1.webp",
+      "nextPanelPosition": "right",
+      "contentWidthMode": "full"
+    },
+    {
+      "id": "panel-2",
+      "eyebrow": "STEP 01",
+      "title": "Design your story visually",
+      "description": "Add slides, images and markdown content. Choose between narrative layouts like circular flows, vertical storytelling or interactive story maps.",
+      "useMarkdown": false,
+      "titleSize": "m",
+      "eyebrowSize": "m",
+      "descriptionSize": "m",
+      "panelClass": "ocean",
+      "image": "/images/slides/storyflow_slide_2.webp",
+      "nextPanelPosition": "down"
+    },
+    {
+      "id": "panel-3",
+      "eyebrow": "STEP 02",
+      "title": "Publish instantly",
+      "description": "When your story is ready, StoryFlow generates a live embed URL connected to your content. No exports or builds required.",
+      "useMarkdown": false,
+      "titleSize": "m",
+      "eyebrowSize": "m",
+      "descriptionSize": "m",
+      "panelClass": "forest",
+      "image": "/images/slides/storyflow_slide_3.webp",
+      "nextPanelPosition": "left"
+    },
+    {
+      "id": "panel-4",
+      "eyebrow": "STEP 03",
+      "title": "Paste into Framer and go live",
+      "description": "Copy the embed code into any Framer Embed block and your interactive story becomes part of your website automatically, fully responsive and always editable.",
+      "useMarkdown": false,
+      "titleSize": "m",
+      "eyebrowSize": "m",
+      "descriptionSize": "m",
+      "panelClass": "violet",
+      "image": "/images/slides/storyflow_slide_4.webp",
+      "nextPanelPosition": "down",
+          "contentWidthMode": "full"
+
+    }
+  ]
+}

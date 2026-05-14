@@ -1,5 +1,41 @@
 import { reactive, ref, watch, type Ref } from 'vue'
-import { Direction, type Panel } from '../types/navigation'
+import { ContentAlign, Direction, type Panel } from '../types/navigation'
+import {
+  DEFAULT_CONTENT_ALIGN,
+  DEFAULT_CONTENT_MAX_WIDTH,
+  DEFAULT_CONTENT_WIDTH_MODE,
+  DEFAULT_DESCRIPTION_LINE_HEIGHT,
+  DEFAULT_DESCRIPTION_MAX_WIDTH,
+  DEFAULT_EYEBROW_LETTER_SPACING,
+  DEFAULT_EYEBROW_TITLE_GAP,
+  DEFAULT_OVERLAY_ENABLED_WITHOUT_IMAGE,
+  DEFAULT_OVERLAY_ENABLED_WITH_IMAGE,
+  DEFAULT_OVERLAY_INTENSITY,
+  DEFAULT_TEXT_SIZE,
+  DEFAULT_TITLE_DESCRIPTION_GAP,
+  DEFAULT_TITLE_LINE_HEIGHT,
+  DEFAULT_TITLE_MAX_WIDTH,
+  MAX_CONTENT_MAX_WIDTH,
+  MAX_DESCRIPTION_LINE_HEIGHT,
+  MAX_DESCRIPTION_MAX_WIDTH,
+  MAX_EYEBROW_LETTER_SPACING,
+  MAX_EYEBROW_TITLE_GAP,
+  MAX_OVERLAY_INTENSITY,
+  MAX_TITLE_LINE_HEIGHT,
+  MAX_TITLE_MAX_WIDTH,
+  MIN_CONTENT_MAX_WIDTH,
+  MIN_DESCRIPTION_LINE_HEIGHT,
+  MIN_DESCRIPTION_MAX_WIDTH,
+  MIN_EYEBROW_LETTER_SPACING,
+  MIN_EYEBROW_TITLE_GAP,
+  MIN_OVERLAY_INTENSITY,
+  MIN_TITLE_LINE_HEIGHT,
+  MIN_TITLE_MAX_WIDTH,
+  TEXT_STYLE_RANGES,
+  clampNumber,
+  deriveDescriptionMaxWidthFromContent,
+  deriveTitleMaxWidthFromContent
+} from '../constants/slideStyle'
 
 export const panelClassOptions = [
   { value: '', label: 'Default' },
@@ -13,12 +49,24 @@ export const panelClassOptions = [
   { value: 'amber', label: 'Amber' }
 ]
 
-const DEFAULT_TEXT_SIZE = 'm' as const
+export const contentAlignOptions: Array<{ value: ContentAlign; label: string }> = [
+  { value: ContentAlign.Left, label: 'Left' },
+  { value: ContentAlign.Center, label: 'Center' },
+  { value: ContentAlign.Right, label: 'Right' }
+]
+
 const RANDOM_IMAGE_WIDTH = 2400
 const RANDOM_IMAGE_HEIGHT = 1350
 const RANDOM_IMAGE_BASE_URL = 'https://picsum.photos'
 export const DROP_IMAGE_LOADED_TEXT = 'Image loaded'
 export const DROP_IMAGE_EMPTY_TEXT = 'Drop image here or choose file'
+export const textStyleRanges = TEXT_STYLE_RANGES
+
+const clampOverlayIntensity = (value: number) => {
+  if (Number.isNaN(value)) return DEFAULT_OVERLAY_INTENSITY
+  return Math.max(MIN_OVERLAY_INTENSITY, Math.min(MAX_OVERLAY_INTENSITY, value))
+}
+
 
 const copyPanelToDraft = (panel: Panel, draft: Panel) => {
   draft.id = panel.id
@@ -29,8 +77,59 @@ const copyPanelToDraft = (panel: Panel, draft: Panel) => {
   draft.titleSize = panel.titleSize ?? DEFAULT_TEXT_SIZE
   draft.eyebrowSize = panel.eyebrowSize ?? DEFAULT_TEXT_SIZE
   draft.descriptionSize = panel.descriptionSize ?? DEFAULT_TEXT_SIZE
+  draft.contentAlign = panel.contentAlign ?? DEFAULT_CONTENT_ALIGN
+  draft.contentWidthMode = panel.contentWidthMode ?? DEFAULT_CONTENT_WIDTH_MODE
+  const unifiedTextGap = clampNumber(
+    panel.eyebrowTitleGap ?? panel.titleDescriptionGap,
+    MIN_EYEBROW_TITLE_GAP,
+    MAX_EYEBROW_TITLE_GAP,
+    DEFAULT_EYEBROW_TITLE_GAP
+  )
+  draft.eyebrowTitleGap = unifiedTextGap
+  draft.titleDescriptionGap = unifiedTextGap
+  draft.titleLineHeight = clampNumber(
+    panel.titleLineHeight,
+    MIN_TITLE_LINE_HEIGHT,
+    MAX_TITLE_LINE_HEIGHT,
+    DEFAULT_TITLE_LINE_HEIGHT
+  )
+  draft.descriptionLineHeight = clampNumber(
+    panel.descriptionLineHeight,
+    MIN_DESCRIPTION_LINE_HEIGHT,
+    MAX_DESCRIPTION_LINE_HEIGHT,
+    DEFAULT_DESCRIPTION_LINE_HEIGHT
+  )
+  draft.eyebrowLetterSpacing = clampNumber(
+    panel.eyebrowLetterSpacing,
+    MIN_EYEBROW_LETTER_SPACING,
+    MAX_EYEBROW_LETTER_SPACING,
+    DEFAULT_EYEBROW_LETTER_SPACING
+  )
+  const contentMaxWidth = clampNumber(
+    panel.contentMaxWidth,
+    MIN_CONTENT_MAX_WIDTH,
+    MAX_CONTENT_MAX_WIDTH,
+    DEFAULT_CONTENT_MAX_WIDTH
+  )
+  draft.contentMaxWidth = contentMaxWidth
+  draft.titleMaxWidth = clampNumber(
+    panel.titleMaxWidth,
+    MIN_TITLE_MAX_WIDTH,
+    MAX_TITLE_MAX_WIDTH,
+    deriveTitleMaxWidthFromContent(contentMaxWidth)
+  )
+  draft.descriptionMaxWidth = clampNumber(
+    panel.descriptionMaxWidth,
+    MIN_DESCRIPTION_MAX_WIDTH,
+    MAX_DESCRIPTION_MAX_WIDTH,
+    deriveDescriptionMaxWidthFromContent(contentMaxWidth)
+  )
   draft.panelClass = panel.panelClass
   draft.image = panel.image ?? ''
+  draft.overlayEnabled =
+    panel.overlayEnabled ??
+    (panel.image ? DEFAULT_OVERLAY_ENABLED_WITH_IMAGE : DEFAULT_OVERLAY_ENABLED_WITHOUT_IMAGE)
+  draft.overlayIntensity = clampOverlayIntensity(panel.overlayIntensity ?? DEFAULT_OVERLAY_INTENSITY)
   draft.nextPanelPosition = panel.nextPanelPosition ?? Direction.Down
 }
 
@@ -49,8 +148,20 @@ export function useSlidePropertiesForm(options: UseSlidePropertiesFormOptions) {
     titleSize: DEFAULT_TEXT_SIZE,
     eyebrowSize: DEFAULT_TEXT_SIZE,
     descriptionSize: DEFAULT_TEXT_SIZE,
+    contentAlign: DEFAULT_CONTENT_ALIGN,
+    contentWidthMode: DEFAULT_CONTENT_WIDTH_MODE,
+    eyebrowTitleGap: DEFAULT_EYEBROW_TITLE_GAP,
+    titleDescriptionGap: DEFAULT_TITLE_DESCRIPTION_GAP,
+    titleLineHeight: DEFAULT_TITLE_LINE_HEIGHT,
+    descriptionLineHeight: DEFAULT_DESCRIPTION_LINE_HEIGHT,
+    eyebrowLetterSpacing: DEFAULT_EYEBROW_LETTER_SPACING,
+    contentMaxWidth: DEFAULT_CONTENT_MAX_WIDTH,
+    titleMaxWidth: DEFAULT_TITLE_MAX_WIDTH,
+    descriptionMaxWidth: DEFAULT_DESCRIPTION_MAX_WIDTH,
     panelClass: '',
     image: '',
+    overlayEnabled: DEFAULT_OVERLAY_ENABLED_WITHOUT_IMAGE,
+    overlayIntensity: DEFAULT_OVERLAY_INTENSITY,
     nextPanelPosition: Direction.Down
   })
 
@@ -77,8 +188,12 @@ export function useSlidePropertiesForm(options: UseSlidePropertiesFormOptions) {
   const readImageFile = (file: File) => {
     if (!file.type.startsWith('image/')) return
     const reader = new FileReader()
+    const hadImage = Boolean(draft.image)
     reader.onload = () => {
       draft.image = typeof reader.result === 'string' ? reader.result : ''
+      if (!hadImage && draft.image) {
+        draft.overlayEnabled = DEFAULT_OVERLAY_ENABLED_WITH_IMAGE
+      }
       save()
     }
     reader.readAsDataURL(file)
@@ -99,12 +214,17 @@ export function useSlidePropertiesForm(options: UseSlidePropertiesFormOptions) {
 
   const clearImage = () => {
     draft.image = ''
+    draft.overlayEnabled = DEFAULT_OVERLAY_ENABLED_WITHOUT_IMAGE
     save()
   }
 
   const setRandomImage = () => {
+    const hadImage = Boolean(draft.image)
     const seed = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
     draft.image = `${RANDOM_IMAGE_BASE_URL}/${RANDOM_IMAGE_WIDTH}/${RANDOM_IMAGE_HEIGHT}?random=${seed}`
+    if (!hadImage) {
+      draft.overlayEnabled = DEFAULT_OVERLAY_ENABLED_WITH_IMAGE
+    }
     save()
   }
 

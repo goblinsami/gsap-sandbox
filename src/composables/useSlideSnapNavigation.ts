@@ -14,7 +14,7 @@ const INPUT_COOLDOWN_MS = 220
 interface UseSlideSnapNavigationOptions {
   flowSteps: Ref<SlidePathStep[]>
   autoSnapEnabled: boolean
-  loopEnabled: boolean
+  loopEnabled: Ref<boolean>
   snapEase: Ref<SnapEaseOption>
   enabled: boolean
   logPrefix?: string
@@ -29,6 +29,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
 
   let disposeInteractionHandlers: (() => void) | null = null
   let disposeResizeHandler: (() => void) | null = null
+  let manualScrollTrigger: ScrollTrigger | null = null
   let touchStartY: number | null = null
   let touchCommitted = false
   let lastInputAt = 0
@@ -37,7 +38,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
   const clampIndex = (value: number, total: number) => Math.max(0, Math.min(total - 1, value))
   const normalizeIndex = (value: number, total: number) => {
     if (total <= 0) return 0
-    if (!options.loopEnabled) return clampIndex(value, total)
+    if (!options.loopEnabled.value) return clampIndex(value, total)
     return ((value % total) + total) % total
   }
 
@@ -144,6 +145,35 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     })
   }
 
+  const focusStep = (index: number) => {
+    const steps = options.flowSteps.value
+    if (!steps.length) return
+
+    const normalizedIndex = normalizeIndex(index, steps.length)
+    if (options.autoSnapEnabled) {
+      goToStep(normalizedIndex, 'external')
+      return
+    }
+
+    if (!manualScrollTrigger) return
+
+    const label = `step-${normalizedIndex + 1}`
+    const targetScroll = manualScrollTrigger.labelToScroll(label)
+    if (typeof targetScroll !== 'number' || Number.isNaN(targetScroll)) return
+
+    window.scrollTo({
+      top: targetScroll,
+      behavior: 'smooth'
+    })
+    activeStepIndex.value = normalizedIndex
+
+    console.log(`${logPrefix} focusStep`, {
+      index: normalizedIndex,
+      label,
+      targetScroll
+    })
+  }
+
   const shouldAcceptInput = () => {
     const now = Date.now()
     if (now - lastInputAt < INPUT_COOLDOWN_MS) {
@@ -242,6 +272,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
       disposeInteractionHandlers = null
     }
     ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
+    manualScrollTrigger = null
     if (resizeDebounce !== null) {
       window.clearTimeout(resizeDebounce)
       resizeDebounce = null
@@ -260,7 +291,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
 
     console.log(`${logPrefix} init`, {
       autoSnapEnabled: options.autoSnapEnabled,
-      loopEnabled: options.loopEnabled,
+      loopEnabled: options.loopEnabled.value,
       snapEase: options.snapEase.value,
       totalSteps: options.flowSteps.value.length,
       steps: options.flowSteps.value.map((step) => ({
@@ -304,7 +335,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     }
 
     const segments = Math.max(1, options.flowSteps.value.length - 1)
-    ScrollTrigger.create({
+    manualScrollTrigger = ScrollTrigger.create({
       animation: timeline,
       trigger: shell,
       start: 'top top',
@@ -362,9 +393,19 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     }
   )
 
+  watch(
+    () => options.loopEnabled.value,
+    async (nextLoopEnabled, prevLoopEnabled) => {
+      if (!options.enabled || nextLoopEnabled === prevLoopEnabled) return
+      console.log(`${logPrefix} loop:update`, { loopEnabled: nextLoopEnabled })
+      await initNavigation()
+    }
+  )
+
   return {
     snapShellRef,
     snapStageRef,
-    stepStyle
+    stepStyle,
+    focusStep
   }
 }

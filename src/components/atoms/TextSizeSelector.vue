@@ -14,15 +14,15 @@
 </template>
 
 <script setup lang="ts">
-import type { TextSize } from '../../types/navigation'
+import { TextSizeValues, type TextSize as PanelTextSize } from '../../types/navigation'
 
 defineProps<{
-  modelValue: TextSize
+  modelValue: PanelTextSize
 }>()
 
 defineEmits<{
-  'update:modelValue': [value: TextSize]
+  'update:modelValue': [value: PanelTextSize]
 }>()
 
-const sizes: TextSize[] = ['s', 'm', 'l']
+const sizes: readonly PanelTextSize[] = [...TextSizeValues]
 </script>

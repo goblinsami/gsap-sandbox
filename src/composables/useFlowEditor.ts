@@ -2,6 +2,23 @@ import { computed, nextTick, ref, watch, type Ref } from 'vue'
 import gsap from 'gsap'
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin'
 import { Direction, type Panel } from '../types/navigation'
+import {
+  DEFAULT_CONTENT_ALIGN,
+  DEFAULT_CONTENT_MAX_WIDTH,
+  DEFAULT_CONTENT_WIDTH_MODE,
+  DEFAULT_DESCRIPTION_LINE_HEIGHT,
+  DEFAULT_DESCRIPTION_MAX_WIDTH,
+  DEFAULT_EYEBROW_LETTER_SPACING,
+  DEFAULT_EYEBROW_TITLE_GAP,
+  DEFAULT_OVERLAY_ENABLED_WITHOUT_IMAGE,
+  DEFAULT_OVERLAY_INTENSITY,
+  DEFAULT_TEXT_SIZE,
+  DEFAULT_TITLE_DESCRIPTION_GAP,
+  DEFAULT_TITLE_LINE_HEIGHT,
+  DEFAULT_TITLE_MAX_WIDTH,
+  deriveDescriptionMaxWidthFromContent,
+  deriveTitleMaxWidthFromContent
+} from '../constants/slideStyle'
 import { validateContentSchema } from '../utils/validateContent'
 
 gsap.registerPlugin(ScrollToPlugin)
@@ -12,16 +29,11 @@ const BLOCK_HEIGHT = 88
 const CANVAS_PADDING = 24
 const CANVAS_MAX_WIDTH = '100%'
 const CANVAS_MAX_HEIGHT = '100%'
-const MODAL_MAX_WIDTH = '80vw'
-const MODAL_MAX_HEIGHT = '80vh'
-const MODAL_MIN_WIDTH = '360px'
-const MODAL_MIN_HEIGHT = '260px'
 const PANEL_CLASS_POOL = ['contrast', 'outro', 'red', 'danger', 'ocean', 'forest', 'violet', 'amber'] as const
 
 const DEFAULT_DIRECTION: Direction = Direction.Down
 const DEFAULT_EYEBROW = 'Section SUBTITLE'
 const DEFAULT_TITLE_PREFIX = 'New Panel'
-const DEFAULT_TEXT_SIZE = 'm' as const
 const SCROLL_DELAY_MS = 80
 const MIN_PANELS_ALLOWED = 1
 const DELETE_LAST_PANEL_ERROR = 'No puedes eliminar el único panel del flujo.'
@@ -32,6 +44,7 @@ const NEW_PANEL_TITLE_REGEX = /^New Panel \d+$/i
 const SECTION_TITLE_REGEX = /^Section \d+(?::\s*)?/i
 const SECTION_TITLE_REPLACEMENT = (n: number) => `Section ${n}: `
 const EXPORT_FILE_NAME = 'flow-export.json'
+
 const INVALID_IMPORT_TITLE = 'JSON de importación inválido:'
 
 export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels: Panel[]) => void) {
@@ -45,7 +58,22 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
   watch(
     () => panelsRef.value,
     (value) => {
-      localPanels.value = value.map((p) => ({ ...p, nextPanelPosition: p.nextPanelPosition ?? DEFAULT_DIRECTION }))
+      localPanels.value = value.map((p) => {
+        const contentMaxWidth = p.contentMaxWidth ?? DEFAULT_CONTENT_MAX_WIDTH
+        return {
+          ...p,
+          nextPanelPosition: p.nextPanelPosition ?? DEFAULT_DIRECTION,
+          contentWidthMode: p.contentWidthMode ?? DEFAULT_CONTENT_WIDTH_MODE,
+          eyebrowTitleGap: p.eyebrowTitleGap ?? DEFAULT_EYEBROW_TITLE_GAP,
+          titleDescriptionGap: p.titleDescriptionGap ?? DEFAULT_TITLE_DESCRIPTION_GAP,
+          titleLineHeight: p.titleLineHeight ?? DEFAULT_TITLE_LINE_HEIGHT,
+          descriptionLineHeight: p.descriptionLineHeight ?? DEFAULT_DESCRIPTION_LINE_HEIGHT,
+          eyebrowLetterSpacing: p.eyebrowLetterSpacing ?? DEFAULT_EYEBROW_LETTER_SPACING,
+          contentMaxWidth,
+          titleMaxWidth: p.titleMaxWidth ?? deriveTitleMaxWidthFromContent(contentMaxWidth),
+          descriptionMaxWidth: p.descriptionMaxWidth ?? deriveDescriptionMaxWidthFromContent(contentMaxWidth)
+        }
+      })
     },
     { immediate: true, deep: true }
   )
@@ -135,13 +163,6 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
     }
   })
 
-  const modalStyle = computed(() => ({
-    maxWidth: MODAL_MAX_WIDTH,
-    maxHeight: MODAL_MAX_HEIGHT,
-    minWidth: MODAL_MIN_WIDTH,
-    minHeight: MODAL_MIN_HEIGHT
-  }))
-
   const nodeStyle = (x: number, y: number) => ({
     left: `${(x - bounds.value.minX) * STEP + CANVAS_PADDING}px`,
     top: `${(y - bounds.value.minY) * STEP + CANVAS_PADDING}px`
@@ -183,7 +204,22 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
   }
 
   const normalizePanels = (list: Panel[]): Panel[] =>
-    list.map((p) => ({ ...p, nextPanelPosition: (p.nextPanelPosition ?? DEFAULT_DIRECTION) as Direction }))
+    list.map((p) => {
+      const contentMaxWidth = p.contentMaxWidth ?? DEFAULT_CONTENT_MAX_WIDTH
+      return {
+        ...p,
+        nextPanelPosition: (p.nextPanelPosition ?? DEFAULT_DIRECTION) as Direction,
+        contentWidthMode: p.contentWidthMode ?? DEFAULT_CONTENT_WIDTH_MODE,
+        eyebrowTitleGap: p.eyebrowTitleGap ?? DEFAULT_EYEBROW_TITLE_GAP,
+        titleDescriptionGap: p.titleDescriptionGap ?? DEFAULT_TITLE_DESCRIPTION_GAP,
+        titleLineHeight: p.titleLineHeight ?? DEFAULT_TITLE_LINE_HEIGHT,
+        descriptionLineHeight: p.descriptionLineHeight ?? DEFAULT_DESCRIPTION_LINE_HEIGHT,
+        eyebrowLetterSpacing: p.eyebrowLetterSpacing ?? DEFAULT_EYEBROW_LETTER_SPACING,
+        contentMaxWidth,
+        titleMaxWidth: p.titleMaxWidth ?? deriveTitleMaxWidthFromContent(contentMaxWidth),
+        descriptionMaxWidth: p.descriptionMaxWidth ?? deriveDescriptionMaxWidthFromContent(contentMaxWidth)
+      }
+    })
 
   const renumberPanels = (list: Panel[]): Panel[] =>
     list.map((panel, index) => {
@@ -224,7 +260,19 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
     titleSize: DEFAULT_TEXT_SIZE,
     eyebrowSize: DEFAULT_TEXT_SIZE,
     descriptionSize: DEFAULT_TEXT_SIZE,
+    contentAlign: DEFAULT_CONTENT_ALIGN,
+    contentWidthMode: DEFAULT_CONTENT_WIDTH_MODE,
+    eyebrowTitleGap: DEFAULT_EYEBROW_TITLE_GAP,
+    titleDescriptionGap: DEFAULT_TITLE_DESCRIPTION_GAP,
+    titleLineHeight: DEFAULT_TITLE_LINE_HEIGHT,
+    descriptionLineHeight: DEFAULT_DESCRIPTION_LINE_HEIGHT,
+    eyebrowLetterSpacing: DEFAULT_EYEBROW_LETTER_SPACING,
+    contentMaxWidth: DEFAULT_CONTENT_MAX_WIDTH,
+    titleMaxWidth: DEFAULT_TITLE_MAX_WIDTH,
+    descriptionMaxWidth: DEFAULT_DESCRIPTION_MAX_WIDTH,
     panelClass: getRandomPanelClass(previousClass),
+    overlayEnabled: DEFAULT_OVERLAY_ENABLED_WITHOUT_IMAGE,
+    overlayIntensity: DEFAULT_OVERLAY_INTENSITY,
     nextPanelPosition: previousNext
   })
 
@@ -286,7 +334,7 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
     if (selectedIndex.value === null) return
     const nextPanels = localPanels.value.map((p) => ({ ...p }))
     nextPanels[selectedIndex.value] = { ...updated }
-    if (commitPanels(nextPanels)) closeSettings()
+    commitPanels(nextPanels)
   }
 
   const deletePanel = () => {
@@ -360,7 +408,6 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
     positionedPanels,
     canvasStyle,
     stageStyle,
-    modalStyle,
     flowLinks,
     selectedPanel,
     toggleModal,
@@ -378,3 +425,5 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
     insertAfter
   }
 }
+
+
