@@ -1,0 +1,69 @@
+{
+  "panels": [
+    {
+      "id": "panel-1",
+      "eyebrow": "Section SUBTITLE",
+      "title": "Section 1: Intro Vertical",
+      "description": "Default slide with square random image.",
+      "useMarkdown": false,
+      "titleSize": "m",
+      "eyebrowSize": "m",
+      "descriptionSize": "m",
+      "panelClass": "outro",
+      "image": "https://picsum.photos/1200/1200?random=flow-1",
+      "nextPanelPosition": "left"
+    },
+    {
+      "id": "panel-2",
+      "eyebrow": "Section SUBTITLE",
+      "title": "Section 2: Flow Continuation",
+      "description": "Second default slide with a square random image.",
+      "useMarkdown": false,
+      "titleSize": "m",
+      "eyebrowSize": "m",
+      "descriptionSize": "m",
+      "panelClass": "ocean",
+      "image": "https://picsum.photos/1200/1200?random=flow-2",
+      "nextPanelPosition": "left"
+    },
+    {
+      "id": "panel-3",
+      "title": "New Panel 3",
+      "eyebrow": "Section SUBTITLE",
+      "description": "",
+      "useMarkdown": false,
+      "titleSize": "m",
+      "eyebrowSize": "m",
+      "descriptionSize": "m",
+      "panelClass": "amber",
+      "image": "https://picsum.photos/2400/1350?random=1778752434087-2yitd4",
+      "nextPanelPosition": "left"
+    },
+    {
+      "id": "panel-4",
+      "title": "New Panel 4",
+      "eyebrow": "Section SUBTITLE",
+      "description": "",
+      "useMarkdown": false,
+      "titleSize": "m",
+      "eyebrowSize": "m",
+      "descriptionSize": "m",
+      "panelClass": "violet",
+      "image": "https://picsum.photos/2400/1350?random=1778752436248-yrkwvf",
+      "nextPanelPosition": "left"
+    },
+    {
+      "id": "panel-5",
+      "title": "New Panel 5",
+      "eyebrow": "Section SUBTITLE",
+      "description": "",
+      "useMarkdown": false,
+      "titleSize": "m",
+      "eyebrowSize": "m",
+      "descriptionSize": "m",
+      "panelClass": "danger",
+      "image": "https://picsum.photos/2400/1350?random=1778752547872-yfdbwt",
+      "nextPanelPosition": "down"
+    }
+  ]
+}

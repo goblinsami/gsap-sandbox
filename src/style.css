@@ -20,6 +20,12 @@ body {
   overflow-x: hidden;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+
+
 .content {
   position: relative;
   z-index: 2;

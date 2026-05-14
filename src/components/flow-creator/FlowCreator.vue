@@ -8,6 +8,14 @@
       <div class="flow-modal flow-modal--resizable" :style="modalStyle">
         <div class="flow-modal__debug">
           <button @click="forceScrollToBottom">Debug: Scroll Bottom</button>
+          <button @click="exportFlowJson">Export JSON</button>
+          <select v-model="selectedDataFile" @change="importSelectedDataFile">
+            <option value="">Select data file</option>
+            <option v-for="file in dataFiles" :key="file.path" :value="file.path">
+              {{ file.name }}
+            </option>
+          </select>
+          <input type="file" accept=".json,application/json" @change="onJsonFileChange" />
         </div>
 
         <div ref="canvasRef" class="flow-canvas" :style="canvasStyle">
@@ -66,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { toRef } from 'vue'
+import { computed, ref, toRef } from 'vue'
 import FlowBlock from './FlowBlock.vue'
 import BlockSettings from './BlockSettings.vue'
 import type { Panel } from '../../types/navigation'
@@ -98,9 +106,43 @@ const {
   saveSettings,
   deletePanel,
   deletePanelAt,
+  exportFlowJson,
+  importFlowObject,
+  importFlowFromFile,
   insertableDirections,
   insertAfter
 } = useFlowCreator(toRef(props, 'panels'), (panels) => emit('update:panels', panels))
+
+const dataFileModules = import.meta.glob('../../data/**/*.json', { eager: true }) as Record<
+  string,
+  { default: unknown }
+>
+
+const dataFiles = computed(() =>
+  Object.entries(dataFileModules)
+    .map(([path, module]) => ({
+      path,
+      name: path.replace('../../data/', ''),
+      data: module.default
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name))
+)
+
+const selectedDataFile = ref('')
+
+const importSelectedDataFile = () => {
+  if (!selectedDataFile.value) return
+  const selected = dataFiles.value.find((file) => file.path === selectedDataFile.value)
+  if (!selected) return
+  importFlowObject(selected.data)
+}
+
+const onJsonFileChange = async (event: Event) => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (file) await importFlowFromFile(file)
+  input.value = ''
+}
 
 void canvasRef
 </script>

@@ -30,5 +30,6 @@ export interface HorizontalBlock {
 export type RenderBlock = PanelBlock | HorizontalBlock
 
 export interface ContentSchema {
+  autoSnapEnabled?: boolean
   panels: Panel[]
 }

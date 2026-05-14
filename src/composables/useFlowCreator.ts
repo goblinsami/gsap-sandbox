@@ -31,6 +31,8 @@ const ALLOWED_INSERT_DIRECTIONS: Exclude<Direction, 'up'>[] = ['down', 'left', '
 const NEW_PANEL_TITLE_REGEX = /^New Panel \d+$/i
 const SECTION_TITLE_REGEX = /^Section \d+(?::\s*)?/i
 const SECTION_TITLE_REPLACEMENT = (n: number) => `Section ${n}: `
+const EXPORT_FILE_NAME = 'flow-export.json'
+const INVALID_IMPORT_TITLE = 'JSON de importación inválido:'
 
 export function useFlowCreator(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels: Panel[]) => void) {
   const showModal = ref(false)
@@ -308,6 +310,49 @@ export function useFlowCreator(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panel
     commitPanels(nextPanels)
   }
 
+  const exportFlowJson = () => {
+    const payload = {
+      panels: localPanels.value.map((panel) => ({ ...panel }))
+    }
+    const json = JSON.stringify(payload, null, 2)
+    const blob = new Blob([json], { type: 'application/json;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = EXPORT_FILE_NAME
+    document.body.appendChild(anchor)
+    anchor.click()
+    document.body.removeChild(anchor)
+    URL.revokeObjectURL(url)
+  }
+
+  const importFlowObject = (raw: unknown) => {
+    if (!raw || typeof raw !== 'object') {
+      alert(`${INVALID_IMPORT_TITLE}\n\nEl contenido no es un objeto JSON válido.`)
+      return false
+    }
+
+    const candidate = raw as { panels?: unknown }
+    if (!Array.isArray(candidate.panels)) {
+      alert(`${INVALID_IMPORT_TITLE}\n\nDebe incluir la propiedad "panels" como arreglo.`)
+      return false
+    }
+
+    const nextPanels = candidate.panels as Panel[]
+    return commitPanels(nextPanels, true)
+  }
+
+  const importFlowFromFile = async (file: File) => {
+    try {
+      const text = await file.text()
+      const parsed = JSON.parse(text) as unknown
+      return importFlowObject(parsed)
+    } catch (_error) {
+      alert(`${INVALID_IMPORT_TITLE}\n\nNo se pudo leer o parsear el archivo JSON.`)
+      return false
+    }
+  }
+
   return {
     showModal,
     canvasRef,
@@ -326,6 +371,9 @@ export function useFlowCreator(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panel
     saveSettings,
     deletePanel,
     deletePanelAt,
+    exportFlowJson,
+    importFlowObject,
+    importFlowFromFile,
     insertableDirections,
     insertAfter
   }
