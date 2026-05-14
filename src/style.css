@@ -2,13 +2,22 @@
   box-sizing: border-box;
 }
 
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+}
+
 .panel {
   position: relative;
   overflow: hidden;
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  padding: 20px;
+  width: 100vw;
   height: 100vh;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  background-color: #111111;
 }
 
 body {
@@ -20,10 +29,42 @@ body {
   overflow-x: hidden;
 }
 
-html {
-  scroll-behavior: smooth;
+body.snap-mode {
+  overflow: hidden;
 }
 
+.sandbox {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.snap-shell {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.snap-shell--auto {
+  touch-action: none;
+}
+
+.snap-stage {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.snap-step {
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
 
 
 .content {
@@ -121,27 +162,6 @@ html {
 
 .outro {
   background-color: #e8f1ff;
-}
-
-.h-scroll {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.h-track {
-  display: flex;
-  width: max-content;
-  height: 100%;
-}
-
-.h-panel {
-  width: 100vw;
-  min-width: 100vw;
-  flex: 0 0 100vw;
-  margin: 0;
-  border-radius: 0;
 }
 
 .red {
@@ -577,3 +597,4 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
   background: #9f1f16;
   border-color: #8f1b14;
 }
+
