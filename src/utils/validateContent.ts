@@ -26,6 +26,9 @@ export function validateContentSchema(raw: unknown): ValidationResult {
   if (content.autoSnapEnabled !== undefined && typeof content.autoSnapEnabled !== 'boolean') {
     errors.push('content.json: autoSnapEnabled debe ser boolean.')
   }
+  if (content.loopEnabled !== undefined && typeof content.loopEnabled !== 'boolean') {
+    errors.push('content.json: loopEnabled debe ser boolean.')
+  }
 
   if (!Array.isArray(content.panels) || content.panels.length === 0) {
     return { ok: false, errors: ['content.json debe incluir panels con al menos un elemento.'] }

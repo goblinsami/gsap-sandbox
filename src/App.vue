@@ -45,7 +45,7 @@ gsap.registerPlugin(ScrollTrigger)
 
 const LOG_PREFIX = '[flow-snap]'
 const DEFAULT_DIRECTION: Direction = 'down'
-const SNAP_DURATION = 0.84
+const SNAP_DURATION = 0.6
 const SNAP_EASE = 'power3.inOut'
 const WHEEL_INTENT_THRESHOLD = 9
 const TOUCH_INTENT_THRESHOLD = 18
@@ -55,6 +55,7 @@ const validation = validateContentSchema(content)
 const isValid = validation.ok
 const schema = content as ContentSchema
 const autoSnapEnabled = schema.autoSnapEnabled ?? true
+const loopEnabled = schema.loopEnabled ?? false
 
 const panelsState = ref<Panel[]>(isValid ? ((schema.panels ?? []).map((p) => ({ ...p })) as Panel[]) : [])
 const { flowSteps } = useFlowSteps(panelsState)
@@ -72,6 +73,11 @@ let lastInputAt = 0
 let resizeDebounce: number | null = null
 
 const clampIndex = (value: number, total: number) => Math.max(0, Math.min(total - 1, value))
+const normalizeIndex = (value: number, total: number) => {
+  if (total <= 0) return 0
+  if (!loopEnabled) return clampIndex(value, total)
+  return ((value % total) + total) % total
+}
 
 const isIgnoredTarget = (target: EventTarget | null) => {
   const element = target instanceof Element ? target : null
@@ -97,7 +103,7 @@ const jumpToStep = (index: number) => {
   const total = flowSteps.value.length
   if (!stage || !total) return
 
-  const nextIndex = clampIndex(index, total)
+  const nextIndex = normalizeIndex(index, total)
   const target = getStagePoint(flowSteps.value[nextIndex])
   gsap.set(stage, { x: target.x, y: target.y })
   activeStepIndex.value = nextIndex
@@ -118,14 +124,22 @@ const goToStep = (index: number, source: string) => {
     return
   }
 
-  const nextIndex = clampIndex(index, steps.length)
-  if (nextIndex === activeStepIndex.value) {
-    console.log(`${LOG_PREFIX} skip (same step)`, { source, step: nextIndex })
+  const normalizedIndex = normalizeIndex(index, steps.length)
+  const wrapped = normalizedIndex !== index
+  if (wrapped) {
+    console.log(`${LOG_PREFIX} wrap`, {
+      requested: index,
+      normalized: normalizedIndex,
+      total: steps.length
+    })
+  }
+  if (normalizedIndex === activeStepIndex.value) {
+    console.log(`${LOG_PREFIX} skip (same step)`, { source, step: normalizedIndex })
     return
   }
 
   const from = steps[activeStepIndex.value]
-  const to = steps[nextIndex]
+  const to = steps[normalizedIndex]
   const target = getStagePoint(to)
 
   isTransitioning.value = true
@@ -153,10 +167,10 @@ const goToStep = (index: number, source: string) => {
     ease: SNAP_EASE,
     overwrite: 'auto',
     onComplete: () => {
-      activeStepIndex.value = nextIndex
+      activeStepIndex.value = normalizedIndex
       isTransitioning.value = false
       console.log(`${LOG_PREFIX} transition:end`, {
-        step: nextIndex,
+        step: normalizedIndex,
         panelId: to.panel.id
       })
     },
@@ -283,6 +297,7 @@ const initNavigation = async () => {
 
   console.log(`${LOG_PREFIX} init`, {
     autoSnapEnabled,
+    loopEnabled,
     totalSteps: flowSteps.value.length,
     steps: flowSteps.value.map((step) => ({
       index: step.index,
@@ -294,7 +309,7 @@ const initNavigation = async () => {
   })
 
   const total = flowSteps.value.length
-  activeStepIndex.value = clampIndex(activeStepIndex.value, total)
+  activeStepIndex.value = normalizeIndex(activeStepIndex.value, total)
   jumpToStep(activeStepIndex.value)
 
   if (autoSnapEnabled) {
@@ -383,4 +398,3 @@ watch(
   { deep: true }
 )
 </script>
-

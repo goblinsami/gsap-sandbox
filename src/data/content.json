@@ -1,4 +1,6 @@
 {
+  "autoSnapEnabled": true,
+  "loopEnabled": true,
   "panels": [
     {
       "id": "panel-1",
