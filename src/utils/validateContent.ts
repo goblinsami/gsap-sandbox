@@ -1,13 +1,13 @@
-import type { ContentSchema, Direction, Panel } from '../types/navigation'
+import { Direction, type ContentSchema, type Panel } from '../types/navigation'
 
-const VALID_DIRECTIONS: Direction[] = ['up', 'down', 'left', 'right']
+const VALID_DIRECTIONS: Direction[] = [Direction.Up, Direction.Down, Direction.Left, Direction.Right]
 const VALID_TEXT_SIZES = ['s', 'm', 'l'] as const
 
 const OPPOSITE: Record<Direction, Direction> = {
-  up: 'down',
-  down: 'up',
-  left: 'right',
-  right: 'left'
+  [Direction.Up]: Direction.Down,
+  [Direction.Down]: Direction.Up,
+  [Direction.Left]: Direction.Right,
+  [Direction.Right]: Direction.Left
 }
 
 export interface ValidationResult {
@@ -28,6 +28,9 @@ export function validateContentSchema(raw: unknown): ValidationResult {
   }
   if (content.loopEnabled !== undefined && typeof content.loopEnabled !== 'boolean') {
     errors.push('content.json: loopEnabled debe ser boolean.')
+  }
+  if (content.snapEase !== undefined && typeof content.snapEase !== 'string') {
+    errors.push('content.json: snapEase debe ser string.')
   }
 
   if (!Array.isArray(content.panels) || content.panels.length === 0) {
@@ -95,8 +98,8 @@ export function validateContentSchema(raw: unknown): ValidationResult {
   })
 
   for (let i = 0; i < content.panels.length - 1; i += 1) {
-    const currentDir = (content.panels[i].nextPanelPosition ?? 'down') as Direction
-    const nextDir = (content.panels[i + 1].nextPanelPosition ?? 'down') as Direction
+    const currentDir = (content.panels[i].nextPanelPosition ?? Direction.Down) as Direction
+    const nextDir = (content.panels[i + 1].nextPanelPosition ?? Direction.Down) as Direction
 
     if (nextDir === OPPOSITE[currentDir]) {
       errors.push(

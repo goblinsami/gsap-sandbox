@@ -1,7 +1,7 @@
 import { computed, nextTick, ref, watch, type Ref } from 'vue'
 import gsap from 'gsap'
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin'
-import type { Direction, Panel } from '../types/navigation'
+import { Direction, type Panel } from '../types/navigation'
 import { validateContentSchema } from '../utils/validateContent'
 
 gsap.registerPlugin(ScrollToPlugin)
@@ -18,7 +18,7 @@ const MODAL_MIN_WIDTH = '360px'
 const MODAL_MIN_HEIGHT = '260px'
 const PANEL_CLASS_POOL = ['contrast', 'outro', 'red', 'danger', 'ocean', 'forest', 'violet', 'amber'] as const
 
-const DEFAULT_DIRECTION: Direction = 'down'
+const DEFAULT_DIRECTION: Direction = Direction.Down
 const DEFAULT_EYEBROW = 'Section SUBTITLE'
 const DEFAULT_TITLE_PREFIX = 'New Panel'
 const DEFAULT_TEXT_SIZE = 'm' as const
@@ -27,14 +27,14 @@ const MIN_PANELS_ALLOWED = 1
 const DELETE_LAST_PANEL_ERROR = 'No puedes eliminar el único panel del flujo.'
 const INVALID_STRUCTURE_TITLE = 'Estructura inválida:'
 const ID_PREFIX = 'panel'
-const ALLOWED_INSERT_DIRECTIONS: Exclude<Direction, 'up'>[] = ['down', 'left', 'right']
+const ALLOWED_INSERT_DIRECTIONS: Direction[] = [Direction.Up, Direction.Down, Direction.Left, Direction.Right]
 const NEW_PANEL_TITLE_REGEX = /^New Panel \d+$/i
 const SECTION_TITLE_REGEX = /^Section \d+(?::\s*)?/i
 const SECTION_TITLE_REPLACEMENT = (n: number) => `Section ${n}: `
 const EXPORT_FILE_NAME = 'flow-export.json'
 const INVALID_IMPORT_TITLE = 'JSON de importación inválido:'
 
-export function useFlowCreator(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels: Panel[]) => void) {
+export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels: Panel[]) => void) {
   const showModal = ref(false)
   const localPanels = ref<Panel[]>([])
   const canvasRef = ref<HTMLElement | null>(null)
@@ -56,13 +56,13 @@ export function useFlowCreator(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panel
 
   const moveByDirection = (x: number, y: number, direction: Direction) => {
     switch (direction) {
-      case 'up':
+      case Direction.Up:
         return { x, y: y - 1 }
-      case 'down':
+      case Direction.Down:
         return { x, y: y + 1 }
-      case 'left':
+      case Direction.Left:
         return { x: x - 1, y }
-      case 'right':
+      case Direction.Right:
         return { x: x + 1, y }
       default:
         return { x, y: y + 1 }
@@ -176,10 +176,10 @@ export function useFlowCreator(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panel
   })
 
   const opposite: Record<Direction, Direction> = {
-    up: 'down',
-    down: 'up',
-    left: 'right',
-    right: 'left'
+    [Direction.Up]: Direction.Down,
+    [Direction.Down]: Direction.Up,
+    [Direction.Left]: Direction.Right,
+    [Direction.Right]: Direction.Left
   }
 
   const normalizePanels = (list: Panel[]): Panel[] =>
@@ -204,7 +204,7 @@ export function useFlowCreator(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panel
       }
     })
 
-  const allowedDirections = (index: number): Exclude<Direction, 'up'>[] => {
+  const allowedDirections = (index: number): Direction[] => {
     if (index === 0) return ALLOWED_INSERT_DIRECTIONS
     const prev = (localPanels.value[index - 1]?.nextPanelPosition ?? DEFAULT_DIRECTION) as Direction
     return ALLOWED_INSERT_DIRECTIONS.filter((d) => d !== opposite[prev])
@@ -228,7 +228,7 @@ export function useFlowCreator(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panel
     nextPanelPosition: previousNext
   })
 
-  const insertableDirections = (index: number): Exclude<Direction, 'up'>[] =>
+  const insertableDirections = (index: number): Direction[] =>
     allowedDirections(index).filter((direction) => {
       const current = localPanels.value[index]
       if (!current) return false
@@ -255,7 +255,7 @@ export function useFlowCreator(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panel
 
   const makeId = () => `${ID_PREFIX}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
 
-  const insertAfter = (index: number, direction: Exclude<Direction, 'up'>) => {
+  const insertAfter = (index: number, direction: Direction) => {
     const current = localPanels.value[index]
     if (!current) return
 

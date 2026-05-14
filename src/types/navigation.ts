@@ -1,4 +1,11 @@
-export type Direction = 'up' | 'down' | 'left' | 'right'
+export const Direction = {
+  Up: 'up',
+  Down: 'down',
+  Left: 'left',
+  Right: 'right'
+} as const
+
+export type Direction = (typeof Direction)[keyof typeof Direction]
 export type TextSize = 's' | 'm' | 'l'
 
 export interface Panel {
@@ -15,22 +22,9 @@ export interface Panel {
   nextPanelPosition?: Direction
 }
 
-export interface PanelBlock {
-  type: 'panel'
-  panel: Panel
-  direction: Direction
-}
-
-export interface HorizontalBlock {
-  type: 'horizontal'
-  panels: Panel[]
-  direction: 'left' | 'right'
-}
-
-export type RenderBlock = PanelBlock | HorizontalBlock
-
 export interface ContentSchema {
   autoSnapEnabled?: boolean
   loopEnabled?: boolean
+  snapEase?: string
   panels: Panel[]
 }

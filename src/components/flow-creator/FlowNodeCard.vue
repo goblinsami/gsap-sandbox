@@ -1,8 +1,8 @@
 <template>
-  <article class="flow-block" :title="block.id" :style="blockToneStyle">
+  <article class="flow-block" :title="panel.id" :style="panelToneStyle">
     <strong class="flow-block__index">{{ index + 1 }}</strong>
     <div class="flow-block__direction">
-      {{ directionArrow }}
+      {{ directionIcon }}
     </div>
   </article>
 </template>
@@ -10,14 +10,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Panel } from '../../types/navigation'
-import { getDirectionArrow } from '../../composables/useDirectionArrow'
+import { getDirectionIcon } from '../../composables/useDirectionIcon'
 
 const props = defineProps<{
-  block: Panel
+  panel: Panel
   index: number
 }>()
 
-const directionArrow = computed(() => getDirectionArrow(props.block.nextPanelPosition))
+const directionIcon = computed(() => getDirectionIcon(props.panel.nextPanelPosition))
 
 const PANEL_TONES: Record<string, string> = {
   contrast: 'rgba(51, 51, 51, 0.12)',
@@ -30,8 +30,8 @@ const PANEL_TONES: Record<string, string> = {
   amber: 'rgba(245, 158, 11, 0.16)'
 }
 
-const blockToneStyle = computed(() => {
-  const tone = PANEL_TONES[props.block.panelClass] ?? 'rgba(255, 255, 255, 1)'
+const panelToneStyle = computed(() => {
+  const tone = PANEL_TONES[props.panel.panelClass] ?? 'rgba(255, 255, 255, 1)'
   return { backgroundColor: tone }
 })
 </script>

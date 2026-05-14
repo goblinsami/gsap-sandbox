@@ -1,7 +1,7 @@
 <template>
   <section class="flow-creator">
     <button class="flow-toggle" @click="toggleModal">
-      <h3>Flow Creator</h3>
+      <h3>Flow Editor</h3>
     </button>
 
     <div v-if="showModal" class="flow-modal-overlay" @click.self="toggleModal">
@@ -9,6 +9,11 @@
         <div class="flow-modal__debug">
           <button @click="forceScrollToBottom">Debug: Scroll Bottom</button>
           <button @click="exportFlowJson">Export JSON</button>
+          <select v-model="selectedEase" @change="emitSnapEase">
+            <option v-for="ease in easeOptions" :key="ease" :value="ease">
+              {{ ease }}
+            </option>
+          </select>
           <select v-model="selectedDataFile" @change="importSelectedDataFile">
             <option value="">Select data file</option>
             <option v-for="file in dataFiles" :key="file.path" :value="file.path">
@@ -45,7 +50,7 @@
                 ×
               </button>
 
-              <FlowBlock :block="node.panel" :index="node.index" />
+              <FlowNodeCard :panel="node.panel" :index="node.index" />
 
               <button
                 v-for="dir in insertableDirections(node.index)"
@@ -63,7 +68,7 @@
       </div>
     </div>
 
-    <BlockSettings
+    <SlidePropertiesModal
       :open="showSettings"
       :panel="selectedPanel"
       @close="closeSettings"
@@ -74,18 +79,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRef } from 'vue'
-import FlowBlock from './FlowBlock.vue'
-import BlockSettings from './BlockSettings.vue'
+import { computed, ref, toRef, watch } from 'vue'
+import FlowNodeCard from './FlowNodeCard.vue'
+import SlidePropertiesModal from './SlidePropertiesModal.vue'
 import type { Panel } from '../../types/navigation'
-import { useFlowCreator } from '../../composables/useFlowCreator'
+import { useFlowEditor } from '../../composables/useFlowEditor'
 
 const props = defineProps<{
   panels: Panel[]
+  snapEase: string
+  easeOptions: readonly string[]
 }>()
 
 const emit = defineEmits<{
   'update:panels': [panels: Panel[]]
+  'update:snapEase': [ease: string]
 }>()
 
 const {
@@ -111,7 +119,7 @@ const {
   importFlowFromFile,
   insertableDirections,
   insertAfter
-} = useFlowCreator(toRef(props, 'panels'), (panels) => emit('update:panels', panels))
+} = useFlowEditor(toRef(props, 'panels'), (panels) => emit('update:panels', panels))
 
 const dataFileModules = import.meta.glob('../../data/**/*.json', { eager: true }) as Record<
   string,
@@ -129,6 +137,18 @@ const dataFiles = computed(() =>
 )
 
 const selectedDataFile = ref('')
+const selectedEase = ref(props.snapEase)
+
+watch(
+  () => props.snapEase,
+  (value) => {
+    selectedEase.value = value
+  }
+)
+
+const emitSnapEase = () => {
+  emit('update:snapEase', selectedEase.value)
+}
 
 const importSelectedDataFile = () => {
   if (!selectedDataFile.value) return

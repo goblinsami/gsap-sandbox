@@ -1,16 +1,16 @@
 import { computed, type Ref } from 'vue'
-import type { Direction, Panel } from '../types/navigation'
+import { Direction, type Panel } from '../types/navigation'
 
-const DEFAULT_DIRECTION: Direction = 'down'
+const DEFAULT_DIRECTION: Direction = Direction.Down
 
 const DIRECTION_VECTOR: Record<Direction, { x: number; y: number }> = {
-  up: { x: 0, y: -1 },
-  down: { x: 0, y: 1 },
-  left: { x: -1, y: 0 },
-  right: { x: 1, y: 0 }
+  [Direction.Up]: { x: 0, y: -1 },
+  [Direction.Down]: { x: 0, y: 1 },
+  [Direction.Left]: { x: -1, y: 0 },
+  [Direction.Right]: { x: 1, y: 0 }
 }
 
-export interface FlowStep {
+export interface SlidePathStep {
   index: number
   panel: Panel
   x: number
@@ -18,10 +18,10 @@ export interface FlowStep {
   directionToNext: Direction
 }
 
-export function buildFlowSteps(panels: Panel[]): FlowStep[] {
+export function buildSlidePath(panels: Panel[]): SlidePathStep[] {
   if (!panels.length) return []
 
-  const steps: FlowStep[] = []
+  const steps: SlidePathStep[] = []
   let x = 0
   let y = 0
 
@@ -43,7 +43,7 @@ export function buildFlowSteps(panels: Panel[]): FlowStep[] {
   return steps
 }
 
-export function useFlowSteps(panels: Ref<Panel[]>) {
-  const flowSteps = computed<FlowStep[]>(() => buildFlowSteps(panels.value))
+export function useSlidePath(panels: Ref<Panel[]>) {
+  const flowSteps = computed<SlidePathStep[]>(() => buildSlidePath(panels.value))
   return { flowSteps }
 }

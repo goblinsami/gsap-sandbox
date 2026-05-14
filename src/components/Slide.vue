@@ -6,7 +6,7 @@
       <p class="eyebrow" :class="`eyebrow--${eyebrowSize ?? 'm'}`">
         <span v-if="useMarkdown" v-html="eyebrowHtml" />
         <template v-else>{{ eyebrow }}</template>
-        <span v-if="showDirectionIcon">{{ getDirectionArrow(direction) }}</span>
+        <span v-if="showDirectionIcon">{{ getDirectionIcon(direction) }}</span>
       </p>
       <h1 :class="`title--${titleSize ?? 'm'}`">
         <span v-if="useMarkdown" v-html="titleHtml" />
@@ -25,7 +25,7 @@ import { computed } from 'vue'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import type { Direction } from '../types/navigation'
-import { getDirectionArrow } from '../composables/useDirectionArrow'
+import { getDirectionIcon } from '../composables/useDirectionIcon'
 
 const props = defineProps<{
   title: string
