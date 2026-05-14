@@ -57,6 +57,7 @@ export interface Panel {
   descriptionMaxWidth?: number
   panelClass: string
   image?: string
+  backgroundGradient?: string
   overlayEnabled?: boolean
   overlayIntensity?: number
   nextPanelPosition?: Direction

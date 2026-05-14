@@ -2,6 +2,7 @@
 import content from '../data/welcome.json'
 import type { ContentSchema, Panel } from '../types/navigation'
 import { validateContentSchema } from '../utils/validateContent'
+import { applyWelcomeGradientsToContent } from '../utils/welcomeGradients'
 import { useSlidePath } from './useSlidePath'
 import { useSlideSnapNavigation } from './useSlideSnapNavigation'
 import { SNAP_EASE_OPTIONS, normalizeSnapEase, type SnapEaseOption } from '../constants/snapEase'
@@ -11,7 +12,7 @@ const LOG_PREFIX = '[flow-snap]'
 export function usePresentationFlow() {
   const validation = validateContentSchema(content)
   const isValid = validation.ok
-  const schema = content as ContentSchema
+  const schema = applyWelcomeGradientsToContent(content as ContentSchema)
   const autoSnapEnabled = schema.autoSnapEnabled ?? true
   const loopEnabled = ref(schema.loopEnabled ?? false)
   const panelsState = ref<Panel[]>(isValid ? ((schema.panels ?? []).map((panel) => ({ ...panel })) as Panel[]) : [])

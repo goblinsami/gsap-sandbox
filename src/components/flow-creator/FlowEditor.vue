@@ -127,8 +127,9 @@
 import { computed, onMounted, onUnmounted, ref, toRef, watch } from 'vue'
 import FlowNodeCard from './FlowNodeCard.vue'
 import SlidePropertiesModal from './SlidePropertiesModal.vue'
-import { ContentAlign, type Panel } from '../../types/navigation'
+import { ContentAlign, type ContentSchema, type Panel } from '../../types/navigation'
 import { useFlowEditor } from '../../composables/useFlowEditor'
+import { applyWelcomeGradientsToContent } from '../../utils/welcomeGradients'
 
 const props = defineProps<{
   panels: Panel[]
@@ -247,7 +248,11 @@ const importSelectedDataFile = () => {
   if (!selectedDataFile.value) return
   const selected = dataFiles.value.find((file) => file.path === selectedDataFile.value)
   if (!selected) return
-  importFlowObject(selected.data)
+  const nextData =
+    selected.name.toLowerCase() === 'welcome.json'
+      ? applyWelcomeGradientsToContent(selected.data as ContentSchema)
+      : selected.data
+  importFlowObject(nextData)
 }
 
 const onJsonFileChange = async (event: Event) => {

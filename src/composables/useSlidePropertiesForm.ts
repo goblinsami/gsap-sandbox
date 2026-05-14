@@ -126,6 +126,7 @@ const copyPanelToDraft = (panel: Panel, draft: Panel) => {
   )
   draft.panelClass = panel.panelClass
   draft.image = panel.image ?? ''
+  draft.backgroundGradient = panel.backgroundGradient
   draft.overlayEnabled =
     panel.overlayEnabled ??
     (panel.image ? DEFAULT_OVERLAY_ENABLED_WITH_IMAGE : DEFAULT_OVERLAY_ENABLED_WITHOUT_IMAGE)
@@ -160,6 +161,7 @@ export function useSlidePropertiesForm(options: UseSlidePropertiesFormOptions) {
     descriptionMaxWidth: DEFAULT_DESCRIPTION_MAX_WIDTH,
     panelClass: '',
     image: '',
+    backgroundGradient: undefined,
     overlayEnabled: DEFAULT_OVERLAY_ENABLED_WITHOUT_IMAGE,
     overlayIntensity: DEFAULT_OVERLAY_INTENSITY,
     nextPanelPosition: Direction.Down

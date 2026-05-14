@@ -48,6 +48,7 @@
             :description-max-width="step.panel.descriptionMaxWidth"
             :panel-class="step.panel.panelClass"
             :image="step.panel.image"
+            :background-gradient="step.panel.backgroundGradient"
             :overlay-enabled="step.panel.overlayEnabled"
             :overlay-intensity="step.panel.overlayIntensity"
             :direction="step.directionToNext"

@@ -1,5 +1,5 @@
 <template>
-  <section class="panel panel--hero" :class="panelClass" :data-animate="animateKey">
+  <section class="panel panel--hero" :class="panelClass" :style="panelStyle" :data-animate="animateKey">
     <img v-if="image" class="panel__image" :src="image" alt="" />
     <div v-if="overlayVisible" class="panel__overlay" :style="overlayStyle" />
     <article
@@ -7,7 +7,7 @@
       :class="[
         `content--align-${contentAlign ?? DEFAULT_CONTENT_ALIGN}`,
         `content--width-${contentWidthMode ?? DEFAULT_CONTENT_WIDTH_MODE}`,
-        { 'content--on-image': !!image }
+        { 'content--on-image': hasVisualBackground }
       ]"
       :style="contentStyle"
     >
@@ -75,7 +75,7 @@ import {
   clampNumber,
   deriveDescriptionMaxWidthFromContent,
   deriveTitleMaxWidthFromContent,
-  getDescriptionFontSizeRem,
+  getDescriptionClampSize,
   getEyebrowFontSizeRem,
   getTitleClampSize
 } from '../constants/slideStyle'
@@ -101,6 +101,7 @@ const props = defineProps<{
   descriptionMaxWidth?: number
   panelClass?: string
   image?: string
+  backgroundGradient?: string
   overlayEnabled?: boolean
   overlayIntensity?: number
   animateKey?: string
@@ -185,13 +186,20 @@ const titleStyle = computed(() => ({
 }))
 const descriptionStyle = computed(() => ({
   lineHeight: String(descriptionLineHeightResolved.value),
-  fontSize: `${getDescriptionFontSizeRem(props.descriptionSize ?? DEFAULT_TEXT_SIZE)}rem`
+  fontSize: getDescriptionClampSize(props.descriptionSize ?? DEFAULT_TEXT_SIZE)
 }))
 
 const overlayIntensityResolved = computed(() => clampOverlayIntensity(props.overlayIntensity))
 const overlayEnabledResolved = computed(() => props.overlayEnabled ?? Boolean(props.image))
 const overlayVisible = computed(() => Boolean(props.image) && overlayEnabledResolved.value && overlayIntensityResolved.value > 0)
+const hasVisualBackground = computed(() => Boolean(props.image || props.backgroundGradient))
 const contentAlignResolved = computed(() => props.contentAlign ?? DEFAULT_CONTENT_ALIGN)
+const panelStyle = computed(() => {
+  if (!props.backgroundGradient) return undefined
+  return {
+    background: props.backgroundGradient
+  }
+})
 const overlayStyle = computed(() => {
   const ratio = overlayIntensityResolved.value / 100
   const strong = Math.min(0.94, ratio * 1.04)

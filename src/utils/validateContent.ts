@@ -213,6 +213,10 @@ export function validateContentSchema(raw: unknown): ValidationResult {
       errors.push(`${label}: image debe ser string.`)
     }
 
+    if (p.backgroundGradient !== undefined && typeof p.backgroundGradient !== 'string') {
+      errors.push(`${label}: backgroundGradient debe ser string.`)
+    }
+
     if (p.overlayEnabled !== undefined && typeof p.overlayEnabled !== 'boolean') {
       errors.push(`${label}: overlayEnabled debe ser boolean.`)
     }
