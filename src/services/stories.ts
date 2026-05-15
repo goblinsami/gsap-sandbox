@@ -192,12 +192,17 @@ export async function getPublicStoryById(storyId: string): Promise<SavedStory> {
   console.log('[stories] getPublicStoryById:start', { storyId })
 
   try {
+    const activeSupabaseUrl = String(import.meta.env.VITE_SUPABASE_URL ?? '').trim()
+    console.log('[stories] getPublicStoryById:env', {
+      supabaseUrl: activeSupabaseUrl
+    })
+
     const { data, error } = await supabase
       .from('stories')
       .select(STORY_SELECT_FIELDS)
       .eq('id', storyId)
       .eq('published', true)
-      .single()
+      .maybeSingle()
 
     if (error) {
       console.error('[stories] getPublicStoryById:supabase-error', error)
@@ -205,7 +210,7 @@ export async function getPublicStoryById(storyId: string): Promise<SavedStory> {
     }
 
     if (!data) {
-      const noDataError = new Error('getPublicStoryById returned no data.')
+      const noDataError = new Error('Story not found or not published in current Supabase project.')
       console.error('[stories] getPublicStoryById:no-data', noDataError)
       throw noDataError
     }
