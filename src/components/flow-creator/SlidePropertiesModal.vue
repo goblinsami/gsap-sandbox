@@ -8,31 +8,13 @@
     <div class="block-settings">
       <h4>Slide Properties</h4>
 
-      <section class="text-style-panel">
-        <div
-          class="text-style-panel__summary"
-          role="button"
-          tabindex="0"
-          :aria-expanded="isTextContentOpen ? 'true' : 'false'"
-          aria-controls="text-content-panel-body"
-          @click="toggleTextContentPanel"
-          @keydown.enter.prevent="toggleTextContentPanel"
-          @keydown.space.prevent="toggleTextContentPanel"
-        >
-          <span class="text-style-panel__title">Text Content</span>
-          <span
-            class="text-style-panel__chevron"
-            :class="{ 'text-style-panel__chevron--open': isTextContentOpen }"
-            aria-hidden="true"
-          >
-            ▸
-          </span>
-        </div>
-        <div
-          v-show="isTextContentOpen"
-          id="text-content-panel-body"
-          class="text-style-panel__body text-content-panel__body"
-        >
+      <CollapsibleSection
+        title="Text Content"
+        panel-id="text-content-panel-body"
+        :open="isTextContentOpen"
+        body-class="text-style-panel__body text-content-panel__body"
+        @toggle="togglePanel('textContent')"
+      >
           <label>
             Name
             <div class="text-input-row">
@@ -125,34 +107,14 @@
               </span>
             </div>
           </label>
-        </div>
-      </section>
+      </CollapsibleSection>
 
-      <section class="text-style-panel">
-        <div
-          class="text-style-panel__summary"
-          role="button"
-          tabindex="0"
-          :aria-expanded="isTextStyleOpen ? 'true' : 'false'"
-          aria-controls="text-style-panel-body"
-          @click="toggleTextStylePanel"
-          @keydown.enter.prevent="toggleTextStylePanel"
-          @keydown.space.prevent="toggleTextStylePanel"
-        >
-          <span class="text-style-panel__title">Text Style</span>
-          <span
-            class="text-style-panel__chevron"
-            :class="{ 'text-style-panel__chevron--open': isTextStyleOpen }"
-            aria-hidden="true"
-          >
-            ▸
-          </span>
-        </div>
-        <div
-          v-show="isTextStyleOpen"
-          id="text-style-panel-body"
-          class="text-style-panel__body"
-        >
+      <CollapsibleSection
+        title="Text Style"
+        panel-id="text-style-panel-body"
+        :open="isTextStyleOpen"
+        @toggle="togglePanel('textStyle')"
+      >
           <div class="text-style-panel__grid">
             <label class="text-style-panel__field text-style-panel__field--wide">
               <span>Text gap</span>
@@ -259,25 +221,90 @@
               </div>
             </label>
           </div>
-        </div>
-      </section>
+      </CollapsibleSection>
 
       <label>
-        Panel Class
-        <select v-model="draft.panelClass" @change="save">
-          <option
-            v-for="option in panelClassOptions"
-            :key="option.value"
-            :value="option.value"
-          >
-            {{ option.label }}
-          </option>
-        </select>
+        Slide Color
+        <div class="logo-row__tint">
+          <input
+            v-model="draft.panelColor"
+            type="color"
+            @input="save"
+          />
+          <input
+            v-model="draft.panelColor"
+            type="text"
+            :placeholder="DEFAULT_SLIDE_COLOR"
+            @input="save"
+          />
+        </div>
       </label>
 
-      <label>
-        Slide Logo
-        <div class="logo-row">
+      <CollapsibleSection
+        title="Gradient Editor"
+        panel-id="gradient-editor-panel-body"
+        :open="isGradientEditorOpen"
+        body-class="text-style-panel__body gradient-editor"
+        @toggle="togglePanel('gradientEditor')"
+      >
+          <label>
+            Type
+            <select v-model="gradientType" @change="applyGradient">
+              <option value="linear">Linear</option>
+              <option value="radial">Radial</option>
+              <option value="conic">Conic</option>
+            </select>
+          </label>
+
+          <label>
+            Orientation
+            <select v-model="gradientOrientation" @change="applyGradient">
+              <option
+                v-for="option in orientationOptions"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.label }}
+              </option>
+            </select>
+          </label>
+
+          <div class="gradient-editor__colors">
+            <label
+              v-for="(_color, index) in gradientColors"
+              :key="`gradient-color-${index}`"
+            >
+              Color {{ index + 1 }}
+              <div class="logo-row__tint">
+                <input
+                  v-model="gradientColors[index]"
+                  type="color"
+                  @input="applyGradient"
+                />
+                <input
+                  v-model="gradientColors[index]"
+                  type="text"
+                  @input="applyGradient"
+                />
+              </div>
+            </label>
+          </div>
+
+          <div class="gradient-editor__preview" :style="{ background: draft.backgroundGradient || '#111' }" />
+
+          <div class="gradient-editor__actions">
+            <button type="button" @click="applyGradient">Apply gradient</button>
+            <button type="button" @click="clearGradient">Clear gradient</button>
+          </div>
+      </CollapsibleSection>
+
+      <CollapsibleSection
+        title="Logo"
+        panel-id="logo-editor-panel-body"
+        :open="isLogoEditorOpen"
+        body-class="text-style-panel__body logo-row"
+        @toggle="togglePanel('logoEditor')"
+      >
           <input
             v-model="draft.logo"
             type="text"
@@ -295,6 +322,13 @@
             <button type="button" @click="openLogoFilePicker">Choose Logo</button>
             <button v-if="draft.logo" type="button" @click="clearLogo">Remove</button>
           </div>
+          <label>
+            Logo Size
+            <TextSizeSelector
+              :model-value="draft.logoSize ?? DEFAULT_TEXT_SIZE"
+              @update:model-value="(value) => { draft.logoSize = value; save() }"
+            />
+          </label>
           <label class="block-settings__toggle">
             <div class="block-settings__toggle-row">
               <input
@@ -324,8 +358,7 @@
             />
           </div>
           <small>{{ draft.logo ? DROP_LOGO_LOADED_TEXT : 'No logo (default)' }}</small>
-        </div>
-      </label>
+      </CollapsibleSection>
 
       <label>
         Panel Image
@@ -402,14 +435,16 @@ import { computed, ref, toRef, watch } from 'vue'
 import { ContentWidthMode, TextSize, type Panel } from '../../types/navigation'
 import TextSizeSelector from '../atoms/TextSizeSelector.vue'
 import MarkdownField from '../atoms/MarkdownField.vue'
+import CollapsibleSection from '../atoms/CollapsibleSection.vue'
+import { useGradientEditor } from '../../composables/useGradientEditor'
 import {
   DEFAULT_LOGO_TINT_COLOR,
+  DEFAULT_SLIDE_COLOR,
   contentAlignOptions,
   DROP_IMAGE_EMPTY_TEXT,
   DROP_IMAGE_LOADED_TEXT,
   DROP_LOGO_EMPTY_TEXT,
   DROP_LOGO_LOADED_TEXT,
-  panelClassOptions,
   textStyleRanges,
   useSlidePropertiesForm
 } from '../../composables/useSlidePropertiesForm'
@@ -463,15 +498,35 @@ const onContentWidthModeToggle = (event: Event) => {
 }
 
 const textGapValue = computed(() => Number(draft.eyebrowTitleGap ?? draft.titleDescriptionGap ?? 24))
-const isTextContentOpen = ref(true)
+const isTextContentOpen = ref(false)
 const isTextStyleOpen = ref(false)
+const isGradientEditorOpen = ref(false)
+const isLogoEditorOpen = ref(false)
+const {
+  gradientType,
+  gradientOrientation,
+  gradientColors,
+  orientationOptions,
+  buildGradient,
+  syncFromGradient
+} = useGradientEditor(draft.backgroundGradient)
 
-const toggleTextContentPanel = () => {
-  isTextContentOpen.value = !isTextContentOpen.value
+type PanelKey = 'textContent' | 'textStyle' | 'gradientEditor' | 'logoEditor'
+const togglePanel = (key: PanelKey) => {
+  if (key === 'textContent') isTextContentOpen.value = !isTextContentOpen.value
+  if (key === 'textStyle') isTextStyleOpen.value = !isTextStyleOpen.value
+  if (key === 'gradientEditor') isGradientEditorOpen.value = !isGradientEditorOpen.value
+  if (key === 'logoEditor') isLogoEditorOpen.value = !isLogoEditorOpen.value
 }
 
-const toggleTextStylePanel = () => {
-  isTextStyleOpen.value = !isTextStyleOpen.value
+const applyGradient = () => {
+  draft.backgroundGradient = buildGradient()
+  save()
+}
+
+const clearGradient = () => {
+  draft.backgroundGradient = undefined
+  save()
 }
 
 const onTextGapInput = (event: Event) => {
@@ -507,6 +562,7 @@ watch(
   (isOpen, wasOpen) => {
     if (!isOpen || wasOpen || !props.panel) return
     originalPanelSnapshot.value = { ...props.panel }
+    syncFromGradient(draft.backgroundGradient)
   }
 )
 
@@ -515,6 +571,7 @@ watch(
   (nextId, prevId) => {
     if (!props.open || !nextId || nextId === prevId || !props.panel) return
     originalPanelSnapshot.value = { ...props.panel }
+    syncFromGradient(draft.backgroundGradient)
   }
 )
 

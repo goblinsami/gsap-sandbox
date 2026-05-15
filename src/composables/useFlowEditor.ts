@@ -30,6 +30,7 @@ const CANVAS_PADDING = 24
 const CANVAS_MAX_WIDTH = '100%'
 const CANVAS_MAX_HEIGHT = '100%'
 const PANEL_CLASS_POOL = ['contrast', 'outro', 'red', 'danger', 'ocean', 'forest', 'violet', 'amber'] as const
+const PANEL_COLOR_POOL = ['#1f2937', '#e8f1ff', '#ff4d4d', '#b42318', '#0e7490', '#166534', '#6d28d9', '#f59e0b'] as const
 
 const DEFAULT_DIRECTION: Direction = Direction.Down
 const DEFAULT_EYEBROW = 'Section SUBTITLE'
@@ -102,6 +103,11 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
     const pool = options.length ? options : PANEL_CLASS_POOL
     const idx = Math.floor(Math.random() * pool.length)
     return pool[idx]
+  }
+
+  const getRandomPanelColor = () => {
+    const idx = Math.floor(Math.random() * PANEL_COLOR_POOL.length)
+    return PANEL_COLOR_POOL[idx]
   }
 
   const positionedPanels = computed(() => {
@@ -271,9 +277,11 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
     titleMaxWidth: DEFAULT_TITLE_MAX_WIDTH,
     descriptionMaxWidth: DEFAULT_DESCRIPTION_MAX_WIDTH,
     panelClass: getRandomPanelClass(previousClass),
+    panelColor: getRandomPanelColor(),
     overlayEnabled: DEFAULT_OVERLAY_ENABLED_WITHOUT_IMAGE,
     overlayIntensity: DEFAULT_OVERLAY_INTENSITY,
     logo: '',
+    logoSize: DEFAULT_TEXT_SIZE,
     logoTintEnabled: true,
     logoTintColor: '#ffffff',
     nextPanelPosition: previousNext
@@ -295,7 +303,7 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
     const sanitized = renumberPanels(normalizePanels(nextPanels))
     const validation = validateContentSchema({ panels: sanitized })
     if (!validation.ok) {
-      if (showAlert) alert(`${INVALID_STRUCTURE_TITLE}\n\n${validation.errors.join('\n')}`)
+      if (showAlert) console.warn(`${INVALID_STRUCTURE_TITLE}\n\n${validation.errors.join('\n')}`)
       return false
     }
 
@@ -343,7 +351,7 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
   const deletePanel = () => {
     if (selectedIndex.value === null) return
     if (localPanels.value.length <= MIN_PANELS_ALLOWED) {
-      alert(DELETE_LAST_PANEL_ERROR)
+      console.warn(DELETE_LAST_PANEL_ERROR)
       return
     }
     const nextPanels = localPanels.value.map((p) => ({ ...p }))
@@ -353,7 +361,7 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
 
   const deletePanelAt = (index: number) => {
     if (localPanels.value.length <= MIN_PANELS_ALLOWED) {
-      alert(DELETE_LAST_PANEL_ERROR)
+      console.warn(DELETE_LAST_PANEL_ERROR)
       return
     }
     const nextPanels = localPanels.value.map((p) => ({ ...p }))
@@ -379,13 +387,13 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
 
   const importFlowObject = (raw: unknown) => {
     if (!raw || typeof raw !== 'object') {
-      alert(`${INVALID_IMPORT_TITLE}\n\nEl contenido no es un objeto JSON válido.`)
+      console.warn(`${INVALID_IMPORT_TITLE}\n\nEl contenido no es un objeto JSON válido.`)
       return false
     }
 
     const candidate = raw as { panels?: unknown }
     if (!Array.isArray(candidate.panels)) {
-      alert(`${INVALID_IMPORT_TITLE}\n\nDebe incluir la propiedad "panels" como arreglo.`)
+      console.warn(`${INVALID_IMPORT_TITLE}\n\nDebe incluir la propiedad "panels" como arreglo.`)
       return false
     }
 
@@ -399,7 +407,7 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
       const parsed = JSON.parse(text) as unknown
       return importFlowObject(parsed)
     } catch (_error) {
-      alert(`${INVALID_IMPORT_TITLE}\n\nNo se pudo leer o parsear el archivo JSON.`)
+      console.warn(`${INVALID_IMPORT_TITLE}\n\nNo se pudo leer o parsear el archivo JSON.`)
       return false
     }
   }
@@ -428,5 +436,6 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
     insertAfter
   }
 }
+
 
 

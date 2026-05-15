@@ -56,8 +56,10 @@ export interface Panel {
   titleMaxWidth?: number
   descriptionMaxWidth?: number
   panelClass: string
+  panelColor?: string
   image?: string
   logo?: string
+  logoSize?: TextSize
   logoTintEnabled?: boolean
   logoTintColor?: string
   backgroundGradient?: string
@@ -71,5 +73,7 @@ export interface ContentSchema {
   loopEnabled?: boolean
   snapEase?: string
   transitionSpeed?: number
+  autoPlayEnabled?: boolean
+  autoPlaySpeed?: number
   panels: Panel[]
 }

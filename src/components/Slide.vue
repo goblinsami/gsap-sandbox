@@ -89,6 +89,7 @@ import {
   deriveTitleMaxWidthFromContent,
   getDescriptionClampSize,
   getEyebrowFontSizeRem,
+  getLogoDimensions,
   getTitleClampSize
 } from '../constants/slideStyle'
 import { getDirectionIcon } from '../composables/useDirectionIcon'
@@ -112,8 +113,10 @@ const props = defineProps<{
   titleMaxWidth?: number
   descriptionMaxWidth?: number
   panelClass?: string
+  panelColor?: string
   image?: string
   logo?: string
+  logoSize?: SlideTextSize
   logoTintEnabled?: boolean
   logoTintColor?: string
   backgroundGradient?: string
@@ -194,8 +197,13 @@ const eyebrowStyle = computed(() => ({
   letterSpacing: `${eyebrowLetterSpacingResolved.value}em`,
   fontSize: `${getEyebrowFontSizeRem(props.eyebrowSize ?? DEFAULT_TEXT_SIZE)}rem`
 }))
+const logoDimensionsResolved = computed(() => getLogoDimensions(props.logoSize ?? DEFAULT_TEXT_SIZE))
 const logoStyle = computed(() => ({
   marginBottom: `${eyebrowTitleGapResolved.value}px`,
+  width: `${logoDimensionsResolved.value.widthPx}px`,
+  height: `${logoDimensionsResolved.value.heightPx}px`,
+  maxWidth: `${logoDimensionsResolved.value.widthPx}px`,
+  maxHeight: `${logoDimensionsResolved.value.heightPx}px`,
   objectPosition:
     contentAlignResolved.value === ContentAlign.Right
       ? 'right center'
@@ -243,9 +251,9 @@ const overlayVisible = computed(() => Boolean(props.image) && overlayEnabledReso
 const hasVisualBackground = computed(() => Boolean(props.image || props.backgroundGradient))
 const contentAlignResolved = computed(() => props.contentAlign ?? DEFAULT_CONTENT_ALIGN)
 const panelStyle = computed(() => {
-  if (!props.backgroundGradient) return undefined
   return {
-    background: props.backgroundGradient
+    background: props.backgroundGradient,
+    backgroundColor: props.panelColor || 'transparent'
   }
 })
 const overlayStyle = computed(() => {

@@ -4,12 +4,15 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import type { SlidePathStep } from './useSlidePath'
 import type { SnapEaseOption } from '../constants/snapEase'
 import { normalizeTransitionSpeed } from '../constants/transitionSpeed'
+import { normalizeAutoPlaySpeed } from '../constants/autoPlaySpeed'
 
 gsap.registerPlugin(ScrollTrigger)
 
 const WHEEL_INTENT_THRESHOLD = 9
 const TOUCH_INTENT_THRESHOLD = 18
 const INPUT_COOLDOWN_MS = 220
+const AUTOPLAY_RETRY_WHILE_TRANSITIONING_MS = 50
+const AUTOPLAY_RESUME_AFTER_MANUAL_INPUT_MS = 2000
 
 interface UseSlideSnapNavigationOptions {
   flowSteps: Ref<SlidePathStep[]>
@@ -17,6 +20,8 @@ interface UseSlideSnapNavigationOptions {
   loopEnabled: Ref<boolean>
   snapEase: Ref<SnapEaseOption>
   transitionSpeed: Ref<number>
+  autoPlayEnabled: Ref<boolean>
+  autoPlaySpeed: Ref<number>
   enabled: boolean
   logPrefix?: string
 }
@@ -35,6 +40,8 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
   let touchCommitted = false
   let lastInputAt = 0
   let resizeDebounce: number | null = null
+  let autoPlayTimer: number | null = null
+  let autoPlayNextAt = 0
 
   const clampIndex = (value: number, total: number) => Math.max(0, Math.min(total - 1, value))
   const normalizeIndex = (value: number, total: number) => {
@@ -79,6 +86,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
       max: maxDuration
     }
   }
+  const getAutoPlaySpeed = () => normalizeAutoPlaySpeed(options.autoPlaySpeed.value)
 
   const jumpToStep = (index: number) => {
     const stage = snapStageRef.value
@@ -164,6 +172,47 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     })
   }
 
+  const clearAutoPlayTimer = () => {
+    if (autoPlayTimer !== null) {
+      window.clearTimeout(autoPlayTimer)
+      autoPlayTimer = null
+    }
+  }
+
+  const scheduleAutoPlayTick = () => {
+    clearAutoPlayTimer()
+    if (!options.autoSnapEnabled || !options.autoPlayEnabled.value) return
+    if (options.flowSteps.value.length <= 1) return
+
+    const now = Date.now()
+    const delay = Math.max(0, autoPlayNextAt - now)
+    autoPlayTimer = window.setTimeout(() => {
+      if (isTransitioning.value) {
+        autoPlayTimer = window.setTimeout(scheduleAutoPlayTick, AUTOPLAY_RETRY_WHILE_TRANSITIONING_MS)
+        return
+      }
+      goToStep(activeStepIndex.value + 1, 'autoplay')
+      autoPlayNextAt += Math.round(getAutoPlaySpeed() * 1000)
+      scheduleAutoPlayTick()
+    }, delay)
+  }
+
+  const setupAutoPlay = (resumeDelayMs = 0) => {
+    clearAutoPlayTimer()
+    if (!options.autoSnapEnabled || !options.autoPlayEnabled.value) return
+    if (options.flowSteps.value.length <= 1) return
+
+    const intervalMs = Math.round(getAutoPlaySpeed() * 1000)
+    autoPlayNextAt = Date.now() + Math.max(0, resumeDelayMs) + intervalMs
+    scheduleAutoPlayTick()
+
+    console.log(`${logPrefix} autoplay:start`, {
+      speed: getAutoPlaySpeed(),
+      intervalMs,
+      resumeDelayMs
+    })
+  }
+
   const focusStep = (index: number) => {
     const steps = options.flowSteps.value
     if (!steps.length) return
@@ -217,6 +266,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
 
       if (!shouldAcceptInput()) return
       goToStep(activeStepIndex.value + (event.deltaY > 0 ? 1 : -1), 'wheel')
+      setupAutoPlay(AUTOPLAY_RESUME_AFTER_MANUAL_INPUT_MS)
     }
 
     const touchStartHandler = (event: TouchEvent) => {
@@ -244,6 +294,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
 
       if (!shouldAcceptInput()) return
       goToStep(activeStepIndex.value + (deltaY > 0 ? 1 : -1), 'touch')
+      setupAutoPlay(AUTOPLAY_RESUME_AFTER_MANUAL_INPUT_MS)
     }
 
     const touchEndHandler = () => {
@@ -268,6 +319,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
 
       if (!shouldAcceptInput()) return
       goToStep(activeStepIndex.value + (forward ? 1 : -1), 'keyboard')
+      setupAutoPlay(AUTOPLAY_RESUME_AFTER_MANUAL_INPUT_MS)
     }
 
     window.addEventListener('wheel', wheelHandler, { passive: false })
@@ -297,6 +349,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
       resizeDebounce = null
     }
     document.body.classList.remove('snap-mode')
+    clearAutoPlayTimer()
     touchStartY = null
     touchCommitted = false
     isTransitioning.value = false
@@ -330,6 +383,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     if (options.autoSnapEnabled) {
       document.body.classList.add('snap-mode')
       setupAutoSnapInteractions()
+      setupAutoPlay()
       return
     }
 
@@ -432,6 +486,27 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
       if (normalizedNext === normalizedPrev) return
       console.log(`${logPrefix} speed:update`, { transitionSpeed: normalizedNext })
       if (!options.autoSnapEnabled) await initNavigation()
+    }
+  )
+
+  watch(
+    () => options.autoPlayEnabled.value,
+    (nextEnabled, prevEnabled) => {
+      if (!options.enabled || nextEnabled === prevEnabled) return
+      console.log(`${logPrefix} autoplay:enabled:update`, { autoPlayEnabled: nextEnabled })
+      setupAutoPlay()
+    }
+  )
+
+  watch(
+    () => options.autoPlaySpeed.value,
+    (nextSpeed, prevSpeed) => {
+      if (!options.enabled) return
+      const normalizedNext = normalizeAutoPlaySpeed(nextSpeed)
+      const normalizedPrev = normalizeAutoPlaySpeed(prevSpeed)
+      if (normalizedNext === normalizedPrev) return
+      console.log(`${logPrefix} autoplay:speed:update`, { autoPlaySpeed: normalizedNext })
+      setupAutoPlay()
     }
   )
 

@@ -53,6 +53,11 @@ export const TITLE_FONT_SIZE_M = {
   maxRem: 5.5
 } as const
 
+export const LOGO_BASE_SIZE_M = {
+  widthPx: 220,
+  heightPx: 72
+} as const
+
 export const TEXT_STYLE_RANGES = {
   textGap: { min: MIN_EYEBROW_TITLE_GAP, max: MAX_EYEBROW_TITLE_GAP, step: 1 },
   eyebrowTitleGap: { min: MIN_EYEBROW_TITLE_GAP, max: MAX_EYEBROW_TITLE_GAP, step: 1 },
@@ -90,6 +95,14 @@ export const getTitleClampSize = (size: SlideTextSize | undefined) => {
   const vw = round3(TITLE_FONT_SIZE_M.vw * scale)
   const maxRem = round3(TITLE_FONT_SIZE_M.maxRem * scale)
   return `clamp(${minRem}rem, ${vw}vw, ${maxRem}rem)`
+}
+
+export const getLogoDimensions = (size: SlideTextSize | undefined) => {
+  const scale = getTextScale(size)
+  return {
+    widthPx: Math.round(LOGO_BASE_SIZE_M.widthPx * scale),
+    heightPx: Math.round(LOGO_BASE_SIZE_M.heightPx * scale)
+  }
 }
 
 export const clampNumber = (value: number | undefined, min: number, max: number, fallback: number) => {

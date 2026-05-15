@@ -1,4 +1,4 @@
-﻿import { onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import content from '../data/welcome.json'
 import type { ContentSchema, Panel } from '../types/navigation'
 import { validateContentSchema } from '../utils/validateContent'
@@ -7,6 +7,7 @@ import { useSlidePath } from './useSlidePath'
 import { useSlideSnapNavigation } from './useSlideSnapNavigation'
 import { SNAP_EASE_OPTIONS, normalizeSnapEase, type SnapEaseOption } from '../constants/snapEase'
 import { normalizeTransitionSpeed } from '../constants/transitionSpeed'
+import { normalizeAutoPlaySpeed } from '../constants/autoPlaySpeed'
 
 const LOG_PREFIX = '[flow-snap]'
 
@@ -16,9 +17,11 @@ export function usePresentationFlow() {
   const schema = applyWelcomeGradientsToContent(content as ContentSchema)
   const autoSnapEnabled = schema.autoSnapEnabled ?? true
   const loopEnabled = ref(schema.loopEnabled ?? false)
+  const autoPlayEnabled = ref(schema.autoPlayEnabled ?? false)
   const panelsState = ref<Panel[]>(isValid ? ((schema.panels ?? []).map((panel) => ({ ...panel })) as Panel[]) : [])
   const snapEase = ref<SnapEaseOption>(normalizeSnapEase(schema.snapEase))
   const transitionSpeed = ref(normalizeTransitionSpeed(schema.transitionSpeed))
+  const autoPlaySpeed = ref(normalizeAutoPlaySpeed(schema.autoPlaySpeed))
   const { flowSteps } = useSlidePath(panelsState)
 
   const { snapShellRef, snapStageRef, stepStyle, focusStep } = useSlideSnapNavigation({
@@ -27,6 +30,8 @@ export function usePresentationFlow() {
     loopEnabled,
     snapEase,
     transitionSpeed,
+    autoPlayEnabled,
+    autoPlaySpeed,
     enabled: isValid,
     logPrefix: LOG_PREFIX
   })
@@ -46,6 +51,12 @@ export function usePresentationFlow() {
   const handleTransitionSpeedUpdate = (nextValue: number) => {
     transitionSpeed.value = normalizeTransitionSpeed(nextValue)
   }
+  const handleAutoPlayEnabledUpdate = (nextValue: boolean) => {
+    autoPlayEnabled.value = nextValue
+  }
+  const handleAutoPlaySpeedUpdate = (nextValue: number) => {
+    autoPlaySpeed.value = normalizeAutoPlaySpeed(nextValue)
+  }
 
   const handleFocusStep = (index: number) => {
     focusStep(index)
@@ -54,7 +65,7 @@ export function usePresentationFlow() {
   onMounted(() => {
     console.log(`${LOG_PREFIX} mounted`)
     if (!isValid) {
-      alert(`JSON invalido:\n\n${validation.errors.join('\n')}`)
+      console.warn(`JSON invalido:\n\n${validation.errors.join('\n')}`)
     }
   })
 
@@ -62,9 +73,11 @@ export function usePresentationFlow() {
     autoSnapEnabled,
     flowSteps,
     loopEnabled,
+    autoPlayEnabled,
     panelsState,
     snapEase,
     transitionSpeed,
+    autoPlaySpeed,
     snapShellRef,
     snapStageRef,
     stepStyle,
@@ -73,7 +86,10 @@ export function usePresentationFlow() {
     handleSnapEaseUpdate,
     handleLoopEnabledUpdate,
     handleTransitionSpeedUpdate,
+    handleAutoPlayEnabledUpdate,
+    handleAutoPlaySpeedUpdate,
     handleFocusStep
   }
 }
+
 

@@ -37,18 +37,6 @@ import {
   deriveTitleMaxWidthFromContent
 } from '../constants/slideStyle'
 
-export const panelClassOptions = [
-  { value: '', label: 'Default' },
-  { value: 'contrast', label: 'Contrast' },
-  { value: 'outro', label: 'Outro Blue' },
-  { value: 'red', label: 'Red' },
-  { value: 'danger', label: 'Danger' },
-  { value: 'ocean', label: 'Ocean' },
-  { value: 'forest', label: 'Forest' },
-  { value: 'violet', label: 'Violet' },
-  { value: 'amber', label: 'Amber' }
-]
-
 export const contentAlignOptions: Array<{ value: ContentAlign; label: string }> = [
   { value: ContentAlign.Left, label: 'Left' },
   { value: ContentAlign.Center, label: 'Center' },
@@ -63,6 +51,7 @@ export const DROP_IMAGE_EMPTY_TEXT = 'Drop image here or choose file'
 export const DROP_LOGO_LOADED_TEXT = 'Logo loaded'
 export const DROP_LOGO_EMPTY_TEXT = 'Paste logo URL or choose file'
 export const DEFAULT_LOGO_TINT_COLOR = '#ffffff'
+export const DEFAULT_SLIDE_COLOR = '#111111'
 export const textStyleRanges = TEXT_STYLE_RANGES
 
 const clampOverlayIntensity = (value: number) => {
@@ -128,8 +117,10 @@ const copyPanelToDraft = (panel: Panel, draft: Panel) => {
     deriveDescriptionMaxWidthFromContent(contentMaxWidth)
   )
   draft.panelClass = panel.panelClass
+  draft.panelColor = panel.panelColor ?? ''
   draft.image = panel.image ?? ''
   draft.logo = panel.logo ?? ''
+  draft.logoSize = panel.logoSize ?? DEFAULT_TEXT_SIZE
   draft.logoTintEnabled = panel.logoTintEnabled ?? true
   draft.logoTintColor = panel.logoTintColor ?? DEFAULT_LOGO_TINT_COLOR
   draft.backgroundGradient = panel.backgroundGradient
@@ -166,8 +157,10 @@ export function useSlidePropertiesForm(options: UseSlidePropertiesFormOptions) {
     titleMaxWidth: DEFAULT_TITLE_MAX_WIDTH,
     descriptionMaxWidth: DEFAULT_DESCRIPTION_MAX_WIDTH,
     panelClass: '',
+    panelColor: '',
     image: '',
     logo: '',
+    logoSize: DEFAULT_TEXT_SIZE,
     logoTintEnabled: true,
     logoTintColor: DEFAULT_LOGO_TINT_COLOR,
     backgroundGradient: undefined,

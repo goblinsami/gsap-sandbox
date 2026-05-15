@@ -13,29 +13,67 @@
       <div class="flow-modal__debug">
         <div class="flow-controls-row flow-controls-row--top">
           <div class="flow-controls-group flow-controls-group--fields">
-            <div class="flow-field-pair">
-              <label class="flow-field-group" for="snap-ease-select">
-                <span class="flow-field-label">Snap ease</span>
-                <select id="snap-ease-select" v-model="selectedEase" class="flow-field-select" @change="emitSnapEase">
-                  <option v-for="ease in easeOptions" :key="ease" :value="ease">
-                    {{ ease }}
-                  </option>
-                </select>
-              </label>
-              <label class="flow-field-group flow-field-group--speed" for="transition-speed-input">
-                <span class="flow-field-label">Speed</span>
-                <input
-                  id="transition-speed-input"
-                  v-model.number="selectedTransitionSpeed"
-                  type="number"
-                  class="flow-field-select flow-field-input flow-field-input--speed"
-                  :min="MIN_TRANSITION_SPEED"
-                  :max="MAX_TRANSITION_SPEED"
-                  :step="TRANSITION_SPEED_STEP"
-                  @change="emitTransitionSpeed"
-                />
-              </label>
+            <div class="flow-subcategory">
+              <span class="flow-subcategory__title">Transition</span>
+              <div class="flow-field-pair">
+                <label class="flow-field-group" for="snap-ease-select">
+                  <span class="flow-field-label">Snap ease</span>
+                  <select id="snap-ease-select" v-model="selectedEase" class="flow-field-select" @change="emitSnapEase">
+                    <option v-for="ease in easeOptions" :key="ease" :value="ease">
+                      {{ ease }}
+                    </option>
+                  </select>
+                </label>
+                <label class="flow-field-group flow-field-group--speed" for="transition-speed-input">
+                  <span class="flow-field-label">Speed</span>
+                  <input
+                    id="transition-speed-input"
+                    v-model.number="selectedTransitionSpeed"
+                    type="number"
+                    class="flow-field-select flow-field-input flow-field-input--speed"
+                    :min="MIN_TRANSITION_SPEED"
+                    :max="MAX_TRANSITION_SPEED"
+                    :step="TRANSITION_SPEED_STEP"
+                    @change="emitTransitionSpeed"
+                  />
+                </label>
+              </div>
             </div>
+
+            <div class="flow-subcategory">
+              <span class="flow-subcategory__title">AutoPlay</span>
+              <div class="flow-field-pair">
+                <div class="flow-field-group flow-field-group--toggle">
+                  <span class="flow-field-label">Enabled</span>
+                  <label class="flow-switch" for="autoplay-enabled-toggle">
+                    <input
+                      id="autoplay-enabled-toggle"
+                      v-model="selectedAutoPlayEnabled"
+                      type="checkbox"
+                      class="flow-switch__input"
+                      role="switch"
+                      @change="emitAutoPlayEnabled"
+                    />
+                    <span class="flow-switch__track" aria-hidden="true" />
+                  </label>
+                </div>
+                <label class="flow-field-group flow-field-group--speed" for="autoplay-speed-input">
+                  <span class="flow-field-label">Interval (s)</span>
+                  <input
+                    id="autoplay-speed-input"
+                    v-model.number="selectedAutoPlaySpeed"
+                    type="number"
+                    class="flow-field-select flow-field-input flow-field-input--speed"
+                    :min="MIN_AUTOPLAY_SPEED"
+                    :max="MAX_AUTOPLAY_SPEED"
+                    :step="AUTOPLAY_SPEED_STEP"
+                    :disabled="!selectedAutoPlayEnabled"
+                    @change="emitAutoPlaySpeed"
+                  />
+                </label>
+              </div>
+            </div>
+
             <div class="flow-field-group flow-field-group--toggle">
               <span class="flow-field-label">Enable loop</span>
               <label class="flow-switch" for="loop-enabled-toggle">
@@ -151,11 +189,19 @@ import {
   TRANSITION_SPEED_STEP,
   normalizeTransitionSpeed
 } from '../../constants/transitionSpeed'
+import {
+  AUTOPLAY_SPEED_STEP,
+  MAX_AUTOPLAY_SPEED,
+  MIN_AUTOPLAY_SPEED,
+  normalizeAutoPlaySpeed
+} from '../../constants/autoPlaySpeed'
 
 const props = defineProps<{
   panels: Panel[]
   snapEase: string
   transitionSpeed: number
+  autoPlayEnabled: boolean
+  autoPlaySpeed: number
   loopEnabled: boolean
   easeOptions: readonly string[]
 }>()
@@ -164,6 +210,8 @@ const emit = defineEmits<{
   'update:panels': [panels: Panel[]]
   'update:snapEase': [ease: string]
   'update:transition-speed': [speed: number]
+  'update:auto-play-enabled': [enabled: boolean]
+  'update:auto-play-speed': [speed: number]
   'update:loopEnabled': [enabled: boolean]
   focusStep: [index: number]
 }>()
@@ -209,6 +257,8 @@ const dataFiles = computed(() =>
 const selectedDataFile = ref('')
 const selectedEase = ref(props.snapEase)
 const selectedTransitionSpeed = ref(normalizeTransitionSpeed(props.transitionSpeed))
+const selectedAutoPlayEnabled = ref(props.autoPlayEnabled)
+const selectedAutoPlaySpeed = ref(normalizeAutoPlaySpeed(props.autoPlaySpeed))
 const selectedLoopEnabled = ref(props.loopEnabled)
 const isDesktop = ref(false)
 const jsonFileInputRef = ref<HTMLInputElement | null>(null)
@@ -247,6 +297,18 @@ watch(
     selectedLoopEnabled.value = value
   }
 )
+watch(
+  () => props.autoPlayEnabled,
+  (value) => {
+    selectedAutoPlayEnabled.value = value
+  }
+)
+watch(
+  () => props.autoPlaySpeed,
+  (value) => {
+    selectedAutoPlaySpeed.value = normalizeAutoPlaySpeed(value)
+  }
+)
 
 watch(
   () => props.transitionSpeed,
@@ -263,6 +325,14 @@ const emitTransitionSpeed = () => {
   const normalized = normalizeTransitionSpeed(selectedTransitionSpeed.value)
   selectedTransitionSpeed.value = normalized
   emit('update:transition-speed', normalized)
+}
+const emitAutoPlayEnabled = () => {
+  emit('update:auto-play-enabled', selectedAutoPlayEnabled.value)
+}
+const emitAutoPlaySpeed = () => {
+  const normalized = normalizeAutoPlaySpeed(selectedAutoPlaySpeed.value)
+  selectedAutoPlaySpeed.value = normalized
+  emit('update:auto-play-speed', normalized)
 }
 
 const emitLoopEnabled = () => {

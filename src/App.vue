@@ -5,11 +5,15 @@
       :panels="panelsState"
       :snap-ease="snapEase"
       :transition-speed="transitionSpeed"
+      :auto-play-enabled="autoPlayEnabled"
+      :auto-play-speed="autoPlaySpeed"
       :loop-enabled="loopEnabled"
       :ease-options="SNAP_EASE_OPTIONS"
       @update:panels="handlePanelsUpdate"
       @update:snap-ease="handleSnapEaseUpdate"
       @update:transition-speed="handleTransitionSpeedUpdate"
+      @update:auto-play-enabled="handleAutoPlayEnabledUpdate"
+      @update:auto-play-speed="handleAutoPlaySpeedUpdate"
       @update:loop-enabled="handleLoopEnabledUpdate"
       @focus-step="handleFocusStep"
     />
@@ -49,8 +53,10 @@
             :title-max-width="step.panel.titleMaxWidth"
             :description-max-width="step.panel.descriptionMaxWidth"
             :panel-class="step.panel.panelClass"
+            :panel-color="step.panel.panelColor"
             :image="step.panel.image"
             :logo="step.panel.logo"
+            :logo-size="step.panel.logoSize"
             :logo-tint-enabled="step.panel.logoTintEnabled"
             :logo-tint-color="step.panel.logoTintColor"
             :background-gradient="step.panel.backgroundGradient"
@@ -73,6 +79,8 @@ import { usePresentationFlow } from './composables/usePresentationFlow'
 
 const {
   autoSnapEnabled,
+  autoPlayEnabled,
+  autoPlaySpeed,
   flowSteps,
   loopEnabled,
   panelsState,
@@ -85,6 +93,8 @@ const {
   handlePanelsUpdate,
   handleSnapEaseUpdate,
   handleTransitionSpeedUpdate,
+  handleAutoPlayEnabledUpdate,
+  handleAutoPlaySpeedUpdate,
   handleLoopEnabledUpdate,
   handleFocusStep
 } = usePresentationFlow()

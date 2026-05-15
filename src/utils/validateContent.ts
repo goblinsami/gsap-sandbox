@@ -27,6 +27,7 @@ import {
   MIN_TITLE_MAX_WIDTH
 } from '../constants/slideStyle'
 import { MAX_TRANSITION_SPEED, MIN_TRANSITION_SPEED } from '../constants/transitionSpeed'
+import { MAX_AUTOPLAY_SPEED, MIN_AUTOPLAY_SPEED } from '../constants/autoPlaySpeed'
 
 const VALID_DIRECTIONS: Direction[] = [Direction.Up, Direction.Down, Direction.Left, Direction.Right]
 const VALID_TEXT_SIZES = [...TextSizeValues]
@@ -67,6 +68,16 @@ export function validateContentSchema(raw: unknown): ValidationResult {
       errors.push('content.json: transitionSpeed debe ser number.')
     } else if (content.transitionSpeed < MIN_TRANSITION_SPEED || content.transitionSpeed > MAX_TRANSITION_SPEED) {
       errors.push(`content.json: transitionSpeed fuera de rango (${MIN_TRANSITION_SPEED}-${MAX_TRANSITION_SPEED}).`)
+    }
+  }
+  if (content.autoPlayEnabled !== undefined && typeof content.autoPlayEnabled !== 'boolean') {
+    errors.push('content.json: autoPlayEnabled debe ser boolean.')
+  }
+  if (content.autoPlaySpeed !== undefined) {
+    if (typeof content.autoPlaySpeed !== 'number' || Number.isNaN(content.autoPlaySpeed)) {
+      errors.push('content.json: autoPlaySpeed debe ser number.')
+    } else if (content.autoPlaySpeed < MIN_AUTOPLAY_SPEED || content.autoPlaySpeed > MAX_AUTOPLAY_SPEED) {
+      errors.push(`content.json: autoPlaySpeed fuera de rango (${MIN_AUTOPLAY_SPEED}-${MAX_AUTOPLAY_SPEED}).`)
     }
   }
 
@@ -217,12 +228,20 @@ export function validateContentSchema(raw: unknown): ValidationResult {
       errors.push(`${label}: panelClass debe ser string.`)
     }
 
+    if (p.panelColor !== undefined && typeof p.panelColor !== 'string') {
+      errors.push(`${label}: panelColor debe ser string.`)
+    }
+
     if (p.image !== undefined && typeof p.image !== 'string') {
       errors.push(`${label}: image debe ser string.`)
     }
 
     if (p.logo !== undefined && typeof p.logo !== 'string') {
       errors.push(`${label}: logo debe ser string.`)
+    }
+
+    if (p.logoSize !== undefined && !VALID_TEXT_SIZES.includes(p.logoSize)) {
+      errors.push(`${label}: logoSize invalido (${String(p.logoSize)}).`)
     }
 
     if (p.logoTintEnabled !== undefined && typeof p.logoTintEnabled !== 'boolean') {

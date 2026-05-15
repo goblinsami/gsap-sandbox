@@ -185,7 +185,7 @@ body.snap-mode {
   margin: 0;
   line-height: 1.75;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(255, 255, 255, 1);
   opacity: 1;
   text-align: center;
   text-wrap: pretty;
@@ -589,6 +589,7 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
   z-index: 1200;
   display: grid;
   align-items: start;
+  overflow: hidden;
 }
 
 .block-settings-overlay--left {
@@ -603,6 +604,7 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
 
 .block-settings {
   width: min(420px, 92vw);
+  max-height: calc(100vh - 92px);
   background: #fff;
   border-radius: 12px;
   border: 1px solid #d7d7d7;
@@ -610,6 +612,8 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
   padding: 1rem;
   display: grid;
   gap: 0.7rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .block-settings h4 {
@@ -947,6 +951,23 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
   gap: 0.55rem;
 }
 
+.flow-subcategory {
+  border: 1px solid #dbe2ea;
+  border-radius: 10px;
+  background: #fbfcfe;
+  padding: 0.45rem 0.5rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.flow-subcategory__title {
+  font-size: 0.64rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #607285;
+}
+
 .flow-field-group--speed {
   min-width: 88px;
 }
@@ -1143,6 +1164,28 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
 .logo-row small {
   font-size: 0.74rem;
   color: #5e6f80;
+}
+
+.gradient-editor {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.gradient-editor__colors {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.gradient-editor__preview {
+  width: 100%;
+  height: 72px;
+  border-radius: 10px;
+  border: 1px solid #c9d5e2;
+}
+
+.gradient-editor__actions {
+  display: flex;
+  gap: 0.45rem;
 }
 
 .danger {

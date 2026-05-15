@@ -31,7 +31,7 @@ const PANEL_TONES: Record<string, string> = {
 }
 
 const panelToneStyle = computed(() => {
-  const tone = PANEL_TONES[props.panel.panelClass] ?? 'rgba(255, 255, 255, 1)'
+  const tone = props.panel.panelColor ?? PANEL_TONES[props.panel.panelClass] ?? 'rgba(255, 255, 255, 1)'
   return { backgroundColor: tone }
 })
 </script>
