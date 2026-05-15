@@ -14,8 +14,25 @@
         <div class="flow-controls-row flow-controls-row--top">
           <div class="flow-controls-group flow-controls-group--fields">
             <div class="flow-subcategory">
-              <span class="flow-subcategory__title">Transition</span>
-              <div class="flow-field-pair">
+              <button type="button" class="flow-subcategory__header" @click="isTransitionOpen = !isTransitionOpen">
+                <span class="flow-subcategory__title">Transition</span>
+                <span class="flow-subcategory__chevron" :class="{ 'flow-subcategory__chevron--open': isTransitionOpen }">▸</span>
+              </button>
+              <div v-show="isTransitionOpen" class="flow-field-pair">
+                <div class="flow-field-group flow-field-group--toggle">
+                  <span class="flow-field-label">Auto Snap</span>
+                  <label class="flow-switch" for="autosnap-enabled-toggle">
+                    <input
+                      id="autosnap-enabled-toggle"
+                      v-model="selectedAutoSnapEnabled"
+                      type="checkbox"
+                      class="flow-switch__input"
+                      role="switch"
+                      @change="emitAutoSnapEnabled"
+                    />
+                    <span class="flow-switch__track" aria-hidden="true" />
+                  </label>
+                </div>
                 <label class="flow-field-group" for="snap-ease-select">
                   <span class="flow-field-label">Snap ease</span>
                   <select id="snap-ease-select" v-model="selectedEase" class="flow-field-select" @change="emitSnapEase">
@@ -41,8 +58,11 @@
             </div>
 
             <div class="flow-subcategory">
-              <span class="flow-subcategory__title">AutoPlay</span>
-              <div class="flow-field-pair">
+              <button type="button" class="flow-subcategory__header" @click="isAutoPlayOpen = !isAutoPlayOpen">
+                <span class="flow-subcategory__title">AutoPlay</span>
+                <span class="flow-subcategory__chevron" :class="{ 'flow-subcategory__chevron--open': isAutoPlayOpen }">▸</span>
+              </button>
+              <div v-show="isAutoPlayOpen" class="flow-field-pair">
                 <div class="flow-field-group flow-field-group--toggle">
                   <span class="flow-field-label">Enabled</span>
                   <label class="flow-switch" for="autoplay-enabled-toggle">
@@ -74,42 +94,50 @@
               </div>
             </div>
 
-            <div class="flow-field-group flow-field-group--toggle">
-              <span class="flow-field-label">Enable loop</span>
-              <label class="flow-switch" for="loop-enabled-toggle">
-                <input
-                  id="loop-enabled-toggle"
-                  v-model="selectedLoopEnabled"
-                  type="checkbox"
-                  class="flow-switch__input"
-                  role="switch"
-                  @change="emitLoopEnabled"
-                />
-                <span class="flow-switch__track" aria-hidden="true" />
-              </label>
-            </div>
-          </div>
-          <div class="flow-controls-group flow-controls-group--actions">
-            <button @click="exportFlowJson">Export JSON</button>
-            <button type="button" @click="openJsonFilePicker">Import JSON</button>
           </div>
         </div>
 
         <div class="flow-controls-row flow-controls-row--bottom">
-          <label class="flow-field-group flow-field-group--data" for="data-file-select">
-            <span class="flow-field-label">Data file</span>
-            <select
-              id="data-file-select"
-              v-model="selectedDataFile"
-              class="flow-field-select"
-              @change="importSelectedDataFile"
-            >
-              <option value="">Select data file</option>
-              <option v-for="file in dataFiles" :key="file.path" :value="file.path">
-                {{ file.name }}
-              </option>
-            </select>
-          </label>
+          <div class="flow-field-group flow-field-group--toggle">
+            <span class="flow-field-label">Enable loop</span>
+            <label class="flow-switch" for="loop-enabled-toggle">
+              <input
+                id="loop-enabled-toggle"
+                v-model="selectedLoopEnabled"
+                type="checkbox"
+                class="flow-switch__input"
+                role="switch"
+                @change="emitLoopEnabled"
+              />
+              <span class="flow-switch__track" aria-hidden="true" />
+            </label>
+          </div>
+          <div class="flow-subcategory">
+            <button type="button" class="flow-subcategory__header" @click="isFilesOpen = !isFilesOpen">
+              <span class="flow-subcategory__title">Files</span>
+              <span class="flow-subcategory__chevron" :class="{ 'flow-subcategory__chevron--open': isFilesOpen }">▸</span>
+            </button>
+            <div v-show="isFilesOpen" class="flow-field-pair">
+              <label class="flow-field-group flow-field-group--data" for="data-file-select">
+                <span class="flow-field-label">Data file</span>
+                <select
+                  id="data-file-select"
+                  v-model="selectedDataFile"
+                  class="flow-field-select"
+                  @change="importSelectedDataFile"
+                >
+                  <option value="">Select data file</option>
+                  <option v-for="file in dataFiles" :key="file.path" :value="file.path">
+                    {{ file.name }}
+                  </option>
+                </select>
+              </label>
+              <div class="flow-controls-group flow-controls-group--actions">
+                <button @click="exportFlowJson">Export JSON</button>
+                <button type="button" @click="openJsonFilePicker">Import JSON</button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <input
@@ -198,6 +226,7 @@ import {
 
 const props = defineProps<{
   panels: Panel[]
+  autoSnapEnabled: boolean
   snapEase: string
   transitionSpeed: number
   autoPlayEnabled: boolean
@@ -208,6 +237,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:panels': [panels: Panel[]]
+  'update:auto-snap-enabled': [enabled: boolean]
   'update:snapEase': [ease: string]
   'update:transition-speed': [speed: number]
   'update:auto-play-enabled': [enabled: boolean]
@@ -255,6 +285,7 @@ const dataFiles = computed(() =>
 )
 
 const selectedDataFile = ref('')
+const selectedAutoSnapEnabled = ref(props.autoSnapEnabled)
 const selectedEase = ref(props.snapEase)
 const selectedTransitionSpeed = ref(normalizeTransitionSpeed(props.transitionSpeed))
 const selectedAutoPlayEnabled = ref(props.autoPlayEnabled)
@@ -262,6 +293,9 @@ const selectedAutoPlaySpeed = ref(normalizeAutoPlaySpeed(props.autoPlaySpeed))
 const selectedLoopEnabled = ref(props.loopEnabled)
 const isDesktop = ref(false)
 const jsonFileInputRef = ref<HTMLInputElement | null>(null)
+const isTransitionOpen = ref(false)
+const isAutoPlayOpen = ref(false)
+const isFilesOpen = ref(false)
 
 const DESKTOP_BREAKPOINT_QUERY = '(min-width: 1024px)'
 
@@ -283,6 +317,13 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('resize', applyViewportMode)
 })
+
+watch(
+  () => props.autoSnapEnabled,
+  (value) => {
+    selectedAutoSnapEnabled.value = value
+  }
+)
 
 watch(
   () => props.snapEase,
@@ -319,6 +360,9 @@ watch(
 
 const emitSnapEase = () => {
   emit('update:snapEase', selectedEase.value)
+}
+const emitAutoSnapEnabled = () => {
+  emit('update:auto-snap-enabled', selectedAutoSnapEnabled.value)
 }
 
 const emitTransitionSpeed = () => {

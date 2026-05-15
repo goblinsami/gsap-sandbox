@@ -15,7 +15,7 @@ export function usePresentationFlow() {
   const validation = validateContentSchema(content)
   const isValid = validation.ok
   const schema = applyWelcomeGradientsToContent(content as ContentSchema)
-  const autoSnapEnabled = schema.autoSnapEnabled ?? true
+  const autoSnapEnabled = ref(schema.autoSnapEnabled ?? true)
   const loopEnabled = ref(schema.loopEnabled ?? false)
   const autoPlayEnabled = ref(schema.autoPlayEnabled ?? false)
   const panelsState = ref<Panel[]>(isValid ? ((schema.panels ?? []).map((panel) => ({ ...panel })) as Panel[]) : [])
@@ -46,6 +46,9 @@ export function usePresentationFlow() {
 
   const handleLoopEnabledUpdate = (nextValue: boolean) => {
     loopEnabled.value = nextValue
+  }
+  const handleAutoSnapEnabledUpdate = (nextValue: boolean) => {
+    autoSnapEnabled.value = nextValue
   }
 
   const handleTransitionSpeedUpdate = (nextValue: number) => {
@@ -85,6 +88,7 @@ export function usePresentationFlow() {
     handlePanelsUpdate,
     handleSnapEaseUpdate,
     handleLoopEnabledUpdate,
+    handleAutoSnapEnabledUpdate,
     handleTransitionSpeedUpdate,
     handleAutoPlayEnabledUpdate,
     handleAutoPlaySpeedUpdate,

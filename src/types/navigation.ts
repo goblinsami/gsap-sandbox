@@ -71,6 +71,7 @@ export interface Panel {
 export interface ContentSchema {
   autoSnapEnabled?: boolean
   loopEnabled?: boolean
+  enableLoop?: boolean
   snapEase?: string
   transitionSpeed?: number
   autoPlayEnabled?: boolean

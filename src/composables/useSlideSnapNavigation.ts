@@ -5,6 +5,7 @@ import type { SlidePathStep } from './useSlidePath'
 import type { SnapEaseOption } from '../constants/snapEase'
 import { normalizeTransitionSpeed } from '../constants/transitionSpeed'
 import { normalizeAutoPlaySpeed } from '../constants/autoPlaySpeed'
+import { normalizeStepIndex } from '../utils/stepIndex'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -16,7 +17,7 @@ const AUTOPLAY_RESUME_AFTER_MANUAL_INPUT_MS = 2000
 
 interface UseSlideSnapNavigationOptions {
   flowSteps: Ref<SlidePathStep[]>
-  autoSnapEnabled: boolean
+  autoSnapEnabled: Ref<boolean>
   loopEnabled: Ref<boolean>
   snapEase: Ref<SnapEaseOption>
   transitionSpeed: Ref<number>
@@ -43,12 +44,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
   let autoPlayTimer: number | null = null
   let autoPlayNextAt = 0
 
-  const clampIndex = (value: number, total: number) => Math.max(0, Math.min(total - 1, value))
-  const normalizeIndex = (value: number, total: number) => {
-    if (total <= 0) return 0
-    if (!options.loopEnabled.value) return clampIndex(value, total)
-    return ((value % total) + total) % total
-  }
+  const normalizeIndex = (value: number, total: number) => normalizeStepIndex(value, total, options.loopEnabled.value)
 
   const isIgnoredTarget = (target: EventTarget | null) => {
     const element = target instanceof Element ? target : null
@@ -181,7 +177,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
 
   const scheduleAutoPlayTick = () => {
     clearAutoPlayTimer()
-    if (!options.autoSnapEnabled || !options.autoPlayEnabled.value) return
+    if (!options.autoSnapEnabled.value || !options.autoPlayEnabled.value) return
     if (options.flowSteps.value.length <= 1) return
 
     const now = Date.now()
@@ -199,7 +195,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
 
   const setupAutoPlay = (resumeDelayMs = 0) => {
     clearAutoPlayTimer()
-    if (!options.autoSnapEnabled || !options.autoPlayEnabled.value) return
+    if (!options.autoSnapEnabled.value || !options.autoPlayEnabled.value) return
     if (options.flowSteps.value.length <= 1) return
 
     const intervalMs = Math.round(getAutoPlaySpeed() * 1000)
@@ -218,7 +214,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     if (!steps.length) return
 
     const normalizedIndex = normalizeIndex(index, steps.length)
-    if (options.autoSnapEnabled) {
+    if (options.autoSnapEnabled.value) {
       goToStep(normalizedIndex, 'external')
       return
     }
@@ -253,7 +249,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
   }
 
   const setupAutoSnapInteractions = () => {
-    if (!options.autoSnapEnabled) return
+    if (!options.autoSnapEnabled.value) return
 
     const wheelHandler = (event: WheelEvent) => {
       if (isIgnoredTarget(event.target)) return
@@ -362,7 +358,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     if (!options.enabled || !options.flowSteps.value.length) return
 
     console.log(`${logPrefix} init`, {
-      autoSnapEnabled: options.autoSnapEnabled,
+      autoSnapEnabled: options.autoSnapEnabled.value,
       loopEnabled: options.loopEnabled.value,
       snapEase: options.snapEase.value,
       transitionSpeed: getTransitionSpeed(),
@@ -380,7 +376,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     activeStepIndex.value = normalizeIndex(activeStepIndex.value, total)
     jumpToStep(activeStepIndex.value)
 
-    if (options.autoSnapEnabled) {
+    if (options.autoSnapEnabled.value) {
       document.body.classList.add('snap-mode')
       setupAutoSnapInteractions()
       setupAutoPlay()
@@ -460,11 +456,20 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
   )
 
   watch(
+    () => options.autoSnapEnabled.value,
+    async (nextAutoSnapEnabled, prevAutoSnapEnabled) => {
+      if (!options.enabled || nextAutoSnapEnabled === prevAutoSnapEnabled) return
+      console.log(`${logPrefix} autosnap:update`, { autoSnapEnabled: nextAutoSnapEnabled })
+      await initNavigation()
+    }
+  )
+
+  watch(
     () => options.snapEase.value,
     async (nextEase, prevEase) => {
       if (!options.enabled || nextEase === prevEase) return
       console.log(`${logPrefix} ease:update`, { snapEase: nextEase })
-      if (!options.autoSnapEnabled) await initNavigation()
+      if (!options.autoSnapEnabled.value) await initNavigation()
     }
   )
 
@@ -485,7 +490,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
       const normalizedPrev = normalizeTransitionSpeed(prevSpeed)
       if (normalizedNext === normalizedPrev) return
       console.log(`${logPrefix} speed:update`, { transitionSpeed: normalizedNext })
-      if (!options.autoSnapEnabled) await initNavigation()
+      if (!options.autoSnapEnabled.value) await initNavigation()
     }
   )
 

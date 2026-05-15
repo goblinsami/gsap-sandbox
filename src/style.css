@@ -919,12 +919,19 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
   justify-content: stretch;
 }
 
+.flow-controls-row--meta {
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
 .flow-controls-group--fields {
   min-width: 0;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   gap: 0.55rem;
+  width: 100%;
 }
 
 .flow-controls-group--actions {
@@ -958,6 +965,30 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
   padding: 0.45rem 0.5rem;
   display: grid;
   gap: 0.35rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.flow-subcategory__header {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.flow-subcategory .flow-field-pair {
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.flow-subcategory .flow-field-group {
+  flex: 1 1 160px;
+}
+
+.flow-subcategory .flow-field-select {
+  width: 100%;
+  min-width: 0;
 }
 
 .flow-subcategory__title {
@@ -966,6 +997,17 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #607285;
+}
+
+.flow-subcategory__chevron {
+  font-size: 0.8rem;
+  color: #607285;
+  transform: rotate(0deg);
+  transition: transform 0.16s ease;
+}
+
+.flow-subcategory__chevron--open {
+  transform: rotate(90deg);
 }
 
 .flow-field-group--speed {

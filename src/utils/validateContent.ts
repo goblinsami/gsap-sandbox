@@ -60,6 +60,9 @@ export function validateContentSchema(raw: unknown): ValidationResult {
   if (content.loopEnabled !== undefined && typeof content.loopEnabled !== 'boolean') {
     errors.push('content.json: loopEnabled debe ser boolean.')
   }
+  if (content.enableLoop !== undefined && typeof content.enableLoop !== 'boolean') {
+    errors.push('content.json: enableLoop debe ser boolean.')
+  }
   if (content.snapEase !== undefined && typeof content.snapEase !== 'string') {
     errors.push('content.json: snapEase debe ser string.')
   }

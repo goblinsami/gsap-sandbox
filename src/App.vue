@@ -3,6 +3,7 @@
     <FlowEditor
       ref="flowEditorRef"
       :panels="panelsState"
+      :auto-snap-enabled="autoSnapEnabled"
       :snap-ease="snapEase"
       :transition-speed="transitionSpeed"
       :auto-play-enabled="autoPlayEnabled"
@@ -10,6 +11,7 @@
       :loop-enabled="loopEnabled"
       :ease-options="SNAP_EASE_OPTIONS"
       @update:panels="handlePanelsUpdate"
+      @update:auto-snap-enabled="handleAutoSnapEnabledUpdate"
       @update:snap-ease="handleSnapEaseUpdate"
       @update:transition-speed="handleTransitionSpeedUpdate"
       @update:auto-play-enabled="handleAutoPlayEnabledUpdate"
@@ -92,6 +94,7 @@ const {
   easeOptions: SNAP_EASE_OPTIONS,
   handlePanelsUpdate,
   handleSnapEaseUpdate,
+  handleAutoSnapEnabledUpdate,
   handleTransitionSpeedUpdate,
   handleAutoPlayEnabledUpdate,
   handleAutoPlaySpeedUpdate,
