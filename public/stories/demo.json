@@ -1,0 +1,49 @@
+{
+  "autoSnapEnabled": true,
+  "loopEnabled": false,
+  "snapEase": "power2.inOut",
+  "transitionSpeed": 0.9,
+  "autoPlayEnabled": false,
+  "autoPlaySpeed": 4,
+  "panels": [
+    {
+      "id": "panel-1",
+      "title": "Demo Story",
+      "eyebrow": "INTRO",
+      "description": "A lightweight public runtime example for iframe embedding.",
+      "useMarkdown": false,
+      "contentAlign": "center",
+      "contentWidthMode": "contained",
+      "panelClass": "contrast",
+      "backgroundGradient": "linear-gradient(128deg, #0b1020 0%, #1a2754 46%, #1a2146 100%)",
+      "overlayEnabled": false,
+      "nextPanelPosition": "down"
+    },
+    {
+      "id": "panel-2",
+      "title": "Scroll to Continue",
+      "eyebrow": "FLOW",
+      "description": "Vertical navigation with GSAP snap behavior preserved in embed mode.",
+      "useMarkdown": false,
+      "contentAlign": "center",
+      "contentWidthMode": "contained",
+      "panelClass": "ocean",
+      "backgroundGradient": "linear-gradient(140deg, #08111b 0%, #0f3f58 50%, #18395c 100%)",
+      "overlayEnabled": false,
+      "nextPanelPosition": "down"
+    },
+    {
+      "id": "panel-3",
+      "title": "Ready for Backend",
+      "eyebrow": "MVP",
+      "description": "This mock source can be replaced by Supabase later without changing the renderer.",
+      "useMarkdown": false,
+      "contentAlign": "center",
+      "contentWidthMode": "contained",
+      "panelClass": "violet",
+      "backgroundGradient": "linear-gradient(142deg, #0c0c1c 0%, #36205f 50%, #252b5f 100%)",
+      "overlayEnabled": false,
+      "nextPanelPosition": "down"
+    }
+  ]
+}

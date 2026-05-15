@@ -9,8 +9,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { Panel } from '../../types/navigation'
-import { getDirectionIcon } from '../../composables/useDirectionIcon'
+import type { Panel } from '../../../types/navigation'
+import { getDirectionIcon } from '../../../core/useDirectionIcon'
 
 const props = defineProps<{
   panel: Panel

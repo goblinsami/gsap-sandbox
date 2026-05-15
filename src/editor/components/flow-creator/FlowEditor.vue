@@ -124,11 +124,11 @@
                   id="data-file-select"
                   v-model="selectedDataFile"
                   class="flow-field-select"
-                  @change="importSelectedDataFile"
+                  @change="void importSelectedDataFile()"
                 >
-                  <option value="">Select data file</option>
-                  <option v-for="file in dataFiles" :key="file.path" :value="file.path">
-                    {{ file.name }}
+                  <option value="">Select story</option>
+                  <option v-for="storyId in availableStoryIds" :key="storyId" :value="storyId">
+                    {{ storyId }}
                   </option>
                 </select>
               </label>
@@ -208,21 +208,21 @@
 import { computed, onMounted, onUnmounted, ref, toRef, watch } from 'vue'
 import FlowNodeCard from './FlowNodeCard.vue'
 import SlidePropertiesModal from './SlidePropertiesModal.vue'
-import { ContentAlign, type ContentSchema, type Panel } from '../../types/navigation'
+import { ContentAlign, type Panel } from '../../../types/navigation'
 import { useFlowEditor } from '../../composables/useFlowEditor'
-import { applyWelcomeGradientsToContent } from '../../utils/welcomeGradients'
+import { loadStory } from '../../../core/storySource'
 import {
   MAX_TRANSITION_SPEED,
   MIN_TRANSITION_SPEED,
   TRANSITION_SPEED_STEP,
   normalizeTransitionSpeed
-} from '../../constants/transitionSpeed'
+} from '../../../constants/transitionSpeed'
 import {
   AUTOPLAY_SPEED_STEP,
   MAX_AUTOPLAY_SPEED,
   MIN_AUTOPLAY_SPEED,
   normalizeAutoPlaySpeed
-} from '../../constants/autoPlaySpeed'
+} from '../../../constants/autoPlaySpeed'
 
 const props = defineProps<{
   panels: Panel[]
@@ -233,6 +233,7 @@ const props = defineProps<{
   autoPlaySpeed: number
   loopEnabled: boolean
   easeOptions: readonly string[]
+  availableStories?: string[]
 }>()
 
 const emit = defineEmits<{
@@ -269,20 +270,7 @@ const {
   insertAfter
 } = useFlowEditor(toRef(props, 'panels'), (panels) => emit('update:panels', panels))
 
-const dataFileModules = import.meta.glob('../../data/**/*.json', { eager: true }) as Record<
-  string,
-  { default: unknown }
->
-
-const dataFiles = computed(() =>
-  Object.entries(dataFileModules)
-    .map(([path, module]) => ({
-      path,
-      name: path.replace('../../data/', ''),
-      data: module.default
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name))
-)
+const availableStoryIds = computed(() => props.availableStories ?? [])
 
 const selectedDataFile = ref('')
 const selectedAutoSnapEnabled = ref(props.autoSnapEnabled)
@@ -395,15 +383,14 @@ const slideSettingsSide = computed<'left' | 'right'>(() => {
   return 'right'
 })
 
-const importSelectedDataFile = () => {
+const importSelectedDataFile = async () => {
   if (!selectedDataFile.value) return
-  const selected = dataFiles.value.find((file) => file.path === selectedDataFile.value)
-  if (!selected) return
-  const nextData =
-    selected.name.toLowerCase() === 'welcome.json'
-      ? applyWelcomeGradientsToContent(selected.data as ContentSchema)
-      : selected.data
-  importFlowObject(nextData)
+  try {
+    const nextData = await loadStory(selectedDataFile.value)
+    importFlowObject(nextData)
+  } catch (error) {
+    console.warn(`[flow-editor] Failed to load story "${selectedDataFile.value}"`, error)
+  }
 }
 
 const onJsonFileChange = async (event: Event) => {

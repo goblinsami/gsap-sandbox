@@ -1,0 +1,62 @@
+{
+  "autoSnapEnabled": true,
+  "loopEnabled": true,
+  "snapEase": "power3.inOut",
+  "transitionSpeed": 1.1,
+  "autoPlayEnabled": false,
+  "autoPlaySpeed": 5,
+  "panels": [
+    {
+      "id": "panel-1",
+      "title": "AI Startup Narrative",
+      "eyebrow": "VISION",
+      "description": "From idea to product-market fit in a single interactive journey.",
+      "useMarkdown": false,
+      "contentAlign": "left",
+      "contentWidthMode": "full",
+      "panelClass": "contrast",
+      "backgroundGradient": "linear-gradient(130deg, #05070f 0%, #101f44 46%, #182e63 100%)",
+      "overlayEnabled": false,
+      "nextPanelPosition": "right"
+    },
+    {
+      "id": "panel-2",
+      "title": "Build Fast, Learn Faster",
+      "eyebrow": "EXECUTION",
+      "description": "Experiment loops, rapid shipping, and measurable outcomes.",
+      "useMarkdown": false,
+      "contentAlign": "left",
+      "contentWidthMode": "full",
+      "panelClass": "forest",
+      "backgroundGradient": "linear-gradient(130deg, #050c0f 0%, #12383b 46%, #1b4f54 100%)",
+      "overlayEnabled": false,
+      "nextPanelPosition": "down"
+    },
+    {
+      "id": "panel-3",
+      "title": "Scale Distribution",
+      "eyebrow": "GROWTH",
+      "description": "Turn product insights into acquisition channels and retained revenue.",
+      "useMarkdown": false,
+      "contentAlign": "left",
+      "contentWidthMode": "full",
+      "panelClass": "ocean",
+      "backgroundGradient": "linear-gradient(130deg, #05070f 0%, #0f2b49 46%, #17405b 100%)",
+      "overlayEnabled": false,
+      "nextPanelPosition": "left"
+    },
+    {
+      "id": "panel-4",
+      "title": "Embed the Story Everywhere",
+      "eyebrow": "LAUNCH",
+      "description": "Use one public player in Framer, Webflow, and custom landing pages.",
+      "useMarkdown": false,
+      "contentAlign": "left",
+      "contentWidthMode": "full",
+      "panelClass": "violet",
+      "backgroundGradient": "linear-gradient(132deg, #070712 0%, #261a4f 45%, #3f2b73 100%)",
+      "overlayEnabled": false,
+      "nextPanelPosition": "up"
+    }
+  ]
+}

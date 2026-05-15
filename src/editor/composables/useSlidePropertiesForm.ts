@@ -1,5 +1,5 @@
 import { reactive, ref, watch, type Ref } from 'vue'
-import { ContentAlign, Direction, type Panel } from '../types/navigation'
+import { ContentAlign, Direction, type Panel } from '../../types/navigation'
 import {
   DEFAULT_CONTENT_ALIGN,
   DEFAULT_CONTENT_MAX_WIDTH,
@@ -35,7 +35,7 @@ import {
   clampNumber,
   deriveDescriptionMaxWidthFromContent,
   deriveTitleMaxWidthFromContent
-} from '../constants/slideStyle'
+} from '../../constants/slideStyle'
 
 export const contentAlignOptions: Array<{ value: ContentAlign; label: string }> = [
   { value: ContentAlign.Left, label: 'Left' },

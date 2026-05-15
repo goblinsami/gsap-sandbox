@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { TextSizeValues, type TextSize as PanelTextSize } from '../../types/navigation'
+import { TextSizeValues, type TextSize as PanelTextSize } from '../../../types/navigation'
 
 defineProps<{
   modelValue: PanelTextSize
