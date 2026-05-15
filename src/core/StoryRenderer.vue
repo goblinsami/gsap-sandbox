@@ -56,7 +56,6 @@
 import { ref, watch } from 'vue'
 import SectionPanel from './SectionPanel.vue'
 import type { FlowBlockStep } from './useFlowBlocks'
-
 const props = withDefaults(
   defineProps<{
     flowSteps: FlowBlockStep[]
