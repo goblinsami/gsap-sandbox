@@ -4,7 +4,7 @@
   "panels": [
     {
       "id": "panel-1",
-      "eyebrow": "WELCOME TO STORYFLOW",
+      "eyebrow": "WELCOME TO Scrollix",
       "title": "Create interactive storytelling experiences",
       "description": "Build cinematic scroll stories, visual narratives and immersive content blocks that can be embedded directly into Framer websites and modern landing pages.",
       "useMarkdown": false,
@@ -33,7 +33,7 @@
       "id": "panel-3",
       "eyebrow": "STEP 02",
       "title": "Publish instantly",
-      "description": "When your story is ready, StoryFlow generates a live embed URL connected to your content. No exports or builds required.",
+      "description": "When your story is ready, Scrollix generates a live embed URL connected to your content. No exports or builds required.",
       "useMarkdown": false,
       "titleSize": "m",
       "eyebrowSize": "m",

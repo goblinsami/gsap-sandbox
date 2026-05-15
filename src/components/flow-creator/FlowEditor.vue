@@ -13,14 +13,29 @@
       <div class="flow-modal__debug">
         <div class="flow-controls-row flow-controls-row--top">
           <div class="flow-controls-group flow-controls-group--fields">
-            <label class="flow-field-group" for="snap-ease-select">
-              <span class="flow-field-label">Snap ease</span>
-              <select id="snap-ease-select" v-model="selectedEase" class="flow-field-select" @change="emitSnapEase">
-                <option v-for="ease in easeOptions" :key="ease" :value="ease">
-                  {{ ease }}
-                </option>
-              </select>
-            </label>
+            <div class="flow-field-pair">
+              <label class="flow-field-group" for="snap-ease-select">
+                <span class="flow-field-label">Snap ease</span>
+                <select id="snap-ease-select" v-model="selectedEase" class="flow-field-select" @change="emitSnapEase">
+                  <option v-for="ease in easeOptions" :key="ease" :value="ease">
+                    {{ ease }}
+                  </option>
+                </select>
+              </label>
+              <label class="flow-field-group flow-field-group--speed" for="transition-speed-input">
+                <span class="flow-field-label">Speed</span>
+                <input
+                  id="transition-speed-input"
+                  v-model.number="selectedTransitionSpeed"
+                  type="number"
+                  class="flow-field-select flow-field-input flow-field-input--speed"
+                  :min="MIN_TRANSITION_SPEED"
+                  :max="MAX_TRANSITION_SPEED"
+                  :step="TRANSITION_SPEED_STEP"
+                  @change="emitTransitionSpeed"
+                />
+              </label>
+            </div>
             <div class="flow-field-group flow-field-group--toggle">
               <span class="flow-field-label">Enable loop</span>
               <label class="flow-switch" for="loop-enabled-toggle">
@@ -130,10 +145,17 @@ import SlidePropertiesModal from './SlidePropertiesModal.vue'
 import { ContentAlign, type ContentSchema, type Panel } from '../../types/navigation'
 import { useFlowEditor } from '../../composables/useFlowEditor'
 import { applyWelcomeGradientsToContent } from '../../utils/welcomeGradients'
+import {
+  MAX_TRANSITION_SPEED,
+  MIN_TRANSITION_SPEED,
+  TRANSITION_SPEED_STEP,
+  normalizeTransitionSpeed
+} from '../../constants/transitionSpeed'
 
 const props = defineProps<{
   panels: Panel[]
   snapEase: string
+  transitionSpeed: number
   loopEnabled: boolean
   easeOptions: readonly string[]
 }>()
@@ -141,6 +163,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:panels': [panels: Panel[]]
   'update:snapEase': [ease: string]
+  'update:transition-speed': [speed: number]
   'update:loopEnabled': [enabled: boolean]
   focusStep: [index: number]
 }>()
@@ -185,6 +208,7 @@ const dataFiles = computed(() =>
 
 const selectedDataFile = ref('')
 const selectedEase = ref(props.snapEase)
+const selectedTransitionSpeed = ref(normalizeTransitionSpeed(props.transitionSpeed))
 const selectedLoopEnabled = ref(props.loopEnabled)
 const isDesktop = ref(false)
 const jsonFileInputRef = ref<HTMLInputElement | null>(null)
@@ -224,8 +248,21 @@ watch(
   }
 )
 
+watch(
+  () => props.transitionSpeed,
+  (value) => {
+    selectedTransitionSpeed.value = normalizeTransitionSpeed(value)
+  }
+)
+
 const emitSnapEase = () => {
   emit('update:snapEase', selectedEase.value)
+}
+
+const emitTransitionSpeed = () => {
+  const normalized = normalizeTransitionSpeed(selectedTransitionSpeed.value)
+  selectedTransitionSpeed.value = normalized
+  emit('update:transition-speed', normalized)
 }
 
 const emitLoopEnabled = () => {

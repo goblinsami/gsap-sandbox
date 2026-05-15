@@ -11,6 +11,18 @@
       ]"
       :style="contentStyle"
     >
+      <div
+        v-if="logo && logoTintEnabledResolved"
+        class="slide-logo slide-logo--tint"
+        :style="logoTintStyle"
+      />
+      <img
+        v-else-if="logo"
+        class="slide-logo"
+        :src="logo"
+        alt=""
+        :style="logoStyle"
+      />
       <p class="eyebrow" :style="eyebrowStyle">
         <span v-if="useMarkdown" v-html="eyebrowHtml" />
         <template v-else>{{ eyebrow }}</template>
@@ -101,6 +113,9 @@ const props = defineProps<{
   descriptionMaxWidth?: number
   panelClass?: string
   image?: string
+  logo?: string
+  logoTintEnabled?: boolean
+  logoTintColor?: string
   backgroundGradient?: string
   overlayEnabled?: boolean
   overlayIntensity?: number
@@ -178,6 +193,39 @@ const eyebrowStyle = computed(() => ({
   marginBottom: `${eyebrowTitleGapResolved.value}px`,
   letterSpacing: `${eyebrowLetterSpacingResolved.value}em`,
   fontSize: `${getEyebrowFontSizeRem(props.eyebrowSize ?? DEFAULT_TEXT_SIZE)}rem`
+}))
+const logoStyle = computed(() => ({
+  marginBottom: `${eyebrowTitleGapResolved.value}px`,
+  objectPosition:
+    contentAlignResolved.value === ContentAlign.Right
+      ? 'right center'
+      : contentAlignResolved.value === ContentAlign.Left
+        ? 'left center'
+        : 'center center'
+}))
+const logoTintEnabledResolved = computed(() => props.logoTintEnabled ?? true)
+const logoTintColorResolved = computed(() => props.logoTintColor ?? '#ffffff')
+const logoTintStyle = computed(() => ({
+  ...logoStyle.value,
+  backgroundColor: logoTintColorResolved.value,
+  WebkitMaskImage: `url(${props.logo})`,
+  maskImage: `url(${props.logo})`,
+  WebkitMaskRepeat: 'no-repeat',
+  maskRepeat: 'no-repeat',
+  WebkitMaskPosition:
+    contentAlignResolved.value === ContentAlign.Right
+      ? 'right center'
+      : contentAlignResolved.value === ContentAlign.Left
+        ? 'left center'
+        : 'center center',
+  maskPosition:
+    contentAlignResolved.value === ContentAlign.Right
+      ? 'right center'
+      : contentAlignResolved.value === ContentAlign.Left
+        ? 'left center'
+        : 'center center',
+  WebkitMaskSize: 'contain',
+  maskSize: 'contain'
 }))
 const titleStyle = computed(() => ({
   marginBottom: props.description ? `${titleDescriptionGapResolved.value}px` : '0px',

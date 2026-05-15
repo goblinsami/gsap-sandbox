@@ -26,6 +26,7 @@ import {
   MIN_TITLE_LINE_HEIGHT,
   MIN_TITLE_MAX_WIDTH
 } from '../constants/slideStyle'
+import { MAX_TRANSITION_SPEED, MIN_TRANSITION_SPEED } from '../constants/transitionSpeed'
 
 const VALID_DIRECTIONS: Direction[] = [Direction.Up, Direction.Down, Direction.Left, Direction.Right]
 const VALID_TEXT_SIZES = [...TextSizeValues]
@@ -60,6 +61,13 @@ export function validateContentSchema(raw: unknown): ValidationResult {
   }
   if (content.snapEase !== undefined && typeof content.snapEase !== 'string') {
     errors.push('content.json: snapEase debe ser string.')
+  }
+  if (content.transitionSpeed !== undefined) {
+    if (typeof content.transitionSpeed !== 'number' || Number.isNaN(content.transitionSpeed)) {
+      errors.push('content.json: transitionSpeed debe ser number.')
+    } else if (content.transitionSpeed < MIN_TRANSITION_SPEED || content.transitionSpeed > MAX_TRANSITION_SPEED) {
+      errors.push(`content.json: transitionSpeed fuera de rango (${MIN_TRANSITION_SPEED}-${MAX_TRANSITION_SPEED}).`)
+    }
   }
 
   if (!Array.isArray(content.panels) || content.panels.length === 0) {
@@ -211,6 +219,18 @@ export function validateContentSchema(raw: unknown): ValidationResult {
 
     if (p.image !== undefined && typeof p.image !== 'string') {
       errors.push(`${label}: image debe ser string.`)
+    }
+
+    if (p.logo !== undefined && typeof p.logo !== 'string') {
+      errors.push(`${label}: logo debe ser string.`)
+    }
+
+    if (p.logoTintEnabled !== undefined && typeof p.logoTintEnabled !== 'boolean') {
+      errors.push(`${label}: logoTintEnabled debe ser boolean.`)
+    }
+
+    if (p.logoTintColor !== undefined && typeof p.logoTintColor !== 'string') {
+      errors.push(`${label}: logoTintColor debe ser string.`)
     }
 
     if (p.backgroundGradient !== undefined && typeof p.backgroundGradient !== 'string') {

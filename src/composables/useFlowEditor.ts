@@ -273,6 +273,9 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
     panelClass: getRandomPanelClass(previousClass),
     overlayEnabled: DEFAULT_OVERLAY_ENABLED_WITHOUT_IMAGE,
     overlayIntensity: DEFAULT_OVERLAY_INTENSITY,
+    logo: '',
+    logoTintEnabled: true,
+    logoTintColor: '#ffffff',
     nextPanelPosition: previousNext
   })
 

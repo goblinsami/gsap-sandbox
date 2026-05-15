@@ -4,10 +4,12 @@
       ref="flowEditorRef"
       :panels="panelsState"
       :snap-ease="snapEase"
+      :transition-speed="transitionSpeed"
       :loop-enabled="loopEnabled"
       :ease-options="SNAP_EASE_OPTIONS"
       @update:panels="handlePanelsUpdate"
       @update:snap-ease="handleSnapEaseUpdate"
+      @update:transition-speed="handleTransitionSpeedUpdate"
       @update:loop-enabled="handleLoopEnabledUpdate"
       @focus-step="handleFocusStep"
     />
@@ -48,6 +50,9 @@
             :description-max-width="step.panel.descriptionMaxWidth"
             :panel-class="step.panel.panelClass"
             :image="step.panel.image"
+            :logo="step.panel.logo"
+            :logo-tint-enabled="step.panel.logoTintEnabled"
+            :logo-tint-color="step.panel.logoTintColor"
             :background-gradient="step.panel.backgroundGradient"
             :overlay-enabled="step.panel.overlayEnabled"
             :overlay-intensity="step.panel.overlayIntensity"
@@ -72,12 +77,14 @@ const {
   loopEnabled,
   panelsState,
   snapEase,
+  transitionSpeed,
   snapShellRef,
   snapStageRef,
   stepStyle,
   easeOptions: SNAP_EASE_OPTIONS,
   handlePanelsUpdate,
   handleSnapEaseUpdate,
+  handleTransitionSpeedUpdate,
   handleLoopEnabledUpdate,
   handleFocusStep
 } = usePresentationFlow()

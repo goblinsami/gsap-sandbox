@@ -6,6 +6,7 @@ import { applyWelcomeGradientsToContent } from '../utils/welcomeGradients'
 import { useSlidePath } from './useSlidePath'
 import { useSlideSnapNavigation } from './useSlideSnapNavigation'
 import { SNAP_EASE_OPTIONS, normalizeSnapEase, type SnapEaseOption } from '../constants/snapEase'
+import { normalizeTransitionSpeed } from '../constants/transitionSpeed'
 
 const LOG_PREFIX = '[flow-snap]'
 
@@ -17,6 +18,7 @@ export function usePresentationFlow() {
   const loopEnabled = ref(schema.loopEnabled ?? false)
   const panelsState = ref<Panel[]>(isValid ? ((schema.panels ?? []).map((panel) => ({ ...panel })) as Panel[]) : [])
   const snapEase = ref<SnapEaseOption>(normalizeSnapEase(schema.snapEase))
+  const transitionSpeed = ref(normalizeTransitionSpeed(schema.transitionSpeed))
   const { flowSteps } = useSlidePath(panelsState)
 
   const { snapShellRef, snapStageRef, stepStyle, focusStep } = useSlideSnapNavigation({
@@ -24,6 +26,7 @@ export function usePresentationFlow() {
     autoSnapEnabled,
     loopEnabled,
     snapEase,
+    transitionSpeed,
     enabled: isValid,
     logPrefix: LOG_PREFIX
   })
@@ -38,6 +41,10 @@ export function usePresentationFlow() {
 
   const handleLoopEnabledUpdate = (nextValue: boolean) => {
     loopEnabled.value = nextValue
+  }
+
+  const handleTransitionSpeedUpdate = (nextValue: number) => {
+    transitionSpeed.value = normalizeTransitionSpeed(nextValue)
   }
 
   const handleFocusStep = (index: number) => {
@@ -57,6 +64,7 @@ export function usePresentationFlow() {
     loopEnabled,
     panelsState,
     snapEase,
+    transitionSpeed,
     snapShellRef,
     snapStageRef,
     stepStyle,
@@ -64,6 +72,7 @@ export function usePresentationFlow() {
     handlePanelsUpdate,
     handleSnapEaseUpdate,
     handleLoopEnabledUpdate,
+    handleTransitionSpeedUpdate,
     handleFocusStep
   }
 }

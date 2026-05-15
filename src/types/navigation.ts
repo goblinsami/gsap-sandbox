@@ -57,6 +57,9 @@ export interface Panel {
   descriptionMaxWidth?: number
   panelClass: string
   image?: string
+  logo?: string
+  logoTintEnabled?: boolean
+  logoTintColor?: string
   backgroundGradient?: string
   overlayEnabled?: boolean
   overlayIntensity?: number
@@ -67,5 +70,6 @@ export interface ContentSchema {
   autoSnapEnabled?: boolean
   loopEnabled?: boolean
   snapEase?: string
+  transitionSpeed?: number
   panels: Panel[]
 }

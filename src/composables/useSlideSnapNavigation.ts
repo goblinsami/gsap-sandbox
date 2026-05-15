@@ -3,10 +3,10 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import type { SlidePathStep } from './useSlidePath'
 import type { SnapEaseOption } from '../constants/snapEase'
+import { normalizeTransitionSpeed } from '../constants/transitionSpeed'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const SNAP_DURATION = 0.86
 const WHEEL_INTENT_THRESHOLD = 9
 const TOUCH_INTENT_THRESHOLD = 18
 const INPUT_COOLDOWN_MS = 220
@@ -16,6 +16,7 @@ interface UseSlideSnapNavigationOptions {
   autoSnapEnabled: boolean
   loopEnabled: Ref<boolean>
   snapEase: Ref<SnapEaseOption>
+  transitionSpeed: Ref<number>
   enabled: boolean
   logPrefix?: string
 }
@@ -60,6 +61,24 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
   const stepStyle = (step: SlidePathStep) => ({
     transform: `translate3d(${step.x * 100}vw, ${step.y * 100}vh, 0)`
   })
+
+  const getTransitionSpeed = () => normalizeTransitionSpeed(options.transitionSpeed.value)
+
+  const getAutoSnapDuration = () => {
+    // Interpret speed as transition time in seconds:
+    // higher value => slower transition.
+    return getTransitionSpeed()
+  }
+
+  const getManualSnapDurations = () => {
+    const speed = getTransitionSpeed()
+    const minDuration = Math.max(0.08, speed * 0.35)
+    const maxDuration = Math.max(minDuration + 0.05, speed * 0.85)
+    return {
+      min: minDuration,
+      max: maxDuration
+    }
+  }
 
   const jumpToStep = (index: number) => {
     const stage = snapStageRef.value
@@ -127,7 +146,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     gsap.to(stage, {
       x: target.x,
       y: target.y,
-      duration: SNAP_DURATION,
+      duration: getAutoSnapDuration(),
       ease: options.snapEase.value,
       overwrite: 'auto',
       onComplete: () => {
@@ -293,6 +312,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
       autoSnapEnabled: options.autoSnapEnabled,
       loopEnabled: options.loopEnabled.value,
       snapEase: options.snapEase.value,
+      transitionSpeed: getTransitionSpeed(),
       totalSteps: options.flowSteps.value.length,
       steps: options.flowSteps.value.map((step) => ({
         index: step.index,
@@ -335,6 +355,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     }
 
     const segments = Math.max(1, options.flowSteps.value.length - 1)
+    const manualSnapDuration = getManualSnapDurations()
     manualScrollTrigger = ScrollTrigger.create({
       animation: timeline,
       trigger: shell,
@@ -346,7 +367,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
       snap: {
         snapTo: 'labelsDirectional',
         inertia: false,
-        duration: { min: 0.2, max: 0.45 },
+        duration: manualSnapDuration,
         delay: 0.06,
         ease: options.snapEase.value
       }
@@ -399,6 +420,18 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
       if (!options.enabled || nextLoopEnabled === prevLoopEnabled) return
       console.log(`${logPrefix} loop:update`, { loopEnabled: nextLoopEnabled })
       await initNavigation()
+    }
+  )
+
+  watch(
+    () => options.transitionSpeed.value,
+    async (nextSpeed, prevSpeed) => {
+      if (!options.enabled) return
+      const normalizedNext = normalizeTransitionSpeed(nextSpeed)
+      const normalizedPrev = normalizeTransitionSpeed(prevSpeed)
+      if (normalizedNext === normalizedPrev) return
+      console.log(`${logPrefix} speed:update`, { transitionSpeed: normalizedNext })
+      if (!options.autoSnapEnabled) await initNavigation()
     }
   )
 

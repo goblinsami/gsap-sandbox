@@ -231,6 +231,20 @@ body.snap-mode {
   z-index: 1;
 }
 
+.slide-logo {
+  display: block;
+  max-width: min(220px, 46vw);
+  max-height: min(72px, 12vh);
+  width: min(220px, 46vw);
+  height: min(72px, 12vh);
+  object-fit: contain;
+}
+
+.slide-logo--tint {
+  width: min(220px, 46vw);
+  height: min(72px, 12vh);
+}
+
 .eyebrow {
   margin: 0;
   letter-spacing: 0.18em;
@@ -738,6 +752,11 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
   margin-top: 0.15rem;
 }
 
+.text-content-panel__body {
+  display: grid;
+  gap: 0.6rem;
+}
+
 .text-style-panel__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -922,6 +941,21 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
   min-width: 0;
 }
 
+.flow-field-pair {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.55rem;
+}
+
+.flow-field-group--speed {
+  min-width: 88px;
+}
+
+.flow-field-input--speed {
+  width: 92px;
+  min-width: 92px;
+}
+
 .flow-field-group--toggle {
   min-width: 120px;
 }
@@ -1023,6 +1057,11 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
 }
 
 @media (max-width: 720px) {
+  .flow-field-pair {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
   .flow-controls-group--actions {
     justify-content: flex-start;
   }
@@ -1076,6 +1115,34 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
   margin-top: 0.45rem;
   display: flex;
   gap: 0.45rem;
+}
+
+.logo-row {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.logo-row__actions {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.logo-row__tint {
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.logo-row__tint input[type='color'] {
+  width: 46px;
+  min-width: 46px;
+  padding: 0.15rem;
+}
+
+.logo-row small {
+  font-size: 0.74rem;
+  color: #5e6f80;
 }
 
 .danger {

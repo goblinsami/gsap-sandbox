@@ -60,6 +60,9 @@ const RANDOM_IMAGE_HEIGHT = 1350
 const RANDOM_IMAGE_BASE_URL = 'https://picsum.photos'
 export const DROP_IMAGE_LOADED_TEXT = 'Image loaded'
 export const DROP_IMAGE_EMPTY_TEXT = 'Drop image here or choose file'
+export const DROP_LOGO_LOADED_TEXT = 'Logo loaded'
+export const DROP_LOGO_EMPTY_TEXT = 'Paste logo URL or choose file'
+export const DEFAULT_LOGO_TINT_COLOR = '#ffffff'
 export const textStyleRanges = TEXT_STYLE_RANGES
 
 const clampOverlayIntensity = (value: number) => {
@@ -126,6 +129,9 @@ const copyPanelToDraft = (panel: Panel, draft: Panel) => {
   )
   draft.panelClass = panel.panelClass
   draft.image = panel.image ?? ''
+  draft.logo = panel.logo ?? ''
+  draft.logoTintEnabled = panel.logoTintEnabled ?? true
+  draft.logoTintColor = panel.logoTintColor ?? DEFAULT_LOGO_TINT_COLOR
   draft.backgroundGradient = panel.backgroundGradient
   draft.overlayEnabled =
     panel.overlayEnabled ??
@@ -161,6 +167,9 @@ export function useSlidePropertiesForm(options: UseSlidePropertiesFormOptions) {
     descriptionMaxWidth: DEFAULT_DESCRIPTION_MAX_WIDTH,
     panelClass: '',
     image: '',
+    logo: '',
+    logoTintEnabled: true,
+    logoTintColor: DEFAULT_LOGO_TINT_COLOR,
     backgroundGradient: undefined,
     overlayEnabled: DEFAULT_OVERLAY_ENABLED_WITHOUT_IMAGE,
     overlayIntensity: DEFAULT_OVERLAY_INTENSITY,
@@ -168,6 +177,7 @@ export function useSlidePropertiesForm(options: UseSlidePropertiesFormOptions) {
   })
 
   const fileInputRef = ref<HTMLInputElement | null>(null)
+  const logoFileInputRef = ref<HTMLInputElement | null>(null)
   const isDragging = ref(false)
 
   watch(
@@ -185,6 +195,10 @@ export function useSlidePropertiesForm(options: UseSlidePropertiesFormOptions) {
 
   const openFilePicker = () => {
     fileInputRef.value?.click()
+  }
+
+  const openLogoFilePicker = () => {
+    logoFileInputRef.value?.click()
   }
 
   const readImageFile = (file: File) => {
@@ -206,6 +220,28 @@ export function useSlidePropertiesForm(options: UseSlidePropertiesFormOptions) {
     const file = target.files?.[0]
     if (file) readImageFile(file)
     target.value = ''
+  }
+
+  const readLogoFile = (file: File) => {
+    if (!file.type.startsWith('image/')) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      draft.logo = typeof reader.result === 'string' ? reader.result : ''
+      save()
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const onLogoFileChange = (event: Event) => {
+    const target = event.target as HTMLInputElement
+    const file = target.files?.[0]
+    if (file) readLogoFile(file)
+    target.value = ''
+  }
+
+  const clearLogo = () => {
+    draft.logo = ''
+    save()
   }
 
   const onDropImage = (event: DragEvent) => {
@@ -239,11 +275,15 @@ export function useSlidePropertiesForm(options: UseSlidePropertiesFormOptions) {
   return {
     draft,
     fileInputRef,
+    logoFileInputRef,
     isDragging,
     openFilePicker,
+    openLogoFilePicker,
     onFileChange,
+    onLogoFileChange,
     onDropImage,
     clearImage,
+    clearLogo,
     setRandomImage,
     save,
     resetDraft
