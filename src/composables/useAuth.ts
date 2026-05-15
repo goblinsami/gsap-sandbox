@@ -104,8 +104,13 @@ export const useAuth = () => {
   const signInWithGoogle = async () => {
     loading.value = true
     try {
+      const redirectTo =
+        typeof window !== 'undefined' ? `${window.location.origin}/edit` : undefined
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google'
+        provider: 'google',
+        options: {
+          redirectTo
+        }
       })
 
       if (error) {
