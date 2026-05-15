@@ -273,6 +273,20 @@ export function validateContentSchema(raw: unknown): ValidationResult {
       }
     }
 
+    if (p.cta !== undefined) {
+      if (!p.cta || typeof p.cta !== 'object') {
+        errors.push(`${label}: cta debe ser objeto.`)
+      } else {
+        const cta = p.cta as { label?: unknown; linkKey?: unknown }
+        if (typeof cta.label !== 'string' || cta.label.trim() === '') {
+          errors.push(`${label}: cta.label obligatorio.`)
+        }
+        if (typeof cta.linkKey !== 'string' || cta.linkKey.trim() === '') {
+          errors.push(`${label}: cta.linkKey obligatorio.`)
+        }
+      }
+    }
+
     if (p.nextPanelPosition !== undefined && !VALID_DIRECTIONS.includes(p.nextPanelPosition)) {
       errors.push(`${label}: nextPanelPosition invalido (${String(p.nextPanelPosition)}).`)
     }

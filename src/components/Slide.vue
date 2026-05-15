@@ -40,6 +40,15 @@
         <span v-if="useMarkdown" v-html="descriptionHtml" />
         <template v-else>{{ description }}</template>
       </p>
+      <a
+        v-if="ctaHref && ctaLabel"
+        class="slide-cta"
+        :href="ctaHref"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {{ ctaLabel }}
+      </a>
     </article>
   </section>
 </template>
@@ -48,6 +57,7 @@
 import { computed } from 'vue'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
+import type { PanelCta } from '../types/navigation'
 import {
   ContentAlign,
   type ContentAlign as SlideContentAlign,
@@ -93,6 +103,7 @@ import {
   getTitleClampSize
 } from '../constants/slideStyle'
 import { getDirectionIcon } from '../composables/useDirectionIcon'
+import { resolveLinkKey, resolveLinkValue } from '../utils/links'
 
 const props = defineProps<{
   title: string
@@ -122,17 +133,44 @@ const props = defineProps<{
   backgroundGradient?: string
   overlayEnabled?: boolean
   overlayIntensity?: number
+  cta?: PanelCta
   animateKey?: string
   direction: Direction
   showDirectionIcon?: boolean
 }>()
 
-const renderMarkdown = (value?: string) =>
-  DOMPurify.sanitize(marked.parse(value ?? '', { breaks: true }) as string)
+const asExternalAnchorHtml = (rawHtml: string) => {
+  if (typeof window === 'undefined') return rawHtml
+  const host = document.createElement('div')
+  host.innerHTML = rawHtml
+  host.querySelectorAll('a').forEach((anchor) => {
+    const href = resolveLinkValue(anchor.getAttribute('href'))
+    if (!href) {
+      anchor.removeAttribute('href')
+      return
+    }
+    anchor.setAttribute('href', href)
+    anchor.setAttribute('target', '_blank')
+    anchor.setAttribute('rel', 'noopener noreferrer')
+    const sourceHref = anchor.getAttribute('href') ?? ''
+    if (sourceHref.includes('scrollix.netlify.app') || sourceHref.includes('framer.com')) {
+      anchor.classList.add('slide-cta', 'slide-cta--inline')
+    }
+  })
+  return host.innerHTML
+}
+
+const renderMarkdown = (value?: string) => {
+  const html = marked.parse(value ?? '', { breaks: true }) as string
+  const sanitized = DOMPurify.sanitize(html, { ADD_ATTR: ['target', 'rel', 'class'] })
+  return asExternalAnchorHtml(sanitized)
+}
 
 const titleHtml = computed(() => renderMarkdown(props.title))
 const eyebrowHtml = computed(() => renderMarkdown(props.eyebrow))
 const descriptionHtml = computed(() => renderMarkdown(props.description))
+const ctaLabel = computed(() => props.cta?.label?.trim() ?? '')
+const ctaHref = computed(() => resolveLinkKey(props.cta?.linkKey))
 
 const clampOverlayIntensity = (value?: number) => {
   const candidate = typeof value === 'number' ? value : DEFAULT_OVERLAY_INTENSITY

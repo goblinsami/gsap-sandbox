@@ -48,6 +48,7 @@
           :background-gradient="step.panel.backgroundGradient"
           :overlay-enabled="step.panel.overlayEnabled"
           :overlay-intensity="step.panel.overlayIntensity"
+          :cta="step.panel.cta"
           :direction="step.directionToNext"
           animate-key="intro"
         />

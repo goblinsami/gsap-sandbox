@@ -170,6 +170,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import '../styles/core.css'
 import '../styles/editor.css'
 import '../styles/pages/edit-page.css'
 import FlowEditor from '../editor/components/flow-creator/FlowEditor.vue'

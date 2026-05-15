@@ -36,6 +36,11 @@ export const ContentWidthModeValues = [ContentWidthMode.Contained, ContentWidthM
 
 export type ContentWidthMode = (typeof ContentWidthMode)[keyof typeof ContentWidthMode]
 
+export interface PanelCta {
+  label: string
+  linkKey: string
+}
+
 export interface Panel {
   id: string
   eyebrow: string
@@ -65,6 +70,7 @@ export interface Panel {
   backgroundGradient?: string
   overlayEnabled?: boolean
   overlayIntensity?: number
+  cta?: PanelCta
   nextPanelPosition?: Direction
 }
 
