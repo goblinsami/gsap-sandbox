@@ -197,6 +197,7 @@
       :open="showSettings"
       :panel="selectedPanel"
       :side="slideSettingsSide"
+      :can-upload-images="props.canUploadImages ?? true"
       @close="closeSettings"
       @save="saveSettings"
       @delete="deletePanel"
@@ -234,6 +235,7 @@ const props = defineProps<{
   loopEnabled: boolean
   easeOptions: readonly string[]
   availableStories?: string[]
+  canUploadImages?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -409,8 +411,17 @@ const openSlideSettings = (index: number) => {
   openSettings(index)
 }
 
+const toggleFlowEditor = () => {
+  toggleModal()
+  return showModal.value
+}
+
+const isFlowEditorOpen = () => showModal.value
+
 defineExpose({
-  openSlideSettings
+  openSlideSettings,
+  toggleFlowEditor,
+  isFlowEditorOpen
 })
 
 void canvasRef

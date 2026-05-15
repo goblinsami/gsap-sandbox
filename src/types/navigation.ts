@@ -76,5 +76,6 @@ export interface ContentSchema {
   transitionSpeed?: number
   autoPlayEnabled?: boolean
   autoPlaySpeed?: number
+  watermarkEnabled?: boolean
   panels: Panel[]
 }

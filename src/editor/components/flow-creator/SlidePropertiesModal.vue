@@ -362,6 +362,7 @@
 
       <label>
         Panel Image
+        <p v-if="!canUploadImages" class="upgrade-hint">Login with Google to upload persistent images.</p>
         <div
           class="image-dropzone"
           :class="{ 'image-dropzone--active': isDragging }"
@@ -375,14 +376,15 @@
             type="file"
             accept="image/*"
             class="image-dropzone__input"
+            :disabled="!canUploadImages"
             @change="onFileChange"
           />
           <div class="image-dropzone__content">
             <p>{{ draft.image ? DROP_IMAGE_LOADED_TEXT : DROP_IMAGE_EMPTY_TEXT }}</p>
             <div class="image-dropzone__actions">
-              <button type="button" @click="openFilePicker">Choose Image</button>
-              <button type="button" @click="setRandomImage">Random Image</button>
-              <button v-if="draft.image" type="button" @click="clearImage">Remove</button>
+              <button type="button" :disabled="!canUploadImages" @click="openFilePicker">Choose Image</button>
+              <button type="button" :disabled="!canUploadImages" @click="setRandomImage">Random Image</button>
+              <button v-if="draft.image" type="button" :disabled="!canUploadImages" @click="clearImage">Remove</button>
             </div>
           </div>
         </div>
@@ -454,9 +456,11 @@ const props = withDefaults(
     open: boolean
     panel: Panel | null
     side?: 'left' | 'right'
+    canUploadImages?: boolean
   }>(),
   {
-    side: 'left'
+    side: 'left',
+    canUploadImages: true
   }
 )
 

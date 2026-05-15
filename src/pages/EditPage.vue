@@ -1,76 +1,113 @@
 ﻿<template>
   <main class="sandbox">
-    <aside class="control-panel">
-      <details class="panel-card panel-card--account collapsible" open>
-        <summary class="collapsible__summary">Account</summary>
+    <header class="user-bar">
+      <button
+        class="user-bar__burger"
+        type="button"
+        :aria-expanded="isMobileBarOpen"
+        aria-controls="user-bar-content"
+        @click="isMobileBarOpen = !isMobileBarOpen"
+      >
+        ☰
+      </button>
+
+      <div id="user-bar-content" class="user-bar__content" :class="{ 'user-bar__content--open': isMobileBarOpen }">
+      <div class="user-bar__left">
+        <button
+          class="edit-slide-button"
+          type="button"
+          @click="handleEditCurrentSlide"
+        >
+          Edit Slide
+        </button>
+        <button
+          class="editor-toggle-button"
+          type="button"
+          :aria-label="isFlowEditorOpen ? 'Hide editor' : 'Show editor'"
+          :title="isFlowEditorOpen ? 'Hide editor' : 'Show editor'"
+          @click="handleToggleEditor"
+        >
+          <img class="editor-toggle-button__logo" :src="editorToggleLogoUrl" alt="" />
+        </button>
+      </div>
+
+      <div class="user-bar__identity">
         <div class="auth-chip">
-          <span class="auth-chip__label">Auth</span>
-          <span v-if="loading" class="auth-chip__status">Loading...</span>
-          <span v-else-if="user?.email" class="auth-chip__status">{{ user.email }}</span>
-          <span v-else class="auth-chip__status">Not signed in</span>
+          <template v-if="permissionsLoading">
+            <span class="auth-chip__label">Auth</span>
+            <span class="auth-chip__status">Loading...</span>
+          </template>
+          <template v-else-if="user?.email">
+            <span class="auth-chip__status">{{ user.email }}</span>
+            <button
+              class="google-login-button google-login-button--logout auth-chip__logout"
+              type="button"
+              :disabled="permissionsLoading"
+              @click="handleLogout"
+            >
+              <span class="google-login-button__text">Logout</span>
+            </button>
+          </template>
+          <template v-else>
+            <span class="auth-chip__label">Auth</span>
+            <span class="auth-chip__status">Not signed in</span>
+          </template>
         </div>
+        <span class="plan-indicator__value" :class="`plan-indicator__value--${role}`">{{ role }}</span>
+        <span v-if="showUpgradePrompts" class="status-note">{{ storyUsageText }}</span>
+      </div>
+
+      <div class="user-bar__actions">
         <button
           v-if="!user"
           class="google-login-button"
           type="button"
-          :disabled="loading"
+          :disabled="permissionsLoading"
           @click="handleLogin"
         >
           <span class="google-login-button__icon" aria-hidden="true">G</span>
-          <span class="google-login-button__text">Login with Google</span>
+          <span class="google-login-button__text">Login</span>
         </button>
         <button
-          v-else
-          class="google-login-button google-login-button--logout"
+          v-if="user"
+          class="save-story-button"
           type="button"
-          :disabled="loading"
-          @click="handleLogout"
+          :disabled="permissionsLoading || isSavingStory || !canSave"
+          @click="handleSaveStory"
         >
-          <span class="google-login-button__text">Logout</span>
+          <span v-if="isSavingStory">Saving...</span>
+          <span v-else>Save</span>
         </button>
-      </details>
+        <button
+          v-if="user"
+          class="publish-story-button"
+          type="button"
+          :disabled="permissionsLoading || isPublishingStory || !canPublish"
+          @click="handlePublishStory"
+        >
+          <span v-if="isPublishingStory">Publishing...</span>
+          <span v-else>Publish</span>
+        </button>
+        <button
+          v-if="user && publishedStoryId"
+          class="share-box__button"
+          type="button"
+          @click="copyPublicLink"
+        >
+          Copy Link
+        </button>
+        <button
+          v-if="user && publishedStoryId"
+          class="share-box__button"
+          type="button"
+          @click="copyEmbedCode"
+        >
+          Copy iFrame
+        </button>
 
-      <details v-if="user" class="panel-card panel-card--actions collapsible">
-        <summary class="collapsible__summary">Actions</summary>
-        <div class="panel-actions">
-          <button
-            class="save-story-button"
-            type="button"
-            :disabled="loading || isSavingStory || !user"
-            @click="handleSaveStory"
-          >
-            <span v-if="isSavingStory">Saving...</span>
-            <span v-else>Save Story</span>
-          </button>
-
-          <button
-            class="publish-story-button"
-            type="button"
-            :disabled="loading || isPublishingStory || !user"
-            @click="handlePublishStory"
-          >
-            <span v-if="isPublishingStory">Publishing...</span>
-            <span v-else>Publish Story</span>
-          </button>
-        </div>
-        <details class="nested-collapsible" open>
-          <summary class="nested-collapsible__summary">Share</summary>
-          <div class="nested-collapsible__content">
-            <p v-if="!publishedStoryId" class="share-box__hint">Publish a story to generate public link and iframe code.</p>
-            <template v-else>
-              <p class="share-box__line">{{ publicStoryUrl }}</p>
-              <div class="share-box__actions">
-                <button class="share-box__button" type="button" @click="copyPublicLink">Copy Public Link</button>
-                <button class="share-box__button" type="button" @click="copyEmbedCode">Copy iFrame Code</button>
-              </div>
-              <p v-if="shareFeedback" class="share-box__feedback">{{ shareFeedback }}</p>
-            </template>
-          </div>
-        </details>
-
-        <details class="nested-collapsible my-stories" open>
-          <summary class="nested-collapsible__summary">My Stories</summary>
-          <div class="nested-collapsible__content">
+        <details v-if="user" class="mini-dropdown">
+          <summary class="mini-dropdown__summary">My Stories</summary>
+          <div class="mini-dropdown__body">
             <p v-if="isLoadingStories" class="my-stories__hint">Loading stories...</p>
             <p v-else-if="myStories.length === 0" class="my-stories__hint">No stories yet.</p>
             <ul v-else class="my-stories__list">
@@ -85,14 +122,15 @@
                   :disabled="isOpeningStory"
                   @click="handleOpenStory(story.id)"
                 >
-                  Open Story
+                  Open
                 </button>
               </li>
             </ul>
           </div>
         </details>
-      </details>
-    </aside>
+      </div>
+      </div>
+    </header>
 
     <FlowEditor
       ref="flowEditorRef"
@@ -105,6 +143,7 @@
       :loop-enabled="loopEnabled"
       :ease-options="SNAP_EASE_OPTIONS"
       :available-stories="availableStories"
+      :can-upload-images="canUploadImages"
       @update:panels="handlePanelsUpdate"
       @update:auto-snap-enabled="handleAutoSnapEnabledUpdate"
       @update:snap-ease="handleSnapEaseUpdate"
@@ -121,22 +160,25 @@
       :set-snap-shell-el="setSnapShellEl"
       :set-snap-stage-el="setSnapStageEl"
       :step-style="stepStyle"
-      :show-edit-trigger="true"
+      :show-edit-trigger="false"
+      :show-watermark="showWatermark"
       @edit-slide="openSlideEditor"
     />
   </main>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import '../styles/editor.css'
+import '../styles/pages/edit-page.css'
 import FlowEditor from '../editor/components/flow-creator/FlowEditor.vue'
 import StoryRenderer from '../core/StoryRenderer.vue'
 import { useStoryRuntime } from '../core/useStoryRuntime'
 import { listStories, loadStory } from '../core/storySource'
 import { SNAP_EASE_OPTIONS } from '../constants/snapEase'
 import { useAuth } from '../composables/useAuth'
+import { usePermissions } from '../composables/usePermissions'
 import { getStories, getStoryById, publishStory, saveStory, updateStory, type StoryListItem } from '../services/stories'
 import { supabase } from '../lib/supabase'
 import type { ContentSchema } from '../types/navigation'
@@ -172,7 +214,7 @@ onMounted(async () => {
   availableStories.value = await listStories()
 })
 
-const { user, loading, signInWithGoogle, signOut } = useAuth()
+const { user, signInWithGoogle, signOut } = useAuth()
 const isSavingStory = ref(false)
 const isPublishingStory = ref(false)
 const isLoadingStories = ref(false)
@@ -180,6 +222,24 @@ const isOpeningStory = ref(false)
 const myStories = ref<StoryListItem[]>([])
 const publishedStoryId = ref<string | null>(null)
 const shareFeedback = ref('')
+const storyCount = computed(() => myStories.value.length)
+
+const {
+  role,
+  loading: permissionsLoading,
+  canSave,
+  canPublish,
+  canUploadImages,
+  canCreateMoreStories,
+  maxStories,
+  showUpgradePrompts,
+  showWatermark
+} = usePermissions(storyCount)
+
+const storyUsageText = computed(() => {
+  if (!Number.isFinite(maxStories.value)) return `${storyCount.value} stories used`
+  return `${storyCount.value} / ${maxStories.value} stories used`
+})
 
 const {
   autoSnapEnabled,
@@ -203,7 +263,17 @@ const {
   handleLoopEnabledUpdate
 } = useStoryRuntime(storySchema, { logPrefix: '[flow-edit]' })
 
-const flowEditorRef = ref<{ openSlideSettings: (index: number) => void } | null>(null)
+const flowEditorRef = ref<{
+  openSlideSettings: (index: number) => void
+  toggleFlowEditor: () => boolean
+  isFlowEditorOpen: () => boolean
+} | null>(null)
+const isFlowEditorOpen = ref(true)
+const isMobileBarOpen = ref(false)
+const activeSlideIndex = ref(0)
+const editorToggleLogoUrl = `${import.meta.env.BASE_URL}favicon.png`
+let snapShellScrollTarget: HTMLElement | null = null
+let snapShellScrollHandler: (() => void) | null = null
 
 const handleLogin = async () => {
   try {
@@ -229,6 +299,7 @@ const buildCurrentStoryContent = (): ContentSchema => ({
   transitionSpeed: transitionSpeed.value,
   autoPlayEnabled: autoPlayEnabled.value,
   autoPlaySpeed: autoPlaySpeed.value,
+  watermarkEnabled: showWatermark.value,
   panels: panelsState.value.map((panel) => ({ ...panel }))
 })
 
@@ -287,10 +358,15 @@ const handleSaveStory = async () => {
   console.log(user.value?.id)
   console.log(await supabase.auth.getSession())
 
-  if (!user.value) {
-    console.warn('[stories] Save cancelled: user is not authenticated.')
+  if (!canSave.value) {
+    console.warn('[permissions] Save is disabled for current role.')
     return
   }
+  if (!currentStoryId.value && !canCreateMoreStories.value) {
+    console.warn('[permissions] Story limit reached. Upgrade to create more stories.')
+    return
+  }
+  if (!user.value) return
 
   if (isSavingStory.value) return
   isSavingStory.value = true
@@ -325,10 +401,15 @@ const handleSaveStory = async () => {
 }
 
 const handlePublishStory = async () => {
-  if (!user.value) {
-    console.warn('[stories] Publish cancelled: user is not authenticated.')
+  if (!canPublish.value) {
+    console.warn('[permissions] Publish is disabled for current role.')
     return
   }
+  if (!currentStoryId.value && !canCreateMoreStories.value) {
+    console.warn('[permissions] Story limit reached. Upgrade to publish more stories.')
+    return
+  }
+  if (!user.value) return
 
   if (isPublishingStory.value) return
   isPublishingStory.value = true
@@ -423,285 +504,60 @@ watch(
 )
 
 const openSlideEditor = (index: number) => {
+  activeSlideIndex.value = index
   flowEditorRef.value?.openSlideSettings(index)
 }
 
+const handleEditCurrentSlide = () => {
+  const total = panelsState.value.length
+  if (!total) return
+  const safeIndex = Math.max(0, Math.min(activeSlideIndex.value, total - 1))
+  flowEditorRef.value?.openSlideSettings(safeIndex)
+}
+
+const handleToggleEditor = () => {
+  const next = flowEditorRef.value?.toggleFlowEditor()
+  if (typeof next === 'boolean') {
+    isFlowEditorOpen.value = next
+    return
+  }
+  isFlowEditorOpen.value = !isFlowEditorOpen.value
+}
+
 const setSnapShellEl = (element: HTMLElement | null) => {
+  if (snapShellScrollTarget && snapShellScrollHandler) {
+    snapShellScrollTarget.removeEventListener('scroll', snapShellScrollHandler)
+    snapShellScrollTarget = null
+    snapShellScrollHandler = null
+  }
+
   snapShellRef.value = element
+
+  if (!element) return
+  snapShellScrollTarget = element
+  snapShellScrollHandler = () => {
+    const viewport = window.innerHeight || 1
+    const index = Math.round(element.scrollTop / viewport)
+    activeSlideIndex.value = Math.max(0, Math.min(index, panelsState.value.length - 1))
+  }
+  element.addEventListener('scroll', snapShellScrollHandler, { passive: true })
 }
 
 const setSnapStageEl = (element: HTMLElement | null) => {
   snapStageRef.value = element
 }
+
+onMounted(() => {
+  isFlowEditorOpen.value = flowEditorRef.value?.isFlowEditorOpen() ?? true
+})
+
+onUnmounted(() => {
+  if (snapShellScrollTarget && snapShellScrollHandler) {
+    snapShellScrollTarget.removeEventListener('scroll', snapShellScrollHandler)
+  }
+})
 </script>
 
-<style scoped>
-.control-panel {
-  position: fixed;
-  top: clamp(12px, 2.2vw, 20px);
-  left: calc(clamp(12px, 2.2vw, 20px) + 122px);
-  right: auto;
-  z-index: 1500;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 0.6rem;
-}
 
-.panel-card {
-  padding: 0.7rem;
-  border-radius: 12px;
-  border: 1px solid #d9e3ef;
-  background: rgba(255, 255, 255, 0.97);
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.11);
-  min-width: 220px;
-  max-width: 340px;
-  flex: 0 0 auto;
-}
 
-.panel-card--account {
-  width: 280px;
-}
-
-.panel-card--actions {
-  width: 340px;
-}
-
-.collapsible {
-  overflow: hidden;
-}
-
-.collapsible__summary {
-  cursor: pointer;
-  list-style: none;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: #233242;
-  margin: -0.1rem 0 0.5rem;
-}
-
-.collapsible__summary::-webkit-details-marker {
-  display: none;
-}
-
-.auth-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  min-height: 36px;
-  width: 100%;
-  margin-bottom: 0.45rem;
-  padding: 0 0.75rem;
-  border: 1px solid #d6dee7;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.95);
-  color: #24303c;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
-}
-
-.auth-chip__label {
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #627485;
-  font-weight: 700;
-}
-
-.auth-chip__status {
-  font-size: 0.77rem;
-  font-weight: 600;
-  color: #1f2d3b;
-}
-
-.panel-actions {
-  display: flex;
-  gap: 0.65rem;
-  margin-bottom: 0.2rem;
-}
-
-.save-story-button,
-.publish-story-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  height: 36px;
-  width: 100%;
-  padding: 0 0.95rem;
-  border-radius: 9999px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 0.79rem;
-  letter-spacing: 0.01em;
-}
-
-.google-login-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  height: 36px;
-  width: auto;
-  min-width: 160px;
-  padding: 0 0.95rem;
-  border-radius: 9999px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 0.79rem;
-  letter-spacing: 0.01em;
-}
-
-.google-login-button {
-  border: 1px solid #d6dee7;
-  background: rgba(255, 255, 255, 0.96);
-  color: #24303c;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.14);
-}
-
-.google-login-button__icon {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: #4285f4;
-  color: #ffffff;
-  font-size: 0.72rem;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.google-login-button--logout {
-  background: rgba(255, 246, 246, 0.96);
-  border: 1px solid #f0c8c8;
-  color: #7b2d2d;
-}
-
-.save-story-button {
-  border: 1px solid #bcd1c3;
-  background: rgba(235, 250, 241, 0.96);
-  color: #1d5e3c;
-}
-
-.publish-story-button {
-  border: 1px solid #c8c5f1;
-  background: rgba(238, 236, 255, 0.96);
-  color: #3c2e7a;
-}
-
-.google-login-button:disabled,
-.save-story-button:disabled,
-.publish-story-button:disabled,
-.my-stories__open-button:disabled {
-  cursor: default;
-  opacity: 0.68;
-}
-
-.share-box__hint,
-.share-box__line,
-.my-stories__hint {
-  margin: 0;
-  font-size: 0.73rem;
-  color: #3c4f62;
-  word-break: break-all;
-}
-
-.share-box__actions {
-  margin-top: 0.5rem;
-  display: flex;
-  gap: 0.4rem;
-}
-
-.share-box__button,
-.my-stories__open-button {
-  border: 1px solid #c8d6e7;
-  background: #f4f8fc;
-  color: #2e4862;
-  border-radius: 6px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 0.35rem 0.5rem;
-  cursor: pointer;
-}
-
-.share-box__feedback {
-  margin: 0.45rem 0 0;
-  font-size: 0.7rem;
-  color: #265e3e;
-}
-
-.my-stories__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.nested-collapsible {
-  margin-top: 0.8rem;
-  border-top: 1px solid #e7edf4;
-  padding-top: 0.6rem;
-}
-
-.nested-collapsible__summary {
-  cursor: pointer;
-  list-style: none;
-  font-size: 0.76rem;
-  font-weight: 700;
-  color: #314659;
-}
-
-.nested-collapsible__summary::-webkit-details-marker {
-  display: none;
-}
-
-.nested-collapsible__content {
-  margin-top: 0.5rem;
-}
-
-.my-stories__item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  border: 1px solid #e4ebf3;
-  border-radius: 8px;
-  padding: 0.45rem;
-}
-
-.my-stories__meta {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.my-stories__story-title {
-  font-size: 0.74rem;
-  color: #1c2a38;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.my-stories__date {
-  font-size: 0.68rem;
-  color: #6f8092;
-}
-
-@media (max-width: 720px) {
-  .control-panel {
-    top: calc(clamp(12px, 2.2vw, 20px) + 42px);
-    left: clamp(12px, 2.2vw, 20px);
-    right: auto;
-    flex-direction: column;
-  }
-
-  .panel-actions {
-    flex-direction: column;
-  }
-}
-</style>
 

@@ -20,6 +20,7 @@ import {
   deriveTitleMaxWidthFromContent
 } from '../../constants/slideStyle'
 import { validateContentSchema } from '../../utils/validateContent'
+import { FEATURE_FLAGS } from '../../config/featureFlags'
 
 gsap.registerPlugin(ScrollToPlugin)
 
@@ -288,16 +289,18 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
   })
 
   const insertableDirections = (index: number): Direction[] =>
-    allowedDirections(index).filter((direction) => {
-      const current = localPanels.value[index]
-      if (!current) return false
-      const previousNext = (current.nextPanelPosition ?? DEFAULT_DIRECTION) as Direction
-      const nextPanels = localPanels.value.map((p) => ({ ...p }))
-      nextPanels[index].nextPanelPosition = direction
-      const candidate = buildNewPanel(nextPanels.length + 1, previousNext, nextPanels[index].panelClass)
-      nextPanels.splice(index + 1, 0, candidate)
-      return canCommitPanels(nextPanels)
-    })
+    FEATURE_FLAGS.allowNodeCreation
+      ? allowedDirections(index).filter((direction) => {
+        const current = localPanels.value[index]
+        if (!current) return false
+        const previousNext = (current.nextPanelPosition ?? DEFAULT_DIRECTION) as Direction
+        const nextPanels = localPanels.value.map((p) => ({ ...p }))
+        nextPanels[index].nextPanelPosition = direction
+        const candidate = buildNewPanel(nextPanels.length + 1, previousNext, nextPanels[index].panelClass)
+        nextPanels.splice(index + 1, 0, candidate)
+        return canCommitPanels(nextPanels)
+      })
+      : []
 
   const commitPanels = (nextPanels: Panel[], showAlert = true) => {
     const sanitized = renumberPanels(normalizePanels(nextPanels))
@@ -315,6 +318,11 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
   const makeId = () => `${ID_PREFIX}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
 
   const insertAfter = (index: number, direction: Direction) => {
+    if (!FEATURE_FLAGS.allowNodeCreation) {
+      console.warn('[flow-editor] Node creation is disabled by feature flag.')
+      return
+    }
+
     const current = localPanels.value[index]
     if (!current) return
 

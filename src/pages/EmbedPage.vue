@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <main class="embed-root">
     <p v-if="isLoading" class="embed-status">Loading story...</p>
     <p v-else-if="loadError" class="embed-status">{{ loadError }}</p>
@@ -9,6 +9,7 @@
       :set-snap-shell-el="setSnapShellEl"
       :set-snap-stage-el="setSnapStageEl"
       :step-style="stepStyle"
+      :show-watermark="embedWatermarkEnabled"
     />
   </main>
 </template>
@@ -18,6 +19,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import '../styles/core.css'
 import '../styles/embed.css'
+import '../styles/pages/embed-page.css'
 import StoryRenderer from '../core/StoryRenderer.vue'
 import { useStoryRuntime } from '../core/useStoryRuntime'
 import { getPublicStoryById } from '../services/stories'
@@ -68,6 +70,8 @@ const {
   stepStyle
 } = useStoryRuntime(storySchema, { logPrefix: '[flow-embed]' })
 
+const embedWatermarkEnabled = computed(() => storySchema.value?.watermarkEnabled ?? true)
+
 const setSnapShellEl = (element: HTMLElement | null) => {
   snapShellRef.value = element
 }
@@ -77,14 +81,5 @@ const setSnapStageEl = (element: HTMLElement | null) => {
 }
 </script>
 
-<style scoped>
-.embed-status {
-  margin: 0;
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  font-size: 0.95rem;
-  color: #3d4f63;
-  background: #f5f8fc;
-}
-</style>
+
+

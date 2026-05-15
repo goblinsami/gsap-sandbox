@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <section ref="snapShellLocalRef" class="snap-shell" :class="{ 'snap-shell--auto': autoSnapEnabled }">
     <div ref="snapStageLocalRef" class="snap-stage">
       <div
@@ -8,6 +8,10 @@
         :style="stepStyle(step)"
         :data-step-index="step.index"
       >
+        <div v-if="showWatermark" class="story-watermark">
+          <img class="story-watermark__logo" :src="watermarkLogoUrl" alt="" />
+          <span>Built with Scrollix</span>
+        </div>
         <button
           v-if="showEditTrigger"
           class="slide-edit-trigger"
@@ -56,6 +60,7 @@
 import { ref, watch } from 'vue'
 import SectionPanel from './SectionPanel.vue'
 import type { FlowBlockStep } from './useFlowBlocks'
+import '../styles/core/story-renderer.css'
 const props = withDefaults(
   defineProps<{
     flowSteps: FlowBlockStep[]
@@ -64,9 +69,11 @@ const props = withDefaults(
     setSnapStageEl?: (element: HTMLElement | null) => void
     stepStyle: (step: FlowBlockStep) => Record<string, string>
     showEditTrigger?: boolean
+    showWatermark?: boolean
   }>(),
   {
-    showEditTrigger: false
+    showEditTrigger: false,
+    showWatermark: false
   }
 )
 
@@ -76,6 +83,7 @@ defineEmits<{
 
 const snapShellLocalRef = ref<HTMLElement | null>(null)
 const snapStageLocalRef = ref<HTMLElement | null>(null)
+const watermarkLogoUrl = `${import.meta.env.BASE_URL}favicon.png`
 
 watch(
   () => snapShellLocalRef.value,
@@ -93,3 +101,6 @@ watch(
   { immediate: true }
 )
 </script>
+
+
+
