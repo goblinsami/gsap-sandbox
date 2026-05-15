@@ -23,7 +23,7 @@ interface UseSlideSnapNavigationOptions {
   transitionSpeed: Ref<number>
   autoPlayEnabled: Ref<boolean>
   autoPlaySpeed: Ref<number>
-  enabled: boolean
+  enabled: Ref<boolean>
   logPrefix?: string
 }
 
@@ -355,7 +355,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     await nextTick()
     destroyNavigation()
 
-    if (!options.enabled || !options.flowSteps.value.length) return
+    if (!options.enabled.value || !options.flowSteps.value.length) return
 
     console.log(`${logPrefix} init`, {
       autoSnapEnabled: options.autoSnapEnabled.value,
@@ -433,7 +433,6 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
   }
 
   onMounted(() => {
-    if (!options.enabled) return
     void initNavigation()
     window.addEventListener('resize', handleResize)
     disposeResizeHandler = () => window.removeEventListener('resize', handleResize)
@@ -458,7 +457,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
   watch(
     () => options.autoSnapEnabled.value,
     async (nextAutoSnapEnabled, prevAutoSnapEnabled) => {
-      if (!options.enabled || nextAutoSnapEnabled === prevAutoSnapEnabled) return
+      if (!options.enabled.value || nextAutoSnapEnabled === prevAutoSnapEnabled) return
       console.log(`${logPrefix} autosnap:update`, { autoSnapEnabled: nextAutoSnapEnabled })
       await initNavigation()
     }
@@ -467,7 +466,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
   watch(
     () => options.snapEase.value,
     async (nextEase, prevEase) => {
-      if (!options.enabled || nextEase === prevEase) return
+      if (!options.enabled.value || nextEase === prevEase) return
       console.log(`${logPrefix} ease:update`, { snapEase: nextEase })
       if (!options.autoSnapEnabled.value) await initNavigation()
     }
@@ -476,7 +475,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
   watch(
     () => options.loopEnabled.value,
     async (nextLoopEnabled, prevLoopEnabled) => {
-      if (!options.enabled || nextLoopEnabled === prevLoopEnabled) return
+      if (!options.enabled.value || nextLoopEnabled === prevLoopEnabled) return
       console.log(`${logPrefix} loop:update`, { loopEnabled: nextLoopEnabled })
       await initNavigation()
     }
@@ -485,7 +484,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
   watch(
     () => options.transitionSpeed.value,
     async (nextSpeed, prevSpeed) => {
-      if (!options.enabled) return
+      if (!options.enabled.value) return
       const normalizedNext = normalizeTransitionSpeed(nextSpeed)
       const normalizedPrev = normalizeTransitionSpeed(prevSpeed)
       if (normalizedNext === normalizedPrev) return
@@ -497,7 +496,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
   watch(
     () => options.autoPlayEnabled.value,
     (nextEnabled, prevEnabled) => {
-      if (!options.enabled || nextEnabled === prevEnabled) return
+      if (!options.enabled.value || nextEnabled === prevEnabled) return
       console.log(`${logPrefix} autoplay:enabled:update`, { autoPlayEnabled: nextEnabled })
       setupAutoPlay()
     }
@@ -506,7 +505,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
   watch(
     () => options.autoPlaySpeed.value,
     (nextSpeed, prevSpeed) => {
-      if (!options.enabled) return
+      if (!options.enabled.value) return
       const normalizedNext = normalizeAutoPlaySpeed(nextSpeed)
       const normalizedPrev = normalizeAutoPlaySpeed(prevSpeed)
       if (normalizedNext === normalizedPrev) return

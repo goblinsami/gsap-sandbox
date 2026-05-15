@@ -6,7 +6,7 @@ import {
   LINEAR_ORIENTATIONS,
   RADIAL_ORIENTATIONS,
   type GradientType
-} from '../constants/gradientEditor'
+} from '../../constants/gradientEditor'
 
 const normalizeHex = (value: string, fallback: string) => {
   const raw = value.trim()

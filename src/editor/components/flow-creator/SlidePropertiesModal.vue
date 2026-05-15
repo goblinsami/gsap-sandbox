@@ -432,7 +432,7 @@
 
 <script setup lang="ts">
 import { computed, ref, toRef, watch } from 'vue'
-import { ContentWidthMode, TextSize, type Panel } from '../../types/navigation'
+import { ContentWidthMode, TextSize, type Panel } from '../../../types/navigation'
 import TextSizeSelector from '../atoms/TextSizeSelector.vue'
 import MarkdownField from '../atoms/MarkdownField.vue'
 import CollapsibleSection from '../atoms/CollapsibleSection.vue'

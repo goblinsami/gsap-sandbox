@@ -1,7 +1,7 @@
 import { computed, nextTick, ref, watch, type Ref } from 'vue'
 import gsap from 'gsap'
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin'
-import { Direction, type Panel } from '../types/navigation'
+import { Direction, type Panel } from '../../types/navigation'
 import {
   DEFAULT_CONTENT_ALIGN,
   DEFAULT_CONTENT_MAX_WIDTH,
@@ -18,8 +18,8 @@ import {
   DEFAULT_TITLE_MAX_WIDTH,
   deriveDescriptionMaxWidthFromContent,
   deriveTitleMaxWidthFromContent
-} from '../constants/slideStyle'
-import { validateContentSchema } from '../utils/validateContent'
+} from '../../constants/slideStyle'
+import { validateContentSchema } from '../../utils/validateContent'
 
 gsap.registerPlugin(ScrollToPlugin)
 
