@@ -1,3 +1,14 @@
 {
-  "stories": ["welcome", "demo", "ai-startup"]
+  "stories": [
+    "welcome",
+    "demo",
+    "ai-startup",
+    "4-per-side-loop",
+    "5-horizontal-left",
+    "5-horizontal-right",
+    "5-vertical",
+    "story-map",
+    "spiral",
+    "circle-grid"
+  ]
 }

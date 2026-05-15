@@ -412,7 +412,11 @@ const openSlideSettings = (index: number) => {
 }
 
 const toggleFlowEditor = () => {
+  const willClose = showModal.value
   toggleModal()
+  if (willClose) {
+    closeSettings()
+  }
   return showModal.value
 }
 

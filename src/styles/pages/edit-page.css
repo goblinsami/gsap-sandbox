@@ -1,7 +1,7 @@
 .user-bar {
   position: fixed;
   top: 0;
-  left: calc(clamp(12px, 2.2vw, 20px) + 122px);
+  left: 0;
   right: 0;
   z-index: 1500;
   min-height: 48px;
@@ -16,6 +16,24 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.65rem;
+}
+
+.editor-hover-toggle {
+  position: fixed;
+  top: 64px;
+  right: 14px;
+  z-index: 1450;
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.sandbox:hover .editor-hover-toggle,
+.editor-hover-toggle:focus-within {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 .user-bar__burger {
@@ -59,6 +77,7 @@
   align-items: center;
   gap: 0.45rem;
   min-height: 30px;
+  min-width: 150px;
   max-width: min(38vw, 360px);
   padding: 0 0 0 0.65rem;
   border: 1px solid #d6dee7;
@@ -85,8 +104,8 @@
   font-weight: 600;
   color: #1f2d3b;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
+  text-overflow: clip;
 }
 
 .status-note {
@@ -184,13 +203,18 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: #4285f4;
-  color: #ffffff;
-  font-size: 0.66rem;
-  font-weight: 800;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 1px solid #dfe6ef;
+  overflow: hidden;
+}
+
+.google-login-button__icon svg {
+  width: 13px;
+  height: 13px;
+  display: block;
 }
 
 .auth-chip > .google-login-button.google-login-button--logout.auth-chip__logout {
@@ -319,6 +343,10 @@
 }
 
 @media (max-width: 720px) {
+  .editor-hover-toggle {
+    display: none;
+  }
+
   .user-bar {
     top: 0;
     left: 0;

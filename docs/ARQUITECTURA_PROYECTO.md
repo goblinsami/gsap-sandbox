@@ -143,7 +143,7 @@ export interface ContentSchema {
 
 Responsabilidades:
 
-1. Cargar y validar `src/data/content.json`
+1. Cargar y validar `public/stories/content.json`
 2. Construir estado reactivo `panelsState`
 3. Resolver `snapEase` con `normalizeSnapEase`
 4. Derivar `flowSteps` con `useFlowSteps`
@@ -296,7 +296,7 @@ Incluye:
 - canvas del grafo de flujo
 - botones debug/export
 - selector de easing
-- selector de JSON en `src/data`
+- selector de JSON en `public/stories`
 - import de JSON local (input file)
 
 ### 10.2 Logica de editor (`useFlowCreator.ts`)
@@ -359,7 +359,7 @@ Bloques mas importantes:
 
 ---
 
-## 13. Archivos JSON de ejemplo (`src/data`)
+## 13. Archivos JSON de ejemplo (`public/stories`)
 
 - `content.json`: flujo principal por defecto
 - `4-per-side-loop.json`: plantilla "cuadrado loop", 4 paneles por lado, `loopEnabled=true`
@@ -432,7 +432,7 @@ No rompe logica, pero conviene normalizar encoding UTF-8 en una pasada de higien
 
 ### 17.2 Nuevo template JSON
 
-1. crear archivo en `src/data/*.json`
+1. crear archivo en `public/stories/*.json`
 2. respetar `ContentSchema`
 3. aparecera automaticamente en el selector de `FlowCreator`
 

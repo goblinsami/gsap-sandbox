@@ -20,15 +20,11 @@
         >
           Edit Slide
         </button>
-        <button
-          class="editor-toggle-button"
-          type="button"
-          :aria-label="isFlowEditorOpen ? 'Hide editor' : 'Show editor'"
-          :title="isFlowEditorOpen ? 'Hide editor' : 'Show editor'"
-          @click="handleToggleEditor"
-        >
-          <img class="editor-toggle-button__logo" :src="editorToggleLogoUrl" alt="" />
-        </button>
+        <EditorToggleButton
+          :is-open="isFlowEditorOpen"
+          :logo-url="editorToggleLogoUrl"
+          @toggle="handleToggleEditor"
+        />
       </div>
 
       <div class="user-bar__identity">
@@ -65,7 +61,26 @@
           :disabled="permissionsLoading"
           @click="handleLogin"
         >
-          <span class="google-login-button__icon" aria-hidden="true">G</span>
+          <span class="google-login-button__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img" focusable="false">
+              <path
+                fill="#EA4335"
+                d="M12 10.2v3.9h5.5c-.2 1.2-1.4 3.6-5.5 3.6-3.3 0-6-2.7-6-6s2.7-6 6-6c1.9 0 3.2.8 3.9 1.4l2.7-2.6C16.9 2.9 14.7 2 12 2 6.5 2 2 6.5 2 12s4.5 10 10 10c5.8 0 9.6-4.1 9.6-9.8 0-.7-.1-1.2-.2-1.8H12z"
+              />
+              <path
+                fill="#34A853"
+                d="M3.2 7.3l3.2 2.3C7.2 7.9 9.4 6.2 12 6.2c1.9 0 3.2.8 3.9 1.4l2.7-2.6C16.9 2.9 14.7 2 12 2 8.1 2 4.7 4.2 3.2 7.3z"
+              />
+              <path
+                fill="#4A90E2"
+                d="M12 22c2.6 0 4.8-.9 6.4-2.4l-3-2.5c-.8.6-1.9 1-3.4 1-4.1 0-5.2-2.7-5.5-3.6l-3.2 2.5C4.7 19.8 8.1 22 12 22z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M3.2 16.7l3.2-2.5c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2L3.2 7.7C2.4 9 2 10.4 2 12s.4 3 1.2 4.7z"
+              />
+            </svg>
+          </span>
           <span class="google-login-button__text">Login</span>
         </button>
         <button
@@ -105,7 +120,7 @@
           Copy iFrame
         </button>
 
-        <details v-if="user" class="mini-dropdown">
+        <details v-if="user" ref="myStoriesDropdownRef" class="mini-dropdown">
           <summary class="mini-dropdown__summary">My Stories</summary>
           <div class="mini-dropdown__body">
             <p v-if="isLoadingStories" class="my-stories__hint">Loading stories...</p>
@@ -131,6 +146,14 @@
       </div>
       </div>
     </header>
+
+    <div class="editor-hover-toggle">
+      <EditorToggleButton
+        :is-open="isFlowEditorOpen"
+        :logo-url="editorToggleLogoUrl"
+        @toggle="handleToggleEditor"
+      />
+    </div>
 
     <FlowEditor
       ref="flowEditorRef"
@@ -173,6 +196,7 @@ import { useRoute } from 'vue-router'
 import '../styles/core.css'
 import '../styles/editor.css'
 import '../styles/pages/edit-page.css'
+import EditorToggleButton from '../components/EditorToggleButton.vue'
 import FlowEditor from '../editor/components/flow-creator/FlowEditor.vue'
 import StoryRenderer from '../core/StoryRenderer.vue'
 import { useStoryRuntime } from '../core/useStoryRuntime'
@@ -223,6 +247,7 @@ const isOpeningStory = ref(false)
 const myStories = ref<StoryListItem[]>([])
 const publishedStoryId = ref<string | null>(null)
 const shareFeedback = ref('')
+const myStoriesDropdownRef = ref<HTMLElement | null>(null)
 const storyCount = computed(() => myStories.value.length)
 
 const {
@@ -275,6 +300,15 @@ const activeSlideIndex = ref(0)
 const editorToggleLogoUrl = `${import.meta.env.BASE_URL}favicon.png`
 let snapShellScrollTarget: HTMLElement | null = null
 let snapShellScrollHandler: (() => void) | null = null
+
+const handleDocumentPointerDown = (event: MouseEvent | TouchEvent) => {
+  const dropdown = myStoriesDropdownRef.value
+  if (!dropdown || !dropdown.hasAttribute('open')) return
+  const target = event.target
+  if (!(target instanceof Node)) return
+  if (dropdown.contains(target)) return
+  dropdown.removeAttribute('open')
+}
 
 const handleLogin = async () => {
   try {
@@ -550,12 +584,16 @@ const setSnapStageEl = (element: HTMLElement | null) => {
 
 onMounted(() => {
   isFlowEditorOpen.value = flowEditorRef.value?.isFlowEditorOpen() ?? true
+  document.addEventListener('mousedown', handleDocumentPointerDown)
+  document.addEventListener('touchstart', handleDocumentPointerDown, { passive: true })
 })
 
 onUnmounted(() => {
   if (snapShellScrollTarget && snapShellScrollHandler) {
     snapShellScrollTarget.removeEventListener('scroll', snapShellScrollHandler)
   }
+  document.removeEventListener('mousedown', handleDocumentPointerDown)
+  document.removeEventListener('touchstart', handleDocumentPointerDown)
 })
 </script>
 
