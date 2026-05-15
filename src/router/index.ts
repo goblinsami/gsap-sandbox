@@ -16,7 +16,7 @@ export const router = createRouter({
       component: EditPage
     },
     {
-      path: '/embed',
+      path: '/embed/:id',
       name: 'embed',
       component: EmbedPage
     }
