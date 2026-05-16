@@ -1,6 +1,8 @@
 import type { AuthChangeEvent, Session, Subscription, User } from '@supabase/supabase-js'
 import { readonly, ref } from 'vue'
 import { supabase } from '@/lib/supabase'
+import { ROUTE_PATHS } from '@/constants/routes'
+import { debugLog } from '@/utils/logger'
 
 const currentUser = ref<User | null>(null)
 const currentSession = ref<Session | null>(null)
@@ -11,18 +13,18 @@ let initializePromise: Promise<void> | null = null
 let authSubscription: Subscription | null = null
 
 const logAuthEvent = (event: AuthChangeEvent, session: Session | null) => {
-  console.log('AUTH EVENT', event)
-  console.log('USER', session?.user?.email ?? null)
-  console.log('SESSION', session)
+  debugLog('AUTH EVENT', event)
+  debugLog('USER', session?.user?.email ?? null)
+  debugLog('SESSION', session)
 
   if (event === 'SIGNED_IN') {
-    console.log('[auth] SIGNED_IN')
+    debugLog('[auth] SIGNED_IN')
   }
   if (event === 'SIGNED_OUT') {
-    console.log('[auth] SIGNED_OUT')
+    debugLog('[auth] SIGNED_OUT')
   }
   if (event === 'TOKEN_REFRESHED') {
-    console.log('[auth] TOKEN_REFRESHED')
+    debugLog('[auth] TOKEN_REFRESHED')
   }
 }
 
@@ -53,9 +55,9 @@ const restoreSession = async () => {
     currentSession.value = restoredSession
     currentUser.value = restoredUser
 
-    console.log('[auth] Initial restore complete')
-    console.log('USER', restoredUser?.email ?? null)
-    console.log('SESSION', restoredSession)
+    debugLog('[auth] Initial restore complete')
+    debugLog('USER', restoredUser?.email ?? null)
+    debugLog('SESSION', restoredSession)
   } finally {
     loading.value = false
   }
@@ -104,7 +106,7 @@ export const useAuth = () => {
   const signInWithGoogle = async () => {
     loading.value = true
     try {
-      const redirectTo = `${window.location.origin}/edit`
+      const redirectTo = `${window.location.origin}${ROUTE_PATHS.Edit}`
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {

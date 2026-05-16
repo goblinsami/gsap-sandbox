@@ -6,6 +6,7 @@ import type { SnapEaseOption } from '../constants/snapEase'
 import { normalizeTransitionSpeed } from '../constants/transitionSpeed'
 import { normalizeAutoPlaySpeed } from '../constants/autoPlaySpeed'
 import { normalizeStepIndex } from '../utils/stepIndex'
+import { debugLog } from '../utils/logger'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -37,6 +38,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
   let disposeInteractionHandlers: (() => void) | null = null
   let disposeResizeHandler: (() => void) | null = null
   let manualScrollTrigger: ScrollTrigger | null = null
+  let manualTimeline: gsap.core.Timeline | null = null
   let touchStartY: number | null = null
   let touchCommitted = false
   let lastInputAt = 0
@@ -94,7 +96,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     gsap.set(stage, { x: target.x, y: target.y })
     activeStepIndex.value = nextIndex
 
-    console.log(`${logPrefix} jump`, {
+    debugLog(`${logPrefix} jump`, {
       index: nextIndex,
       x: target.x,
       y: target.y
@@ -106,14 +108,14 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     const steps = options.flowSteps.value
     if (!stage || !steps.length) return
     if (isTransitioning.value) {
-      console.log(`${logPrefix} skip (transitioning)`, { source, activeStepIndex: activeStepIndex.value, next: index })
+      debugLog(`${logPrefix} skip (transitioning)`, { source, activeStepIndex: activeStepIndex.value, next: index })
       return
     }
 
     const normalizedIndex = normalizeIndex(index, steps.length)
     const wrapped = normalizedIndex !== index
     if (wrapped) {
-      console.log(`${logPrefix} wrap`, {
+      debugLog(`${logPrefix} wrap`, {
         requested: index,
         normalized: normalizedIndex,
         total: steps.length
@@ -121,7 +123,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     }
 
     if (normalizedIndex === activeStepIndex.value) {
-      console.log(`${logPrefix} skip (same step)`, { source, step: normalizedIndex })
+      debugLog(`${logPrefix} skip (same step)`, { source, step: normalizedIndex })
       return
     }
 
@@ -130,7 +132,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     const target = getStagePoint(to)
 
     isTransitioning.value = true
-    console.log(`${logPrefix} transition:start`, {
+    debugLog(`${logPrefix} transition:start`, {
       source,
       from: {
         index: from.index,
@@ -156,14 +158,14 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
       onComplete: () => {
         activeStepIndex.value = normalizedIndex
         isTransitioning.value = false
-        console.log(`${logPrefix} transition:end`, {
+        debugLog(`${logPrefix} transition:end`, {
           step: normalizedIndex,
           panelId: to.panel.id
         })
       },
       onInterrupt: () => {
         isTransitioning.value = false
-        console.log(`${logPrefix} transition:interrupt`)
+        debugLog(`${logPrefix} transition:interrupt`)
       }
     })
   }
@@ -202,7 +204,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     autoPlayNextAt = Date.now() + Math.max(0, resumeDelayMs) + intervalMs
     scheduleAutoPlayTick()
 
-    console.log(`${logPrefix} autoplay:start`, {
+    debugLog(`${logPrefix} autoplay:start`, {
       speed: getAutoPlaySpeed(),
       intervalMs,
       resumeDelayMs
@@ -231,7 +233,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     })
     activeStepIndex.value = normalizedIndex
 
-    console.log(`${logPrefix} focusStep`, {
+    debugLog(`${logPrefix} focusStep`, {
       index: normalizedIndex,
       label,
       targetScroll
@@ -241,7 +243,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
   const shouldAcceptInput = () => {
     const now = Date.now()
     if (now - lastInputAt < INPUT_COOLDOWN_MS) {
-      console.log(`${logPrefix} input:cooldown`, { elapsed: now - lastInputAt })
+      debugLog(`${logPrefix} input:cooldown`, { elapsed: now - lastInputAt })
       return false
     }
     lastInputAt = now
@@ -255,7 +257,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
       if (isIgnoredTarget(event.target)) return
       if (Math.abs(event.deltaY) < WHEEL_INTENT_THRESHOLD) return
       event.preventDefault()
-      console.log(`${logPrefix} wheel`, {
+      debugLog(`${logPrefix} wheel`, {
         deltaY: event.deltaY,
         activeStepIndex: activeStepIndex.value
       })
@@ -269,7 +271,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
       if (isIgnoredTarget(event.target)) return
       touchStartY = event.changedTouches[0]?.clientY ?? null
       touchCommitted = false
-      console.log(`${logPrefix} touchstart`, { touchStartY })
+      debugLog(`${logPrefix} touchstart`, { touchStartY })
     }
 
     const touchMoveHandler = (event: TouchEvent) => {
@@ -283,7 +285,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
 
       event.preventDefault()
       touchCommitted = true
-      console.log(`${logPrefix} touchmove`, {
+      debugLog(`${logPrefix} touchmove`, {
         deltaY,
         activeStepIndex: activeStepIndex.value
       })
@@ -296,7 +298,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     const touchEndHandler = () => {
       touchStartY = null
       touchCommitted = false
-      console.log(`${logPrefix} touchend`)
+      debugLog(`${logPrefix} touchend`)
     }
 
     const keydownHandler = (event: KeyboardEvent) => {
@@ -308,7 +310,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
       if (!forward && !backward) return
 
       event.preventDefault()
-      console.log(`${logPrefix} keydown`, {
+      debugLog(`${logPrefix} keydown`, {
         key,
         activeStepIndex: activeStepIndex.value
       })
@@ -338,8 +340,13 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
       disposeInteractionHandlers()
       disposeInteractionHandlers = null
     }
-    ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
+    manualScrollTrigger?.kill()
     manualScrollTrigger = null
+    manualTimeline?.kill()
+    manualTimeline = null
+    if (snapStageRef.value) {
+      gsap.killTweensOf(snapStageRef.value)
+    }
     if (resizeDebounce !== null) {
       window.clearTimeout(resizeDebounce)
       resizeDebounce = null
@@ -357,7 +364,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
 
     if (!options.enabled.value || !options.flowSteps.value.length) return
 
-    console.log(`${logPrefix} init`, {
+    debugLog(`${logPrefix} init`, {
       autoSnapEnabled: options.autoSnapEnabled.value,
       loopEnabled: options.loopEnabled.value,
       snapEase: options.snapEase.value,
@@ -388,6 +395,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     if (!stage || !shell) return
 
     const timeline = gsap.timeline({ defaults: { ease: 'none' } })
+    manualTimeline = timeline
     timeline.addLabel('step-1', 0)
 
     for (let i = 1; i < options.flowSteps.value.length; i += 1) {
@@ -421,7 +429,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
         const nextIndex = normalizeIndex(rawIndex, totalSteps)
         if (nextIndex !== activeStepIndex.value) {
           activeStepIndex.value = nextIndex
-          console.log(`${logPrefix} manual:update`, {
+          debugLog(`${logPrefix} manual:update`, {
             progress: self.progress,
             step: nextIndex
           })
@@ -471,7 +479,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     () => options.autoSnapEnabled.value,
     async (nextAutoSnapEnabled, prevAutoSnapEnabled) => {
       if (!options.enabled.value || nextAutoSnapEnabled === prevAutoSnapEnabled) return
-      console.log(`${logPrefix} autosnap:update`, { autoSnapEnabled: nextAutoSnapEnabled })
+      debugLog(`${logPrefix} autosnap:update`, { autoSnapEnabled: nextAutoSnapEnabled })
       await initNavigation()
     }
   )
@@ -480,7 +488,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     () => options.snapEase.value,
     async (nextEase, prevEase) => {
       if (!options.enabled.value || nextEase === prevEase) return
-      console.log(`${logPrefix} ease:update`, { snapEase: nextEase })
+      debugLog(`${logPrefix} ease:update`, { snapEase: nextEase })
       if (!options.autoSnapEnabled.value) await initNavigation()
     }
   )
@@ -489,7 +497,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     () => options.loopEnabled.value,
     async (nextLoopEnabled, prevLoopEnabled) => {
       if (!options.enabled.value || nextLoopEnabled === prevLoopEnabled) return
-      console.log(`${logPrefix} loop:update`, { loopEnabled: nextLoopEnabled })
+      debugLog(`${logPrefix} loop:update`, { loopEnabled: nextLoopEnabled })
       await initNavigation()
     }
   )
@@ -501,7 +509,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
       const normalizedNext = normalizeTransitionSpeed(nextSpeed)
       const normalizedPrev = normalizeTransitionSpeed(prevSpeed)
       if (normalizedNext === normalizedPrev) return
-      console.log(`${logPrefix} speed:update`, { transitionSpeed: normalizedNext })
+      debugLog(`${logPrefix} speed:update`, { transitionSpeed: normalizedNext })
       if (!options.autoSnapEnabled.value) await initNavigation()
     }
   )
@@ -510,7 +518,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     () => options.autoPlayEnabled.value,
     (nextEnabled, prevEnabled) => {
       if (!options.enabled.value || nextEnabled === prevEnabled) return
-      console.log(`${logPrefix} autoplay:enabled:update`, { autoPlayEnabled: nextEnabled })
+      debugLog(`${logPrefix} autoplay:enabled:update`, { autoPlayEnabled: nextEnabled })
       setupAutoPlay()
     }
   )
@@ -522,7 +530,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
       const normalizedNext = normalizeAutoPlaySpeed(nextSpeed)
       const normalizedPrev = normalizeAutoPlaySpeed(prevSpeed)
       if (normalizedNext === normalizedPrev) return
-      console.log(`${logPrefix} autoplay:speed:update`, { autoPlaySpeed: normalizedNext })
+      debugLog(`${logPrefix} autoplay:speed:update`, { autoPlaySpeed: normalizedNext })
       setupAutoPlay()
     }
   )
@@ -535,3 +543,4 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     focusStep
   }
 }
+

@@ -1,0 +1,138 @@
+.flow-stage {
+  position: relative;
+}
+
+.flow-links {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.flow-link {
+  position: absolute;
+  height: 2px;
+  background: #9fb3c8;
+  transform-origin: left center;
+  opacity: 0.9;
+}
+
+.flow-node {
+  position: absolute;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.flow-node__delete {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid #b42318;
+  background: #fff;
+  color: #b42318;
+  font-size: 12px;
+  line-height: 1;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.14s ease;
+}
+
+.flow-block {
+  position: relative;
+  min-width: 66px;
+  min-height: 66px;
+  border: 1px solid #cfd6de;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  padding: 0.45rem;
+  display: grid;
+  place-items: center;
+}
+
+.flow-block__index {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font-size: 0.75rem;
+  line-height: 1;
+  color: #3b4652;
+}
+
+.flow-block span {
+  font-size: 0.72rem;
+  word-break: break-word;
+}
+
+.flow-block small {
+  font-size: 0.68rem;
+  color: #5d6a78;
+  text-transform: uppercase;
+}
+
+.flow-block__direction {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.flow-handle {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid #7b8a97;
+  background: #fff;
+  color: #3c4954;
+  font-size: 12px;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.14s ease;
+}
+
+.flow-node:hover .flow-node__delete,
+.flow-node:hover .flow-handle {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.flow-handle--up {
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.flow-handle--down {
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.flow-handle--left {
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.flow-handle--right {
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+

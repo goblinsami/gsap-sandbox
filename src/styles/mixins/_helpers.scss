@@ -1,0 +1,18 @@
+@mixin flex-center($direction: row, $gap: 0) {
+  display: flex;
+  flex-direction: $direction;
+  align-items: center;
+  justify-content: center;
+  gap: $gap;
+}
+
+@mixin text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin glow-border($color: rgba(132, 198, 255, 0.62), $blur: 16px) {
+  border: 1px solid $color;
+  box-shadow: 0 0 $blur rgba($color, 0.45);
+}

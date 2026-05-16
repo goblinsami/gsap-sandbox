@@ -1,32 +1,10 @@
 import { supabase } from '@/lib/supabase'
-import type { ContentSchema } from '@/types/navigation'
 import type { PostgrestError } from '@supabase/supabase-js'
+import { STORY_LIST_SELECT_FIELDS, STORY_SELECT_FIELDS, SUPABASE_TABLES } from '@/constants/supabase'
+import type { SaveStoryInput, SavedStory, StoryListItem, UpdateStoryInput } from '@/types/stories'
+import { debugLog } from '@/utils/logger'
 
-export interface SaveStoryInput {
-  userId: string
-  title: string
-  content: ContentSchema
-}
-
-export interface SavedStory {
-  id: string
-  user_id: string
-  title: string
-  content_json: ContentSchema
-  published: boolean
-  created_at: string
-  updated_at: string
-}
-
-export interface StoryListItem {
-  id: string
-  title: string
-  updated_at: string
-  published?: boolean
-}
-
-const STORY_SELECT_FIELDS = 'id, user_id, title, content_json, published, created_at, updated_at'
-const STORY_LIST_SELECT_FIELDS = 'id, title, updated_at, published'
+export type { SaveStoryInput, SavedStory, StoryListItem, UpdateStoryInput } from '@/types/stories'
 
 const isRlsViolation = (error: PostgrestError | null): boolean => {
   if (!error) return false
@@ -36,14 +14,14 @@ const isRlsViolation = (error: PostgrestError | null): boolean => {
 export async function saveStory({ userId, title, content }: SaveStoryInput): Promise<SavedStory> {
   const normalizedTitle = title.trim() || 'Untitled Story'
 
-  console.log('[stories] saveStory:start', {
+  debugLog('[stories] saveStory:start', {
     userId,
     title: normalizedTitle
   })
 
   try {
     const { data, error } = await supabase
-      .from('stories')
+      .from(SUPABASE_TABLES.Stories)
       .insert({
         user_id: userId,
         title: normalizedTitle,
@@ -69,8 +47,8 @@ export async function saveStory({ userId, title, content }: SaveStoryInput): Pro
       throw noDataError
     }
 
-    console.log('[stories] saveStory:success', data)
-    console.log('[stories] saveStory:id', data.id)
+    debugLog('[stories] saveStory:success', data)
+    debugLog('[stories] saveStory:id', data.id)
 
     return data as SavedStory
   } catch (error) {
@@ -84,10 +62,10 @@ export async function updateStory({
   userId,
   title,
   content
-}: SaveStoryInput & { storyId: string }): Promise<SavedStory> {
+}: UpdateStoryInput): Promise<SavedStory> {
   const normalizedTitle = title.trim() || 'Untitled Story'
 
-  console.log('[stories] updateStory:start', {
+  debugLog('[stories] updateStory:start', {
     storyId,
     userId,
     title: normalizedTitle
@@ -95,7 +73,7 @@ export async function updateStory({
 
   try {
     const { data, error } = await supabase
-      .from('stories')
+      .from(SUPABASE_TABLES.Stories)
       .update({
         title: normalizedTitle,
         content_json: content,
@@ -122,8 +100,8 @@ export async function updateStory({
       throw noDataError
     }
 
-    console.log('[stories] updateStory:success', data)
-    console.log('[stories] updateStory:id', data.id)
+    debugLog('[stories] updateStory:success', data)
+    debugLog('[stories] updateStory:id', data.id)
 
     return data as SavedStory
   } catch (error) {
@@ -133,11 +111,11 @@ export async function updateStory({
 }
 
 export async function getStories(userId: string): Promise<StoryListItem[]> {
-  console.log('[stories] getStories:start', { userId })
+  debugLog('[stories] getStories:start', { userId })
 
   try {
     const { data, error } = await supabase
-      .from('stories')
+      .from(SUPABASE_TABLES.Stories)
       .select(STORY_LIST_SELECT_FIELDS)
       .eq('user_id', userId)
       .order('updated_at', { ascending: false })
@@ -148,7 +126,7 @@ export async function getStories(userId: string): Promise<StoryListItem[]> {
     }
 
     const stories = (data ?? []) as StoryListItem[]
-    console.log('[stories] getStories:success', { count: stories.length })
+    debugLog('[stories] getStories:success', { count: stories.length })
     return stories
   } catch (error) {
     console.error('[stories] getStories:failed', error)
@@ -157,11 +135,11 @@ export async function getStories(userId: string): Promise<StoryListItem[]> {
 }
 
 export async function getStoryById(storyId: string): Promise<SavedStory> {
-  console.log('[stories] getStoryById:start', { storyId })
+  debugLog('[stories] getStoryById:start', { storyId })
 
   try {
     const { data, error } = await supabase
-      .from('stories')
+      .from(SUPABASE_TABLES.Stories)
       .select(STORY_SELECT_FIELDS)
       .eq('id', storyId)
       .single()
@@ -180,7 +158,7 @@ export async function getStoryById(storyId: string): Promise<SavedStory> {
       throw noDataError
     }
 
-    console.log('[stories] getStoryById:success', { id: data.id, title: data.title })
+    debugLog('[stories] getStoryById:success', { id: data.id, title: data.title })
     return data as SavedStory
   } catch (error) {
     console.error('[stories] getStoryById:failed', error)
@@ -189,16 +167,16 @@ export async function getStoryById(storyId: string): Promise<SavedStory> {
 }
 
 export async function getPublicStoryById(storyId: string): Promise<SavedStory> {
-  console.log('[stories] getPublicStoryById:start', { storyId })
+  debugLog('[stories] getPublicStoryById:start', { storyId })
 
   try {
     const activeSupabaseUrl = String(import.meta.env.VITE_SUPABASE_URL ?? '').trim()
-    console.log('[stories] getPublicStoryById:env', {
+    debugLog('[stories] getPublicStoryById:env', {
       supabaseUrl: activeSupabaseUrl
     })
 
     const { data, error } = await supabase
-      .from('stories')
+      .from(SUPABASE_TABLES.Stories)
       .select(STORY_SELECT_FIELDS)
       .eq('id', storyId)
       .eq('published', true)
@@ -215,7 +193,7 @@ export async function getPublicStoryById(storyId: string): Promise<SavedStory> {
       throw noDataError
     }
 
-    console.log('[stories] getPublicStoryById:success', { id: data.id, title: data.title })
+    debugLog('[stories] getPublicStoryById:success', { id: data.id, title: data.title })
     return data as SavedStory
   } catch (error) {
     console.error('[stories] getPublicStoryById:failed', error)
@@ -230,11 +208,11 @@ export async function publishStory({
   storyId: string
   userId: string
 }): Promise<SavedStory> {
-  console.log('[stories] publishStory:start', { storyId, userId })
+  debugLog('[stories] publishStory:start', { storyId, userId })
 
   try {
     const { data, error } = await supabase
-      .from('stories')
+      .from(SUPABASE_TABLES.Stories)
       .update({
         published: true,
         updated_at: new Date().toISOString()
@@ -258,10 +236,11 @@ export async function publishStory({
       throw noDataError
     }
 
-    console.log('[stories] publishStory:success', { id: data.id, published: data.published })
+    debugLog('[stories] publishStory:success', { id: data.id, published: data.published })
     return data as SavedStory
   } catch (error) {
     console.error('[stories] publishStory:failed', error)
     throw error
   }
 }
+

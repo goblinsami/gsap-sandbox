@@ -207,49 +207,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, toRef, watch } from 'vue'
 import FlowNodeCard from './FlowNodeCard.vue'
 import SlidePropertiesModal from './SlidePropertiesModal.vue'
-import { ContentAlign, type Panel } from '../../../types/navigation'
-import { useFlowEditor } from '../../composables/useFlowEditor'
-import { loadStory } from '../../../core/storySource'
-import {
-  MAX_TRANSITION_SPEED,
-  MIN_TRANSITION_SPEED,
-  TRANSITION_SPEED_STEP,
-  normalizeTransitionSpeed
-} from '../../../constants/transitionSpeed'
-import {
-  AUTOPLAY_SPEED_STEP,
-  MAX_AUTOPLAY_SPEED,
-  MIN_AUTOPLAY_SPEED,
-  normalizeAutoPlaySpeed
-} from '../../../constants/autoPlaySpeed'
+import { useFlowEditorController } from '../../composables/useFlowEditorController'
+import type { FlowEditorEmit, FlowEditorProps } from '../../types/flowEditor'
 
-const props = defineProps<{
-  panels: Panel[]
-  autoSnapEnabled: boolean
-  snapEase: string
-  transitionSpeed: number
-  autoPlayEnabled: boolean
-  autoPlaySpeed: number
-  loopEnabled: boolean
-  easeOptions: readonly string[]
-  availableStories?: string[]
-  canUploadImages?: boolean
-  enableCtas?: boolean
-}>()
-
-const emit = defineEmits<{
-  'update:panels': [panels: Panel[]]
-  'update:auto-snap-enabled': [enabled: boolean]
-  'update:snapEase': [ease: string]
-  'update:transition-speed': [speed: number]
-  'update:auto-play-enabled': [enabled: boolean]
-  'update:auto-play-speed': [speed: number]
-  'update:loopEnabled': [enabled: boolean]
-  focusStep: [index: number]
-}>()
+const props = defineProps<FlowEditorProps>()
+const emit = defineEmits<FlowEditorEmit>()
 
 const {
   showModal,
@@ -260,175 +224,50 @@ const {
   stageStyle,
   flowLinks,
   selectedPanel,
-  toggleModal,
   nodeStyle,
-  openSettings,
   closeSettings,
   saveSettings,
   deletePanel,
   deletePanelAt,
   exportFlowJson,
-  importFlowObject,
-  importFlowFromFile,
   insertableDirections,
-  insertAfter
-} = useFlowEditor(toRef(props, 'panels'), (panels) => emit('update:panels', panels))
+  insertAfter,
+  availableStoryIds,
+  selectedDataFile,
+  selectedAutoSnapEnabled,
+  selectedEase,
+  selectedTransitionSpeed,
+  selectedAutoPlayEnabled,
+  selectedAutoPlaySpeed,
+  selectedLoopEnabled,
+  isDesktop,
+  jsonFileInputRef,
+  isTransitionOpen,
+  isAutoPlayOpen,
+  isFilesOpen,
+  slideSettingsSide,
+  MIN_TRANSITION_SPEED,
+  MAX_TRANSITION_SPEED,
+  TRANSITION_SPEED_STEP,
+  MIN_AUTOPLAY_SPEED,
+  MAX_AUTOPLAY_SPEED,
+  AUTOPLAY_SPEED_STEP,
+  toggleModal,
+  emitSnapEase,
+  emitAutoSnapEnabled,
+  emitTransitionSpeed,
+  emitAutoPlayEnabled,
+  emitAutoPlaySpeed,
+  emitLoopEnabled,
+  handleNodeClick,
+  importSelectedDataFile,
+  onJsonFileChange,
+  openJsonFilePicker,
+  exposed
+} = useFlowEditorController(props, emit)
 
-const availableStoryIds = computed(() => props.availableStories ?? [])
-
-const selectedDataFile = ref('')
-const selectedAutoSnapEnabled = ref(props.autoSnapEnabled)
-const selectedEase = ref(props.snapEase)
-const selectedTransitionSpeed = ref(normalizeTransitionSpeed(props.transitionSpeed))
-const selectedAutoPlayEnabled = ref(props.autoPlayEnabled)
-const selectedAutoPlaySpeed = ref(normalizeAutoPlaySpeed(props.autoPlaySpeed))
-const selectedLoopEnabled = ref(props.loopEnabled)
-const isDesktop = ref(false)
-const jsonFileInputRef = ref<HTMLInputElement | null>(null)
-const isTransitionOpen = ref(false)
-const isAutoPlayOpen = ref(false)
-const isFilesOpen = ref(false)
-
-const DESKTOP_BREAKPOINT_QUERY = '(min-width: 1024px)'
-
-const applyViewportMode = () => {
-  const desktop = window.matchMedia(DESKTOP_BREAKPOINT_QUERY).matches
-  const wasDesktop = isDesktop.value
-  isDesktop.value = desktop
-
-  if (desktop && !wasDesktop) {
-    showModal.value = true
-  }
-}
-
-onMounted(() => {
-  applyViewportMode()
-  window.addEventListener('resize', applyViewportMode)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('resize', applyViewportMode)
-})
-
-watch(
-  () => props.autoSnapEnabled,
-  (value) => {
-    selectedAutoSnapEnabled.value = value
-  }
-)
-
-watch(
-  () => props.snapEase,
-  (value) => {
-    selectedEase.value = value
-  }
-)
-
-watch(
-  () => props.loopEnabled,
-  (value) => {
-    selectedLoopEnabled.value = value
-  }
-)
-watch(
-  () => props.autoPlayEnabled,
-  (value) => {
-    selectedAutoPlayEnabled.value = value
-  }
-)
-watch(
-  () => props.autoPlaySpeed,
-  (value) => {
-    selectedAutoPlaySpeed.value = normalizeAutoPlaySpeed(value)
-  }
-)
-
-watch(
-  () => props.transitionSpeed,
-  (value) => {
-    selectedTransitionSpeed.value = normalizeTransitionSpeed(value)
-  }
-)
-
-const emitSnapEase = () => {
-  emit('update:snapEase', selectedEase.value)
-}
-const emitAutoSnapEnabled = () => {
-  emit('update:auto-snap-enabled', selectedAutoSnapEnabled.value)
-}
-
-const emitTransitionSpeed = () => {
-  const normalized = normalizeTransitionSpeed(selectedTransitionSpeed.value)
-  selectedTransitionSpeed.value = normalized
-  emit('update:transition-speed', normalized)
-}
-const emitAutoPlayEnabled = () => {
-  emit('update:auto-play-enabled', selectedAutoPlayEnabled.value)
-}
-const emitAutoPlaySpeed = () => {
-  const normalized = normalizeAutoPlaySpeed(selectedAutoPlaySpeed.value)
-  selectedAutoPlaySpeed.value = normalized
-  emit('update:auto-play-speed', normalized)
-}
-
-const emitLoopEnabled = () => {
-  emit('update:loopEnabled', selectedLoopEnabled.value)
-}
-
-const handleNodeClick = (index: number) => {
-  emit('focusStep', index)
-  openSettings(index)
-}
-
-const slideSettingsSide = computed<'left' | 'right'>(() => {
-  const align = selectedPanel.value?.contentAlign
-  if (align === ContentAlign.Left) return 'right'
-  if (align === ContentAlign.Right) return 'left'
-  return 'right'
-})
-
-const importSelectedDataFile = async () => {
-  if (!selectedDataFile.value) return
-  try {
-    const nextData = await loadStory(selectedDataFile.value)
-    importFlowObject(nextData)
-  } catch (error) {
-    console.warn(`[flow-editor] Failed to load story "${selectedDataFile.value}"`, error)
-  }
-}
-
-const onJsonFileChange = async (event: Event) => {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
-  if (file) await importFlowFromFile(file)
-  input.value = ''
-}
-
-const openJsonFilePicker = () => {
-  jsonFileInputRef.value?.click()
-}
-
-const openSlideSettings = (index: number) => {
-  if (index < 0 || index >= props.panels.length) return
-  openSettings(index)
-}
-
-const toggleFlowEditor = () => {
-  const willClose = showModal.value
-  toggleModal()
-  if (willClose) {
-    closeSettings()
-  }
-  return showModal.value
-}
-
-const isFlowEditorOpen = () => showModal.value
-
-defineExpose({
-  openSlideSettings,
-  toggleFlowEditor,
-  isFlowEditorOpen
-})
+defineExpose(exposed)
 
 void canvasRef
+void jsonFileInputRef
 </script>

@@ -1,8 +1,5 @@
 import type { ContentSchema } from '../types/navigation'
-
-const STORY_ID_FALLBACK = 'welcome'
-const STORY_ID_REGEX = /[^a-zA-Z0-9_-]/g
-const FALLBACK_STORY_IDS = ['welcome', 'demo', 'ai-startup']
+import { FALLBACK_STORY_IDS, STORY_ID_FALLBACK, STORY_ID_REGEX } from '@/constants/stories'
 
 const sanitizeStoryId = (storyId: string) => {
   const trimmed = storyId.trim().replace(STORY_ID_REGEX, '')

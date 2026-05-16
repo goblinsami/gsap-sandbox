@@ -1,13 +1,8 @@
 import { supabase } from '@/lib/supabase'
 import { UserRole } from '@/config/plans'
-
-export interface UserProfile {
-  id: string
-  email: string
-  plan: UserRole
-}
-
-const PROFILE_SELECT_FIELDS = 'id, email, plan'
+import { PROFILE_SELECT_FIELDS, SUPABASE_TABLES } from '@/constants/supabase'
+import type { UserProfile } from '@/types/profile'
+import { debugLog } from '@/utils/logger'
 
 const normalizePlan = (value: string | null | undefined): UserRole => {
   if (value === UserRole.Creator) return UserRole.Creator
@@ -16,10 +11,10 @@ const normalizePlan = (value: string | null | undefined): UserRole => {
 }
 
 export async function getCurrentProfile(userId: string): Promise<UserProfile | null> {
-  console.log('[profiles] getCurrentProfile:start', { userId })
+  debugLog('[profiles] getCurrentProfile:start', { userId })
 
   const { data, error } = await supabase
-    .from('profiles')
+    .from(SUPABASE_TABLES.Profiles)
     .select(PROFILE_SELECT_FIELDS)
     .eq('id', userId)
     .maybeSingle()
@@ -30,7 +25,7 @@ export async function getCurrentProfile(userId: string): Promise<UserProfile | n
   }
 
   if (!data) {
-    console.log('[profiles] getCurrentProfile:not-found')
+    debugLog('[profiles] getCurrentProfile:not-found')
     return null
   }
 
@@ -39,7 +34,7 @@ export async function getCurrentProfile(userId: string): Promise<UserProfile | n
     email: String(data.email ?? ''),
     plan: normalizePlan(data.plan as string | undefined)
   }
-  console.log('[profiles] getCurrentProfile:success', profile)
+  debugLog('[profiles] getCurrentProfile:success', profile)
   return profile
 }
 

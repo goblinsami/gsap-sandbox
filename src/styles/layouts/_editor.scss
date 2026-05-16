@@ -1,0 +1,180 @@
+.flow-creator {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 1000;
+}
+
+
+.flow-toggle {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: #d7d7d7;
+  border-radius: 10px;
+  padding: 0 0.8rem;
+  position: relative;
+  z-index: 1002;
+}
+
+.flow-toggle h3 {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.flow-modal {
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid #d8d8d8;
+  border-radius: 12px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
+  padding: 0.8rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.flow-modal__debug {
+  display: grid;
+  gap: 0.6rem;
+  padding-bottom: 0.55rem;
+  margin-bottom: 0.65rem;
+  border-bottom: 1px solid #e4e8ee;
+}
+
+.flow-modal--resizable {
+  resize: none;
+  overflow: hidden;
+}
+
+.flow-sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 998;
+  background: rgba(0, 0, 0, var(--modal-overlay-opacity));
+}
+
+.flow-sidebar {
+  position: fixed;
+  top: 56px;
+  right: 12px;
+  bottom: 12px;
+  left: 12px;
+  min-width: 280px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  z-index: 1001;
+}
+
+.flow-sidebar--open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.flow-creator--settings-open .flow-sidebar--open,
+.flow-creator--settings-open .flow-toggle {
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.flow-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.7rem;
+  font-size: 0.85rem;
+}
+
+.flow-toolbar p {
+  margin: 0;
+}
+
+.flow-toolbar__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.flow-canvas {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  position: relative;
+  border: 1px dashed #cfcfcf;
+  border-radius: 10px;
+  background: #f9fafb;
+  overflow: auto;
+}
+
+.flow-canvas-loop-toggle {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.35rem;
+  border: 1px solid rgba(201, 210, 219, 0.9);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(4px);
+}
+
+.flow-canvas-loop-toggle__label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #5a6d81;
+}
+
+.flow-canvas-loop-toggle .flow-switch__track {
+  width: 34px;
+  height: 20px;
+}
+
+.flow-canvas-loop-toggle .flow-switch__track::after {
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+}
+
+.flow-canvas-loop-toggle .flow-switch__input:checked + .flow-switch__track::after {
+  transform: translateX(14px);
+}
+
+@media (min-width: 1024px) {
+  .flow-creator {
+    top: 16px;
+    left: auto;
+    right: 16px;
+  }
+
+  .flow-sidebar {
+    top: 64px;
+    right: 16px;
+    bottom: 16px;
+    left: auto;
+    width: 420px;
+    min-width: 320px;
+    max-width: min(70vw, 760px);
+    transform: translateX(calc(100% + 24px));
+  }
+
+  .flow-sidebar--open {
+    transform: translateX(0);
+  }
+
+  .flow-modal--resizable {
+    resize: horizontal;
+  }
+}
+
+
+.block-settings__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+

@@ -1,0 +1,9 @@
+@mixin fade-slide-in($distance: 6px) {
+  opacity: 0;
+  transform: translateY($distance);
+}
+
+@mixin fade-slide-visible {
+  opacity: 1;
+  transform: translateY(0);
+}

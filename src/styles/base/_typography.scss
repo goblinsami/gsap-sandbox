@@ -1,0 +1,7 @@
+@use '../tokens/typography' as typo;
+
+body {
+  font-family: typo.$font-family-base;
+  background-color: #ffffff;
+  color: #333333;
+}

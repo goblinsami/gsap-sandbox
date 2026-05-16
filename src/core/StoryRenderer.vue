@@ -64,7 +64,6 @@
 import { ref, watch } from 'vue'
 import SectionPanel from './SectionPanel.vue'
 import type { FlowBlockStep } from './useFlowBlocks'
-import '../styles/core/story-renderer.css'
 const props = withDefaults(
   defineProps<{
     flowSteps: FlowBlockStep[]

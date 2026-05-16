@@ -461,12 +461,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRef, watch } from 'vue'
-import { ContentWidthMode, TextSize, type Panel } from '../../../types/navigation'
+import { toRef } from 'vue'
+import { TextSize, type Panel } from '../../../types/navigation'
 import TextSizeSelector from '../atoms/TextSizeSelector.vue'
 import MarkdownField from '../atoms/MarkdownField.vue'
 import CollapsibleSection from '../atoms/CollapsibleSection.vue'
-import { useGradientEditor } from '../../composables/useGradientEditor'
+import { useSlidePropertiesModalController } from '../../composables/useSlidePropertiesModalController'
 import {
   DEFAULT_LOGO_TINT_COLOR,
   DEFAULT_SLIDE_COLOR,
@@ -501,7 +501,6 @@ const emit = defineEmits<{
 }>()
 
 const DEFAULT_TEXT_SIZE = TextSize.Medium
-const originalPanelSnapshot = ref<Panel | null>(null)
 
 const {
   draft,
@@ -523,93 +522,37 @@ const {
   emitSave: (panel) => emit('save', panel)
 })
 
-const isContentWidthContained = computed(() => draft.contentWidthMode !== ContentWidthMode.Full)
-
-const onContentWidthModeToggle = (event: Event) => {
-  const checked = (event.target as HTMLInputElement).checked
-  draft.contentWidthMode = checked ? ContentWidthMode.Contained : ContentWidthMode.Full
-  save()
-}
-
-const textGapValue = computed(() => Number(draft.eyebrowTitleGap ?? draft.titleDescriptionGap ?? 24))
-const isTextContentOpen = ref(false)
-const isCtasOpen = ref(false)
-const isTextStyleOpen = ref(false)
-const isGradientEditorOpen = ref(false)
-const isLogoEditorOpen = ref(false)
 const {
+  isContentWidthContained,
+  onContentWidthModeToggle,
+  textGapValue,
+  onTextGapInput,
+  isTextContentOpen,
+  isCtasOpen,
+  isTextStyleOpen,
+  isGradientEditorOpen,
+  isLogoEditorOpen,
   gradientType,
   gradientOrientation,
   gradientColors,
   orientationOptions,
-  buildGradient,
-  syncFromGradient
-} = useGradientEditor(draft.backgroundGradient)
-
-type PanelKey = 'textContent' | 'ctas' | 'textStyle' | 'gradientEditor' | 'logoEditor'
-const togglePanel = (key: PanelKey) => {
-  if (key === 'textContent') isTextContentOpen.value = !isTextContentOpen.value
-  if (key === 'ctas') isCtasOpen.value = !isCtasOpen.value
-  if (key === 'textStyle') isTextStyleOpen.value = !isTextStyleOpen.value
-  if (key === 'gradientEditor') isGradientEditorOpen.value = !isGradientEditorOpen.value
-  if (key === 'logoEditor') isLogoEditorOpen.value = !isLogoEditorOpen.value
-}
-
-const applyGradient = () => {
-  draft.backgroundGradient = buildGradient()
-  save()
-}
-
-const clearGradient = () => {
-  draft.backgroundGradient = undefined
-  save()
-}
-
-const onTextGapInput = (event: Event) => {
-  const value = Number((event.target as HTMLInputElement).value)
-  draft.eyebrowTitleGap = value
-  draft.titleDescriptionGap = value
-  save()
-}
-
-const formatNumber = (value: number | undefined, digits: number) => Number(value ?? 0).toFixed(digits)
-
-const saveAndClose = () => {
-  save()
-  emit('close')
-}
-
-const cancelAndClose = () => {
-  if (originalPanelSnapshot.value) {
-    emit('save', { ...originalPanelSnapshot.value })
-  } else {
-    resetDraft()
-  }
-  emit('close')
-}
-
-const deleteAndClose = () => {
-  emit('delete')
-  emit('close')
-}
-
-watch(
-  () => props.open,
-  (isOpen, wasOpen) => {
-    if (!isOpen || wasOpen || !props.panel) return
-    originalPanelSnapshot.value = { ...props.panel }
-    syncFromGradient(draft.backgroundGradient)
-  }
-)
-
-watch(
-  () => props.panel?.id,
-  (nextId, prevId) => {
-    if (!props.open || !nextId || nextId === prevId || !props.panel) return
-    originalPanelSnapshot.value = { ...props.panel }
-    syncFromGradient(draft.backgroundGradient)
-  }
-)
+  togglePanel,
+  applyGradient,
+  clearGradient,
+  formatNumber,
+  saveAndClose,
+  cancelAndClose,
+  deleteAndClose
+} = useSlidePropertiesModalController({
+  openRef: toRef(props, 'open'),
+  panelRef: toRef(props, 'panel'),
+  draft,
+  save,
+  resetDraft,
+  emitClose: () => emit('close'),
+  emitSave: (panel) => emit('save', panel),
+  emitDelete: () => emit('delete')
+})
 
 void fileInputRef
 void logoFileInputRef

@@ -1,7 +1,8 @@
 import { computed, ref, watch } from 'vue'
 import { PLAN_LIMITS, UserRole } from '@/config/plans'
 import { useAuth } from '@/composables/useAuth'
-import { getCurrentProfile, type UserProfile } from '@/services/profiles'
+import { getCurrentProfile } from '@/services/profiles'
+import type { UserProfile } from '@/types/profile'
 
 export function usePermissions(storyCountRef?: { value: number }) {
   const { user, loading: authLoading } = useAuth()
@@ -38,18 +39,27 @@ export function usePermissions(storyCountRef?: { value: number }) {
   const showCreatorBadges = computed(() => isCreator.value)
   const showPublishLoginPrompt = computed(() => isAnonymous.value)
   const showWatermark = computed(() => isFree.value)
+  let profileLoadRequestId = 0
 
   watch(
     () => user.value?.id ?? null,
     async (userId) => {
+      const requestId = ++profileLoadRequestId
       profile.value = null
-      if (!userId) return
+      if (!userId) {
+        profileLoading.value = false
+        return
+      }
       profileLoading.value = true
       try {
-        profile.value = await getCurrentProfile(userId)
+        const nextProfile = await getCurrentProfile(userId)
+        if (requestId !== profileLoadRequestId) return
+        profile.value = nextProfile
       } catch (error) {
+        if (requestId !== profileLoadRequestId) return
         console.warn('[permissions] profile load failed, defaulting to free', error)
       } finally {
+        if (requestId !== profileLoadRequestId) return
         profileLoading.value = false
       }
     },

@@ -16,52 +16,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import '../styles/core.css'
-import '../styles/embed.css'
-import '../styles/pages/embed-page.css'
+import '../styles/embed.scss'
 import StoryRenderer from '../core/StoryRenderer.vue'
 import { useStoryRuntime } from '../core/useStoryRuntime'
-import { getPublicStoryById } from '../services/stories'
-import type { ContentSchema } from '../types/navigation'
+import { useEmbedStoryLoader } from '@/features/embed/composables/useEmbedStoryLoader'
 
-const route = useRoute()
-const storySchema = ref<ContentSchema | null>(null)
-const isLoading = ref(false)
-const loadError = ref<string | null>(null)
-
-const routeStoryId = computed(() => {
-  const value = route.params.id
-  if (typeof value !== 'string') return ''
-  return value.trim()
-})
-
-watch(
-  () => routeStoryId.value,
-  async (storyId) => {
-    if (!storyId) {
-      storySchema.value = null
-      loadError.value = 'Invalid story id.'
-      return
-    }
-
-    isLoading.value = true
-    loadError.value = null
-
-    try {
-      const story = await getPublicStoryById(storyId)
-      storySchema.value = { ...story.content_json, panels: [...story.content_json.panels] }
-    } catch (error) {
-      console.warn(`[embed] Failed to load public story "${storyId}"`, error)
-      storySchema.value = null
-      loadError.value = 'Story not found or not published.'
-    } finally {
-      isLoading.value = false
-    }
-  },
-  { immediate: true }
-)
+const {
+  storySchema,
+  isLoading,
+  loadError,
+  embedWatermarkEnabled,
+  embedEnableCtas
+} = useEmbedStoryLoader()
 
 const {
   autoSnapEnabled,
@@ -70,9 +36,6 @@ const {
   snapStageRef,
   stepStyle
 } = useStoryRuntime(storySchema, { logPrefix: '[flow-embed]' })
-
-const embedWatermarkEnabled = computed(() => storySchema.value?.watermarkEnabled ?? true)
-const embedEnableCtas = computed(() => storySchema.value?.enableCtas ?? true)
 
 const setSnapShellEl = (element: HTMLElement | null) => {
   snapShellRef.value = element
