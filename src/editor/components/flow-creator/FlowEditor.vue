@@ -1,6 +1,6 @@
 <template>
   <section class="flow-creator" :class="{ 'flow-creator--desktop': isDesktop, 'flow-creator--settings-open': showSettings }">
-    <button class="flow-toggle" @click="toggleModal">
+    <button class="flow-toggle ui-btn" @click="toggleModal">
       <h3>{{ showModal ? 'Hide Flow Editor' : 'Flow Editor' }}</h3>
     </button>
 
@@ -119,8 +119,8 @@
                 </select>
               </label>
               <div class="flow-controls-group flow-controls-group--actions">
-                <button @click="exportFlowJson">Export JSON</button>
-                <button type="button" @click="openJsonFilePicker">Import JSON</button>
+                <button class="ui-btn" @click="exportFlowJson">Export JSON</button>
+                <button type="button" class="ui-btn" @click="openJsonFilePicker">Import JSON</button>
               </div>
             </div>
           </div>

@@ -270,6 +270,7 @@ const storyUsageText = computed(() => {
 })
 
 const {
+  activeStepIndex: runtimeActiveStepIndex,
   autoSnapEnabled,
   autoPlayEnabled,
   autoPlaySpeed,
@@ -300,8 +301,6 @@ const isFlowEditorOpen = ref(true)
 const isMobileBarOpen = ref(false)
 const activeSlideIndex = ref(0)
 const editorToggleLogoUrl = `${import.meta.env.BASE_URL}favicon.png`
-let snapShellScrollTarget: HTMLElement | null = null
-let snapShellScrollHandler: (() => void) | null = null
 
 const handleDocumentPointerDown = (event: MouseEvent | TouchEvent) => {
   const dropdown = myStoriesDropdownRef.value
@@ -540,6 +539,19 @@ watch(
   { immediate: true }
 )
 
+watch(
+  () => runtimeActiveStepIndex.value,
+  (nextIndex) => {
+    const total = panelsState.value.length
+    if (!total) {
+      activeSlideIndex.value = 0
+      return
+    }
+    activeSlideIndex.value = Math.max(0, Math.min(nextIndex, total - 1))
+  },
+  { immediate: true }
+)
+
 const openSlideEditor = (index: number) => {
   activeSlideIndex.value = index
   flowEditorRef.value?.openSlideSettings(index)
@@ -562,22 +574,7 @@ const handleToggleEditor = () => {
 }
 
 const setSnapShellEl = (element: HTMLElement | null) => {
-  if (snapShellScrollTarget && snapShellScrollHandler) {
-    snapShellScrollTarget.removeEventListener('scroll', snapShellScrollHandler)
-    snapShellScrollTarget = null
-    snapShellScrollHandler = null
-  }
-
   snapShellRef.value = element
-
-  if (!element) return
-  snapShellScrollTarget = element
-  snapShellScrollHandler = () => {
-    const viewport = window.innerHeight || 1
-    const index = Math.round(element.scrollTop / viewport)
-    activeSlideIndex.value = Math.max(0, Math.min(index, panelsState.value.length - 1))
-  }
-  element.addEventListener('scroll', snapShellScrollHandler, { passive: true })
 }
 
 const setSnapStageEl = (element: HTMLElement | null) => {
@@ -592,9 +589,6 @@ onMounted(() => {
 const storyEnableCtas = computed(() => storySchema.value?.enableCtas ?? true)
 
 onUnmounted(() => {
-  if (snapShellScrollTarget && snapShellScrollHandler) {
-    snapShellScrollTarget.removeEventListener('scroll', snapShellScrollHandler)
-  }
   document.removeEventListener('mousedown', handleDocumentPointerDown)
   document.removeEventListener('touchstart', handleDocumentPointerDown)
 })

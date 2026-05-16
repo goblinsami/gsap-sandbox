@@ -293,7 +293,7 @@ body.snap-mode {
   z-index: 1000;
 }
 
-button:not(.flow-handle):not(.flow-node__delete) {
+.ui-btn {
   appearance: none;
   border: 1px solid #cfd6de;
   background: #ffffff;
@@ -308,12 +308,12 @@ button:not(.flow-handle):not(.flow-node__delete) {
   transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
 }
 
-button:not(.flow-handle):not(.flow-node__delete):hover {
+.ui-btn:hover {
   background: #f6f8fa;
   border-color: #b9c4cf;
 }
 
-button:not(.flow-handle):not(.flow-node__delete):focus-visible {
+.ui-btn:focus-visible {
   outline: 2px solid #9fb3c8;
   outline-offset: 2px;
 }
@@ -896,11 +896,13 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
   opacity: 0.9;
 }
 
-.text-size-picker__btn.active {
+.text-size-picker__btn.active,
+.text-size-picker__btn--active {
   background: #24303c;
   color: #fff;
   border-color: #24303c;
   opacity: 1;
+  font-weight: 800;
 }
 
 .md-editor {
@@ -914,7 +916,7 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
   gap: 0.25rem;
 }
 
-.md-editor__toolbar button {
+.md-editor__toolbar .md-editor__toolbar-btn {
   min-width: 24px;
   height: 22px;
   padding: 0 0.35rem;
@@ -983,7 +985,7 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
   gap: 0.45rem;
 }
 
-.flow-controls-group--actions button {
+.flow-controls-group--actions .ui-btn {
   white-space: nowrap;
 }
 
@@ -1178,7 +1180,7 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
     justify-content: flex-start;
   }
 
-  .flow-controls-group--actions button {
+  .flow-controls-group--actions .ui-btn {
     flex: 1 1 140px;
   }
 
@@ -1279,13 +1281,13 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
   gap: 0.45rem;
 }
 
-.danger {
+.ui-btn--danger {
   background: #b42318;
   color: #fff;
   border: 1px solid #9f1f16;
 }
 
-.danger:hover {
+.ui-btn--danger:hover {
   background: #9f1f16;
   border-color: #8f1b14;
 }

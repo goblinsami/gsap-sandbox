@@ -21,6 +21,7 @@ import {
 } from '../../constants/slideStyle'
 import { validateContentSchema } from '../../utils/validateContent'
 import { FEATURE_FLAGS } from '../../config/featureFlags'
+import { normalizeTextSize } from '../../utils/textSize'
 
 gsap.registerPlugin(ScrollToPlugin)
 
@@ -64,6 +65,10 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
         const contentMaxWidth = p.contentMaxWidth ?? DEFAULT_CONTENT_MAX_WIDTH
         return {
           ...p,
+          titleSize: normalizeTextSize(p.titleSize, DEFAULT_TEXT_SIZE),
+          eyebrowSize: normalizeTextSize(p.eyebrowSize, DEFAULT_TEXT_SIZE),
+          descriptionSize: normalizeTextSize(p.descriptionSize, DEFAULT_TEXT_SIZE),
+          logoSize: normalizeTextSize(p.logoSize, DEFAULT_TEXT_SIZE),
           nextPanelPosition: p.nextPanelPosition ?? DEFAULT_DIRECTION,
           contentWidthMode: p.contentWidthMode ?? DEFAULT_CONTENT_WIDTH_MODE,
           eyebrowTitleGap: p.eyebrowTitleGap ?? DEFAULT_EYEBROW_TITLE_GAP,
@@ -215,6 +220,10 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
       const contentMaxWidth = p.contentMaxWidth ?? DEFAULT_CONTENT_MAX_WIDTH
       return {
         ...p,
+        titleSize: normalizeTextSize(p.titleSize, DEFAULT_TEXT_SIZE),
+        eyebrowSize: normalizeTextSize(p.eyebrowSize, DEFAULT_TEXT_SIZE),
+        descriptionSize: normalizeTextSize(p.descriptionSize, DEFAULT_TEXT_SIZE),
+        logoSize: normalizeTextSize(p.logoSize, DEFAULT_TEXT_SIZE),
         nextPanelPosition: (p.nextPanelPosition ?? DEFAULT_DIRECTION) as Direction,
         contentWidthMode: p.contentWidthMode ?? DEFAULT_CONTENT_WIDTH_MODE,
         eyebrowTitleGap: p.eyebrowTitleGap ?? DEFAULT_EYEBROW_TITLE_GAP,
@@ -231,7 +240,7 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
   const renumberPanels = (list: Panel[]): Panel[] =>
     list.map((panel, index) => {
       const n = index + 1
-      const title = panel.title.trim()
+      const title = panel.title
       let nextTitle = title
 
       if (NEW_PANEL_TITLE_REGEX.test(title)) {

@@ -36,6 +36,7 @@ import {
   deriveDescriptionMaxWidthFromContent,
   deriveTitleMaxWidthFromContent
 } from '../../constants/slideStyle'
+import { normalizeTextSize } from '../../utils/textSize'
 
 export const contentAlignOptions: Array<{ value: ContentAlign; label: string }> = [
   { value: ContentAlign.Left, label: 'Left' },
@@ -66,9 +67,9 @@ const copyPanelToDraft = (panel: Panel, draft: Panel) => {
   draft.eyebrow = panel.eyebrow
   draft.description = panel.description ?? ''
   draft.useMarkdown = panel.useMarkdown ?? false
-  draft.titleSize = panel.titleSize ?? DEFAULT_TEXT_SIZE
-  draft.eyebrowSize = panel.eyebrowSize ?? DEFAULT_TEXT_SIZE
-  draft.descriptionSize = panel.descriptionSize ?? DEFAULT_TEXT_SIZE
+  draft.titleSize = normalizeTextSize(panel.titleSize, DEFAULT_TEXT_SIZE)
+  draft.eyebrowSize = normalizeTextSize(panel.eyebrowSize, DEFAULT_TEXT_SIZE)
+  draft.descriptionSize = normalizeTextSize(panel.descriptionSize, DEFAULT_TEXT_SIZE)
   draft.contentAlign = panel.contentAlign ?? DEFAULT_CONTENT_ALIGN
   draft.contentWidthMode = panel.contentWidthMode ?? DEFAULT_CONTENT_WIDTH_MODE
   const unifiedTextGap = clampNumber(
@@ -120,7 +121,7 @@ const copyPanelToDraft = (panel: Panel, draft: Panel) => {
   draft.panelColor = panel.panelColor ?? ''
   draft.image = panel.image ?? ''
   draft.logo = panel.logo ?? ''
-  draft.logoSize = panel.logoSize ?? DEFAULT_TEXT_SIZE
+  draft.logoSize = normalizeTextSize(panel.logoSize, DEFAULT_TEXT_SIZE)
   draft.logoTintEnabled = panel.logoTintEnabled ?? true
   draft.logoTintColor = panel.logoTintColor ?? DEFAULT_LOGO_TINT_COLOR
   draft.backgroundGradient = panel.backgroundGradient

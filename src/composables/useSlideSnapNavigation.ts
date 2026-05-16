@@ -414,6 +414,19 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
       scrub: 1,
       pin: true,
       anticipatePin: 1,
+      onUpdate: (self) => {
+        const totalSteps = options.flowSteps.value.length
+        if (!totalSteps) return
+        const rawIndex = Math.round(self.progress * (totalSteps - 1))
+        const nextIndex = normalizeIndex(rawIndex, totalSteps)
+        if (nextIndex !== activeStepIndex.value) {
+          activeStepIndex.value = nextIndex
+          console.log(`${logPrefix} manual:update`, {
+            progress: self.progress,
+            step: nextIndex
+          })
+        }
+      },
       snap: {
         snapTo: 'labelsDirectional',
         inertia: false,
@@ -515,6 +528,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
   )
 
   return {
+    activeStepIndex,
     snapShellRef,
     snapStageRef,
     stepStyle,

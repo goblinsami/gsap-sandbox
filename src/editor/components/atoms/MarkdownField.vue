@@ -1,10 +1,10 @@
 <template>
   <div class="md-editor">
     <div class="md-editor__toolbar">
-      <button type="button" @click="wrap('**', '**')"><strong>B</strong></button>
-      <button type="button" @click="wrap('*', '*')"><em>I</em></button>
-      <button type="button" @click="insert('[text](https://example.com)')">Link</button>
-      <button type="button" @click="insert('<span style=&quot;color:#C0392B&quot;>color</span>')">Color</button>
+      <button type="button" class="ui-btn md-editor__toolbar-btn" @click="wrap('**', '**')"><strong>B</strong></button>
+      <button type="button" class="ui-btn md-editor__toolbar-btn" @click="wrap('*', '*')"><em>I</em></button>
+      <button type="button" class="ui-btn md-editor__toolbar-btn" @click="insert('[text](https://example.com)')">Link</button>
+      <button type="button" class="ui-btn md-editor__toolbar-btn" @click="insert('<span style=&quot;color:#C0392B&quot;>color</span>')">Color</button>
     </div>
     <textarea ref="textareaRef" :rows="rows" :value="modelValue" @input="onInput" />
   </div>

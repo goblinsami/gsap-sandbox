@@ -6,6 +6,8 @@ import { normalizeTransitionSpeed } from '../constants/transitionSpeed'
 import { normalizeAutoPlaySpeed } from '../constants/autoPlaySpeed'
 import { useFlowBlocks } from './useFlowBlocks'
 import { useSlideSnapNavigation } from '../composables/useSlideSnapNavigation'
+import { DEFAULT_TEXT_SIZE } from '../constants/slideStyle'
+import { normalizeTextSize } from '../utils/textSize'
 
 const EMPTY_SCHEMA: ContentSchema = { panels: [] }
 
@@ -44,14 +46,20 @@ export function useStoryRuntime(contentRef: Ref<ContentSchema | null>, options: 
         panelsState.value = []
         return
       }
-      panelsState.value = (schema.panels ?? []).map((panel) => ({ ...panel })) as Panel[]
+      panelsState.value = (schema.panels ?? []).map((panel) => ({
+        ...panel,
+        titleSize: normalizeTextSize(panel.titleSize, DEFAULT_TEXT_SIZE),
+        eyebrowSize: normalizeTextSize(panel.eyebrowSize, DEFAULT_TEXT_SIZE),
+        descriptionSize: normalizeTextSize(panel.descriptionSize, DEFAULT_TEXT_SIZE),
+        logoSize: normalizeTextSize(panel.logoSize, DEFAULT_TEXT_SIZE)
+      })) as Panel[]
     },
     { immediate: true }
   )
 
   const { flowSteps } = useFlowBlocks(panelsState)
 
-  const { snapShellRef, snapStageRef, stepStyle, focusStep } = useSlideSnapNavigation({
+  const { activeStepIndex, snapShellRef, snapStageRef, stepStyle, focusStep } = useSlideSnapNavigation({
     flowSteps,
     autoSnapEnabled,
     loopEnabled,
@@ -95,6 +103,7 @@ export function useStoryRuntime(contentRef: Ref<ContentSchema | null>, options: 
     autoSnapEnabled,
     autoPlayEnabled,
     autoPlaySpeed,
+    activeStepIndex,
     flowSteps,
     isValid,
     loopEnabled,

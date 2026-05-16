@@ -321,8 +321,8 @@
           <div class="gradient-editor__preview" :style="{ background: draft.backgroundGradient || '#111' }" />
 
           <div class="gradient-editor__actions">
-            <button type="button" @click="applyGradient">Apply gradient</button>
-            <button type="button" @click="clearGradient">Clear gradient</button>
+            <button type="button" class="ui-btn" @click="applyGradient">Apply gradient</button>
+            <button type="button" class="ui-btn" @click="clearGradient">Clear gradient</button>
           </div>
       </CollapsibleSection>
 
@@ -347,8 +347,8 @@
             @change="onLogoFileChange"
           />
           <div class="logo-row__actions">
-            <button type="button" @click="openLogoFilePicker">Choose Logo</button>
-            <button v-if="draft.logo" type="button" @click="clearLogo">Remove</button>
+            <button type="button" class="ui-btn" @click="openLogoFilePicker">Choose Logo</button>
+            <button v-if="draft.logo" type="button" class="ui-btn" @click="clearLogo">Remove</button>
           </div>
           <label>
             Logo Size
@@ -410,9 +410,9 @@
           <div class="image-dropzone__content">
             <p>{{ draft.image ? DROP_IMAGE_LOADED_TEXT : DROP_IMAGE_EMPTY_TEXT }}</p>
             <div class="image-dropzone__actions">
-              <button type="button" :disabled="!canUploadImages" @click="openFilePicker">Choose Image</button>
-              <button type="button" :disabled="!canUploadImages" @click="setRandomImage">Random Image</button>
-              <button v-if="draft.image" type="button" :disabled="!canUploadImages" @click="clearImage">Remove</button>
+              <button type="button" class="ui-btn" :disabled="!canUploadImages" @click="openFilePicker">Choose Image</button>
+              <button type="button" class="ui-btn" :disabled="!canUploadImages" @click="setRandomImage">Random Image</button>
+              <button v-if="draft.image" type="button" class="ui-btn" :disabled="!canUploadImages" @click="clearImage">Remove</button>
             </div>
           </div>
         </div>
@@ -452,9 +452,9 @@
       </label>
 
       <div class="block-settings__actions">
-        <button class="danger" @click="deleteAndClose">Delete Panel</button>
-        <button @click="cancelAndClose">Cancel</button>
-        <button @click="saveAndClose">Save</button>
+        <button class="ui-btn ui-btn--danger" @click="deleteAndClose">Delete Panel</button>
+        <button class="ui-btn" @click="cancelAndClose">Cancel</button>
+        <button class="ui-btn" @click="saveAndClose">Save</button>
       </div>
     </div>
   </div>
