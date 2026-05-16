@@ -417,6 +417,45 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
   overflow: auto;
 }
 
+.flow-canvas-loop-toggle {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.35rem;
+  border: 1px solid rgba(201, 210, 219, 0.9);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(4px);
+}
+
+.flow-canvas-loop-toggle__label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #5a6d81;
+}
+
+.flow-canvas-loop-toggle .flow-switch__track {
+  width: 34px;
+  height: 20px;
+}
+
+.flow-canvas-loop-toggle .flow-switch__track::after {
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+}
+
+.flow-canvas-loop-toggle .flow-switch__input:checked + .flow-switch__track::after {
+  transform: translateX(14px);
+}
+
 @media (min-width: 1024px) {
   .flow-creator {
     top: 16px;
@@ -919,6 +958,10 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
   justify-content: stretch;
 }
 
+.flow-controls-row--bottom .flow-subcategory {
+  width: 100%;
+}
+
 .flow-controls-row--meta {
   justify-content: space-between;
   align-items: flex-end;
@@ -1120,6 +1163,12 @@ button:not(.flow-handle):not(.flow-node__delete):focus-visible {
 }
 
 @media (max-width: 720px) {
+  .flow-canvas-loop-toggle {
+    top: 6px;
+    right: 6px;
+    padding: 0.2rem 0.3rem;
+  }
+
   .flow-field-pair {
     width: 100%;
     flex-wrap: wrap;

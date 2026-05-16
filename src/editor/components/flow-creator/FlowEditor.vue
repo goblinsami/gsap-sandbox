@@ -98,20 +98,6 @@
         </div>
 
         <div class="flow-controls-row flow-controls-row--bottom">
-          <div class="flow-field-group flow-field-group--toggle">
-            <span class="flow-field-label">Enable loop</span>
-            <label class="flow-switch" for="loop-enabled-toggle">
-              <input
-                id="loop-enabled-toggle"
-                v-model="selectedLoopEnabled"
-                type="checkbox"
-                class="flow-switch__input"
-                role="switch"
-                @change="emitLoopEnabled"
-              />
-              <span class="flow-switch__track" aria-hidden="true" />
-            </label>
-          </div>
           <div class="flow-subcategory">
             <button type="button" class="flow-subcategory__header" @click="isFilesOpen = !isFilesOpen">
               <span class="flow-subcategory__title">Files</span>
@@ -150,6 +136,20 @@
       </div>
 
       <div ref="canvasRef" class="flow-canvas" :style="canvasStyle">
+        <div class="flow-canvas-loop-toggle">
+          <span class="flow-canvas-loop-toggle__label">Loop</span>
+          <label class="flow-switch" for="loop-enabled-toggle">
+            <input
+              id="loop-enabled-toggle"
+              v-model="selectedLoopEnabled"
+              type="checkbox"
+              class="flow-switch__input"
+              role="switch"
+              @change="emitLoopEnabled"
+            />
+            <span class="flow-switch__track" aria-hidden="true" />
+          </label>
+        </div>
         <div class="flow-stage" :style="stageStyle">
           <div class="flow-links">
             <div
@@ -198,6 +198,7 @@
       :panel="selectedPanel"
       :side="slideSettingsSide"
       :can-upload-images="props.canUploadImages ?? true"
+      :enable-ctas="props.enableCtas ?? true"
       @close="closeSettings"
       @save="saveSettings"
       @delete="deletePanel"
@@ -236,6 +237,7 @@ const props = defineProps<{
   easeOptions: readonly string[]
   availableStories?: string[]
   canUploadImages?: boolean
+  enableCtas?: boolean
 }>()
 
 const emit = defineEmits<{

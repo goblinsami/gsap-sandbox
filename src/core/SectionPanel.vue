@@ -41,7 +41,25 @@
         <template v-else>{{ description }}</template>
       </p>
       <a
-        v-if="ctaHref && ctaLabel"
+        v-if="enableCtasResolved && ctaTextResolved && ctaHrefResolved"
+        class="slide-cta"
+        :href="ctaHrefResolved"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {{ ctaTextResolved }}
+      </a>
+      <a
+        v-else-if="enableCtasResolved && ctaTextResolved"
+        class="slide-cta"
+        href="#"
+        role="button"
+        @click.prevent
+      >
+        {{ ctaTextResolved }}
+      </a>
+      <a
+        v-else-if="enableCtasResolved && !hasCtaTextField && ctaHref && ctaLabel"
         class="slide-cta"
         :href="ctaHref"
         target="_blank"
@@ -133,6 +151,9 @@ const props = defineProps<{
   backgroundGradient?: string
   overlayEnabled?: boolean
   overlayIntensity?: number
+  enableCtas?: boolean
+  ctaText?: string
+  ctaLink?: string
   cta?: PanelCta
   animateKey?: string
   direction: Direction
@@ -172,6 +193,10 @@ const renderMarkdown = (value?: string) => {
 const titleHtml = computed(() => renderMarkdown(props.title))
 const eyebrowHtml = computed(() => renderMarkdown(props.eyebrow))
 const descriptionHtml = computed(() => renderMarkdown(props.description))
+const enableCtasResolved = computed(() => props.enableCtas ?? true)
+const hasCtaTextField = computed(() => typeof props.ctaText === 'string')
+const ctaTextResolved = computed(() => props.ctaText?.trim() ?? '')
+const ctaHrefResolved = computed(() => resolveLinkValue(props.ctaLink))
 const ctaLabel = computed(() => props.cta?.label?.trim() ?? '')
 const ctaHref = computed(() => resolveLinkKey(props.cta?.linkKey))
 

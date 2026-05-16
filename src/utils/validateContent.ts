@@ -57,6 +57,9 @@ export function validateContentSchema(raw: unknown): ValidationResult {
   if (content.autoSnapEnabled !== undefined && typeof content.autoSnapEnabled !== 'boolean') {
     errors.push('content.json: autoSnapEnabled debe ser boolean.')
   }
+  if (content.enableCtas !== undefined && typeof content.enableCtas !== 'boolean') {
+    errors.push('content.json: enableCtas debe ser boolean.')
+  }
   if (content.loopEnabled !== undefined && typeof content.loopEnabled !== 'boolean') {
     errors.push('content.json: loopEnabled debe ser boolean.')
   }
@@ -271,6 +274,13 @@ export function validateContentSchema(raw: unknown): ValidationResult {
           `${label}: overlayIntensity fuera de rango (${MIN_OVERLAY_INTENSITY}-${MAX_OVERLAY_INTENSITY}).`
         )
       }
+    }
+
+    if (p.ctaText !== undefined && typeof p.ctaText !== 'string') {
+      errors.push(`${label}: ctaText debe ser string.`)
+    }
+    if (p.ctaLink !== undefined && typeof p.ctaLink !== 'string') {
+      errors.push(`${label}: ctaLink debe ser string.`)
     }
 
     if (p.cta !== undefined) {

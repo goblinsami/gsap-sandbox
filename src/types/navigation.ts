@@ -70,12 +70,15 @@ export interface Panel {
   backgroundGradient?: string
   overlayEnabled?: boolean
   overlayIntensity?: number
+  ctaText?: string
+  ctaLink?: string
   cta?: PanelCta
   nextPanelPosition?: Direction
 }
 
 export interface ContentSchema {
   autoSnapEnabled?: boolean
+  enableCtas?: boolean
   loopEnabled?: boolean
   enableLoop?: boolean
   snapEase?: string

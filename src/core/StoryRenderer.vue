@@ -48,6 +48,9 @@
           :background-gradient="step.panel.backgroundGradient"
           :overlay-enabled="step.panel.overlayEnabled"
           :overlay-intensity="step.panel.overlayIntensity"
+          :enable-ctas="enableCtas"
+          :cta-text="step.panel.ctaText"
+          :cta-link="step.panel.ctaLink"
           :cta="step.panel.cta"
           :direction="step.directionToNext"
           animate-key="intro"
@@ -71,10 +74,12 @@ const props = withDefaults(
     stepStyle: (step: FlowBlockStep) => Record<string, string>
     showEditTrigger?: boolean
     showWatermark?: boolean
+    enableCtas?: boolean
   }>(),
   {
     showEditTrigger: false,
-    showWatermark: false
+    showWatermark: false,
+    enableCtas: true
   }
 )
 

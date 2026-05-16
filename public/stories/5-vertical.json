@@ -1,67 +1,68 @@
 {
-    "loopEnabled": true,
-    "autoSnapEnabled": true,
-  "panels": [
-    {
-      "id": "panel-1",
-      "eyebrow": "Section SUBTITLE",
-      "title": "Section 1: Intro Vertical",
-      "description": "Default slide with square random image.",
-      "useMarkdown": false,
-      "titleSize": "m",
-      "eyebrowSize": "m",
-      "descriptionSize": "m",
-      "panelClass": "outro",
-      "image": "https://picsum.photos/1200/1200?random=flow-1",
-      "nextPanelPosition": "down"
-    },
-    {
-      "id": "panel-2",
-      "eyebrow": "Section SUBTITLE",
-      "title": "New Panel 2",
-      "description": "",
-      "useMarkdown": false,
-      "titleSize": "m",
-      "eyebrowSize": "m",
-      "descriptionSize": "m",
-      "panelClass": "contrast",
-      "nextPanelPosition": "down"
-    },
-    {
-      "id": "panel-3",
-      "eyebrow": "Section SUBTITLE",
-      "title": "New Panel 3",
-      "description": "",
-      "useMarkdown": false,
-      "titleSize": "m",
-      "eyebrowSize": "m",
-      "descriptionSize": "m",
-      "panelClass": "danger",
-      "nextPanelPosition": "down"
-    },
-    {
-      "id": "panel-4",
-      "eyebrow": "Section SUBTITLE",
-      "title": "New Panel 4",
-      "description": "",
-      "useMarkdown": false,
-      "titleSize": "m",
-      "eyebrowSize": "m",
-      "descriptionSize": "m",
-      "panelClass": "ocean",
-      "nextPanelPosition": "down"
-    },
-    {
-      "id": "panel-5",
-      "eyebrow": "Section SUBTITLE",
-      "title": "New Panel 5",
-      "description": "",
-      "useMarkdown": false,
-      "titleSize": "m",
-      "eyebrowSize": "m",
-      "descriptionSize": "m",
-      "panelClass": "outro",
-      "nextPanelPosition": "right"
-    }
-  ]
+    "loopEnabled":  true,
+    "autoSnapEnabled":  true,
+    "panels":  [
+                   {
+                       "id":  "panel-1",
+                       "eyebrow":  "Section SUBTITLE",
+                       "title":  "Section 1: Intro Vertical",
+                       "description":  "Default slide with square random image.",
+                       "useMarkdown":  false,
+                       "titleSize":  "m",
+                       "eyebrowSize":  "m",
+                       "descriptionSize":  "m",
+                       "panelClass":  "outro",
+                       "image":  "https://picsum.photos/1200/1200?random=flow-1",
+                       "nextPanelPosition":  "down"
+                   },
+                   {
+                       "id":  "panel-2",
+                       "eyebrow":  "Section SUBTITLE",
+                       "title":  "New Panel 2",
+                       "description":  "",
+                       "useMarkdown":  false,
+                       "titleSize":  "m",
+                       "eyebrowSize":  "m",
+                       "descriptionSize":  "m",
+                       "panelClass":  "contrast",
+                       "nextPanelPosition":  "down"
+                   },
+                   {
+                       "id":  "panel-3",
+                       "eyebrow":  "Section SUBTITLE",
+                       "title":  "New Panel 3",
+                       "description":  "",
+                       "useMarkdown":  false,
+                       "titleSize":  "m",
+                       "eyebrowSize":  "m",
+                       "descriptionSize":  "m",
+                       "panelClass":  "danger",
+                       "nextPanelPosition":  "down"
+                   },
+                   {
+                       "id":  "panel-4",
+                       "eyebrow":  "Section SUBTITLE",
+                       "title":  "New Panel 4",
+                       "description":  "",
+                       "useMarkdown":  false,
+                       "titleSize":  "m",
+                       "eyebrowSize":  "m",
+                       "descriptionSize":  "m",
+                       "panelClass":  "ocean",
+                       "nextPanelPosition":  "down"
+                   },
+                   {
+                       "id":  "panel-5",
+                       "eyebrow":  "Section SUBTITLE",
+                       "title":  "New Panel 5",
+                       "description":  "",
+                       "useMarkdown":  false,
+                       "titleSize":  "m",
+                       "eyebrowSize":  "m",
+                       "descriptionSize":  "m",
+                       "panelClass":  "outro",
+                       "nextPanelPosition":  "right"
+                   }
+               ],
+    "enableCtas":  false
 }

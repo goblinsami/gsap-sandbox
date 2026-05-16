@@ -1,4 +1,4 @@
-﻿{
+{
     "autoSnapEnabled":  true,
     "loopEnabled":  true,
     "panels":  [
@@ -210,6 +210,6 @@
                        "image":  "https://picsum.photos/1200/1200?random=loop-square-16",
                        "nextPanelPosition":  "up"
                    }
-               ]
+               ],
+    "enableCtas":  false
 }
-

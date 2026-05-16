@@ -158,6 +158,7 @@
     <FlowEditor
       ref="flowEditorRef"
       :panels="panelsState"
+      :enable-ctas="storyEnableCtas"
       :auto-snap-enabled="autoSnapEnabled"
       :snap-ease="snapEase"
       :transition-speed="transitionSpeed"
@@ -185,6 +186,7 @@
       :step-style="stepStyle"
       :show-edit-trigger="false"
       :show-watermark="showWatermark"
+      :enable-ctas="storyEnableCtas"
       @edit-slide="openSlideEditor"
     />
   </main>
@@ -587,6 +589,7 @@ onMounted(() => {
   document.addEventListener('mousedown', handleDocumentPointerDown)
   document.addEventListener('touchstart', handleDocumentPointerDown, { passive: true })
 })
+const storyEnableCtas = computed(() => storySchema.value?.enableCtas ?? true)
 
 onUnmounted(() => {
   if (snapShellScrollTarget && snapShellScrollHandler) {

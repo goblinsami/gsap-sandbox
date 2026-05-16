@@ -1,5 +1,5 @@
 export const LINKS = {
-  editor: 'https://scrollix.netlify.app/edit',
+  editor: 'https://www.lavanguardia.com/',
   framerReferral: 'https://framer.com/?via=scrollix'
 } as const
 

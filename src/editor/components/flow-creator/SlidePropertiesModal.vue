@@ -110,6 +110,34 @@
       </CollapsibleSection>
 
       <CollapsibleSection
+        v-if="enableCtas"
+        title="CTAs"
+        panel-id="ctas-panel-body"
+        :open="isCtasOpen"
+        body-class="text-style-panel__body text-content-panel__body"
+        @toggle="togglePanel('ctas')"
+      >
+          <label>
+            CTA Text
+            <input
+              v-model="draft.ctaText"
+              type="text"
+              placeholder="Start Creating"
+              @input="save"
+            />
+          </label>
+          <label>
+            CTA Link
+            <input
+              v-model="draft.ctaLink"
+              type="text"
+              placeholder="https://example.com"
+              @input="save"
+            />
+          </label>
+      </CollapsibleSection>
+
+      <CollapsibleSection
         title="Text Style"
         panel-id="text-style-panel-body"
         :open="isTextStyleOpen"
@@ -457,10 +485,12 @@ const props = withDefaults(
     panel: Panel | null
     side?: 'left' | 'right'
     canUploadImages?: boolean
+    enableCtas?: boolean
   }>(),
   {
     side: 'left',
-    canUploadImages: true
+    canUploadImages: true,
+    enableCtas: true
   }
 )
 
@@ -503,6 +533,7 @@ const onContentWidthModeToggle = (event: Event) => {
 
 const textGapValue = computed(() => Number(draft.eyebrowTitleGap ?? draft.titleDescriptionGap ?? 24))
 const isTextContentOpen = ref(false)
+const isCtasOpen = ref(false)
 const isTextStyleOpen = ref(false)
 const isGradientEditorOpen = ref(false)
 const isLogoEditorOpen = ref(false)
@@ -515,9 +546,10 @@ const {
   syncFromGradient
 } = useGradientEditor(draft.backgroundGradient)
 
-type PanelKey = 'textContent' | 'textStyle' | 'gradientEditor' | 'logoEditor'
+type PanelKey = 'textContent' | 'ctas' | 'textStyle' | 'gradientEditor' | 'logoEditor'
 const togglePanel = (key: PanelKey) => {
   if (key === 'textContent') isTextContentOpen.value = !isTextContentOpen.value
+  if (key === 'ctas') isCtasOpen.value = !isCtasOpen.value
   if (key === 'textStyle') isTextStyleOpen.value = !isTextStyleOpen.value
   if (key === 'gradientEditor') isGradientEditorOpen.value = !isGradientEditorOpen.value
   if (key === 'logoEditor') isLogoEditorOpen.value = !isLogoEditorOpen.value

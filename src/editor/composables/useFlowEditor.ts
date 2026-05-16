@@ -281,6 +281,8 @@ export function useFlowEditor(panelsRef: Ref<Panel[]>, emitUpdatePanels: (panels
     panelColor: getRandomPanelColor(),
     overlayEnabled: DEFAULT_OVERLAY_ENABLED_WITHOUT_IMAGE,
     overlayIntensity: DEFAULT_OVERLAY_INTENSITY,
+    ctaText: '',
+    ctaLink: '',
     logo: '',
     logoSize: DEFAULT_TEXT_SIZE,
     logoTintEnabled: true,

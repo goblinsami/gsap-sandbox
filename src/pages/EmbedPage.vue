@@ -10,6 +10,7 @@
       :set-snap-stage-el="setSnapStageEl"
       :step-style="stepStyle"
       :show-watermark="embedWatermarkEnabled"
+      :enable-ctas="embedEnableCtas"
     />
   </main>
 </template>
@@ -71,6 +72,7 @@ const {
 } = useStoryRuntime(storySchema, { logPrefix: '[flow-embed]' })
 
 const embedWatermarkEnabled = computed(() => storySchema.value?.watermarkEnabled ?? true)
+const embedEnableCtas = computed(() => storySchema.value?.enableCtas ?? true)
 
 const setSnapShellEl = (element: HTMLElement | null) => {
   snapShellRef.value = element

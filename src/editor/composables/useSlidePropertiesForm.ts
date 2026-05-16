@@ -128,6 +128,8 @@ const copyPanelToDraft = (panel: Panel, draft: Panel) => {
     panel.overlayEnabled ??
     (panel.image ? DEFAULT_OVERLAY_ENABLED_WITH_IMAGE : DEFAULT_OVERLAY_ENABLED_WITHOUT_IMAGE)
   draft.overlayIntensity = clampOverlayIntensity(panel.overlayIntensity ?? DEFAULT_OVERLAY_INTENSITY)
+  draft.ctaText = panel.ctaText ?? panel.cta?.label ?? ''
+  draft.ctaLink = panel.ctaLink ?? ''
   draft.cta = panel.cta ? { ...panel.cta } : undefined
   draft.nextPanelPosition = panel.nextPanelPosition ?? Direction.Down
 }
@@ -167,6 +169,8 @@ export function useSlidePropertiesForm(options: UseSlidePropertiesFormOptions) {
     backgroundGradient: undefined,
     overlayEnabled: DEFAULT_OVERLAY_ENABLED_WITHOUT_IMAGE,
     overlayIntensity: DEFAULT_OVERLAY_INTENSITY,
+    ctaText: '',
+    ctaLink: '',
     cta: undefined,
     nextPanelPosition: Direction.Down
   })
