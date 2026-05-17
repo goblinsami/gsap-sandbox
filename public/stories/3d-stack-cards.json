@@ -1,0 +1,58 @@
+{
+  "loopEnabled": true,
+  "autoSnapEnabled": true,
+  "enableCtas": true,
+  "panels": [
+    {
+      "id": "panel-1",
+      "templateType": "stack-cards",
+      "title": "Create interactive storytelling experiences",
+      "eyebrow": "WELCOME TO Scrollix",
+      "description": "Build cinematic scroll stories, visual narratives and immersive content blocks that can be embedded directly into Framer websites and modern landing pages.",
+      "useMarkdown": false,
+      "titleSize": "l",
+      "eyebrowSize": "l",
+      "descriptionSize": "m",
+      "contentAlign": "left",
+      "contentWidthMode": "full",
+      "eyebrowTitleGap": 24,
+      "titleDescriptionGap": 24,
+      "titleLineHeight": 0.95,
+      "descriptionLineHeight": 1.75,
+      "eyebrowLetterSpacing": 0.18,
+      "contentMaxWidth": 900,
+      "titleMaxWidth": 980,
+      "descriptionMaxWidth": 830,
+      "panelClass": "outro",
+      "overlayEnabled": false,
+      "overlayIntensity": 55,
+      "backgroundGradient": "radial-gradient(circle at 18% 14%, rgba(138, 91, 255, 0.54) 0%, rgba(138, 91, 255, 0.12) 34%, transparent 62%), radial-gradient(circle at 82% 18%, rgba(47, 212, 255, 0.45) 0%, rgba(47, 212, 255, 0.08) 38%, transparent 66%), radial-gradient(circle at 52% 86%, rgba(198, 109, 255, 0.33) 0%, rgba(198, 109, 255, 0.06) 46%, transparent 72%), linear-gradient(128deg, #060914 0%, #0f1f46 46%, #131b44 100%)",
+      "cta": {
+        "label": "Start Creating",
+        "linkKey": "editor"
+      },
+      "stackCards": {
+    "autoPlayEnabled": true,
+    "autoPlaySpeed": 0.40,
+        "cards": [
+          {
+            "title": "Concept",
+            "description": "Define the story arc and narrative blocks.",
+            "color": "#0f172a"
+          },
+          {
+            "title": "Design",
+            "description": "Shape visuals, transitions, and interactions.",
+            "color": "#1d4ed8"
+          },
+          {
+            "title": "Publish",
+            "description": "Embed and ship instantly across your site.",
+            "color": "#0ea5e9"
+          }
+        ]
+      },
+      "nextPanelPosition": "down"
+    }
+  ]
+}

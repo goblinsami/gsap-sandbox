@@ -11,6 +11,7 @@
 - Put behavior in composables/services, not page templates.
 - Normalize/validate at runtime boundaries (`useStoryRuntime`, `validateContentSchema`) before rendering.
 - Prefer constants/types over string literals (`src/constants`, `src/types`).
+- Do not declare feature/config constants inside component files; define them in `src/constants/**` and import them.
 
 ## Renderer and Runtime Rules
 - `StoryRenderer.vue` is the runtime rendering boundary; preserve stable props (`flowSteps`, `stepStyle`, snap refs, CTA flags).

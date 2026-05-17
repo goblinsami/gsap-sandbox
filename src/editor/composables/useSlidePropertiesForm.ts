@@ -1,8 +1,9 @@
 import { reactive, ref, watch, type Ref } from 'vue'
-import { ContentAlign, Direction, type Panel } from '../../types/navigation'
+import { ContentAlign, Direction, TemplateType, type Panel, type StackCardItem } from '../../types/navigation'
 import {
   DEFAULT_CONTENT_ALIGN,
   DEFAULT_CONTENT_MAX_WIDTH,
+  DEFAULT_CONTENT_SIDE_PADDING,
   DEFAULT_PANEL_COLOR,
   DEFAULT_CONTENT_WIDTH_MODE,
   DEFAULT_DESCRIPTION_LINE_HEIGHT,
@@ -17,6 +18,7 @@ import {
   DEFAULT_TITLE_LINE_HEIGHT,
   DEFAULT_TITLE_MAX_WIDTH,
   MAX_CONTENT_MAX_WIDTH,
+  MAX_CONTENT_SIDE_PADDING,
   MAX_DESCRIPTION_LINE_HEIGHT,
   MAX_DESCRIPTION_MAX_WIDTH,
   MAX_EYEBROW_LETTER_SPACING,
@@ -25,6 +27,7 @@ import {
   MAX_TITLE_LINE_HEIGHT,
   MAX_TITLE_MAX_WIDTH,
   MIN_CONTENT_MAX_WIDTH,
+  MIN_CONTENT_SIDE_PADDING,
   MIN_DESCRIPTION_LINE_HEIGHT,
   MIN_DESCRIPTION_MAX_WIDTH,
   MIN_EYEBROW_LETTER_SPACING,
@@ -38,6 +41,7 @@ import {
   deriveTitleMaxWidthFromContent
 } from '../../constants/slideStyle'
 import { normalizeTextSize } from '../../utils/textSize'
+import { STACK_CARDS_DEFAULTS, STACK_CARDS_DEFAULT_CARDS } from '../../constants/stackCards'
 
 export const contentAlignOptions: Array<{ value: ContentAlign; label: string }> = [
   { value: ContentAlign.Left, label: 'Left' },
@@ -61,12 +65,21 @@ const clampOverlayIntensity = (value: number) => {
   return Math.max(MIN_OVERLAY_INTENSITY, Math.min(MAX_OVERLAY_INTENSITY, value))
 }
 
+const cloneStackCards = (cards?: StackCardItem[]) =>
+  (cards && cards.length ? cards : STACK_CARDS_DEFAULT_CARDS).map((card) => ({
+    title: card.title ?? '',
+    description: card.description ?? '',
+    color: card.color ?? '#0f172a',
+    image: card.image ?? ''
+  }))
+
 
 const copyPanelToDraft = (panel: Panel, draft: Panel) => {
   draft.id = panel.id
   draft.title = panel.title
   draft.eyebrow = panel.eyebrow
   draft.description = panel.description ?? ''
+  draft.templateType = panel.templateType ?? TemplateType.Scroll
   draft.useMarkdown = panel.useMarkdown ?? false
   draft.titleSize = normalizeTextSize(panel.titleSize, DEFAULT_TEXT_SIZE)
   draft.eyebrowSize = normalizeTextSize(panel.eyebrowSize, DEFAULT_TEXT_SIZE)
@@ -106,6 +119,12 @@ const copyPanelToDraft = (panel: Panel, draft: Panel) => {
     DEFAULT_CONTENT_MAX_WIDTH
   )
   draft.contentMaxWidth = contentMaxWidth
+  draft.contentSidePadding = clampNumber(
+    panel.contentSidePadding,
+    MIN_CONTENT_SIDE_PADDING,
+    MAX_CONTENT_SIDE_PADDING,
+    DEFAULT_CONTENT_SIDE_PADDING
+  )
   draft.titleMaxWidth = clampNumber(
     panel.titleMaxWidth,
     MIN_TITLE_MAX_WIDTH,
@@ -133,6 +152,34 @@ const copyPanelToDraft = (panel: Panel, draft: Panel) => {
   draft.ctaText = panel.ctaText ?? panel.cta?.label ?? ''
   draft.ctaLink = panel.ctaLink ?? ''
   draft.cta = panel.cta ? { ...panel.cta } : undefined
+  draft.stackCards =
+    panel.stackCards
+      ? {
+        textSide: panel.stackCards.textSide ?? STACK_CARDS_DEFAULTS.textSide,
+        angleY: panel.stackCards.angleY ?? STACK_CARDS_DEFAULTS.angleY,
+        angleX: panel.stackCards.angleX ?? STACK_CARDS_DEFAULTS.angleX,
+        cardGap: panel.stackCards.cardGap ?? STACK_CARDS_DEFAULTS.cardGap,
+        frontFadeWindow: panel.stackCards.frontFadeWindow ?? STACK_CARDS_DEFAULTS.frontFadeWindow,
+        cardSize: panel.stackCards.cardSize ?? STACK_CARDS_DEFAULTS.cardSize,
+        cardWidth: panel.stackCards.cardWidth ?? STACK_CARDS_DEFAULTS.cardWidth,
+        wheelSensitivity: panel.stackCards.wheelSensitivity ?? STACK_CARDS_DEFAULTS.wheelSensitivity,
+        autoPlayEnabled: panel.stackCards.autoPlayEnabled ?? STACK_CARDS_DEFAULTS.autoPlayEnabled,
+        autoPlaySpeed: panel.stackCards.autoPlaySpeed ?? STACK_CARDS_DEFAULTS.autoPlaySpeed,
+        cards: cloneStackCards(panel.stackCards.cards)
+      }
+      : {
+        textSide: STACK_CARDS_DEFAULTS.textSide,
+        angleY: STACK_CARDS_DEFAULTS.angleY,
+        angleX: STACK_CARDS_DEFAULTS.angleX,
+        cardGap: STACK_CARDS_DEFAULTS.cardGap,
+        frontFadeWindow: STACK_CARDS_DEFAULTS.frontFadeWindow,
+        cardSize: STACK_CARDS_DEFAULTS.cardSize,
+        cardWidth: STACK_CARDS_DEFAULTS.cardWidth,
+        wheelSensitivity: STACK_CARDS_DEFAULTS.wheelSensitivity,
+        autoPlayEnabled: STACK_CARDS_DEFAULTS.autoPlayEnabled,
+        autoPlaySpeed: STACK_CARDS_DEFAULTS.autoPlaySpeed,
+        cards: cloneStackCards()
+      }
   draft.nextPanelPosition = panel.nextPanelPosition ?? Direction.Down
 }
 
@@ -147,6 +194,7 @@ export function useSlidePropertiesForm(options: UseSlidePropertiesFormOptions) {
     title: '',
     eyebrow: '',
     description: '',
+    templateType: TemplateType.Scroll,
     useMarkdown: false,
     titleSize: DEFAULT_TEXT_SIZE,
     eyebrowSize: DEFAULT_TEXT_SIZE,
@@ -159,6 +207,7 @@ export function useSlidePropertiesForm(options: UseSlidePropertiesFormOptions) {
     descriptionLineHeight: DEFAULT_DESCRIPTION_LINE_HEIGHT,
     eyebrowLetterSpacing: DEFAULT_EYEBROW_LETTER_SPACING,
     contentMaxWidth: DEFAULT_CONTENT_MAX_WIDTH,
+    contentSidePadding: DEFAULT_CONTENT_SIDE_PADDING,
     titleMaxWidth: DEFAULT_TITLE_MAX_WIDTH,
     descriptionMaxWidth: DEFAULT_DESCRIPTION_MAX_WIDTH,
     panelClass: '',
@@ -174,6 +223,19 @@ export function useSlidePropertiesForm(options: UseSlidePropertiesFormOptions) {
     ctaText: '',
     ctaLink: '',
     cta: undefined,
+    stackCards: {
+      textSide: STACK_CARDS_DEFAULTS.textSide,
+      angleY: STACK_CARDS_DEFAULTS.angleY,
+      angleX: STACK_CARDS_DEFAULTS.angleX,
+      cardGap: STACK_CARDS_DEFAULTS.cardGap,
+      frontFadeWindow: STACK_CARDS_DEFAULTS.frontFadeWindow,
+      cardSize: STACK_CARDS_DEFAULTS.cardSize,
+      cardWidth: STACK_CARDS_DEFAULTS.cardWidth,
+      wheelSensitivity: STACK_CARDS_DEFAULTS.wheelSensitivity,
+      autoPlayEnabled: STACK_CARDS_DEFAULTS.autoPlayEnabled,
+      autoPlaySpeed: STACK_CARDS_DEFAULTS.autoPlaySpeed,
+      cards: cloneStackCards()
+    },
     nextPanelPosition: Direction.Down
   })
 

@@ -6,7 +6,17 @@
     @click.self="$emit('close')"
   >
     <div class="block-settings">
-      <h4>Slide Properties</h4>
+      <div class="block-settings__header">
+        <h4>Slide Properties</h4>
+        <button
+          type="button"
+          class="ui-btn block-settings__side-toggle"
+          :title="`Move panel to ${side === 'left' ? 'right' : 'left'} side`"
+          @click="$emit('toggle-side')"
+        >
+          {{ side === 'left' ? 'Right' : 'Left' }}
+        </button>
+      </div>
 
       <CollapsibleSection
         title="Text Content"
@@ -15,6 +25,14 @@
         body-class="text-style-panel__body text-content-panel__body"
         @toggle="togglePanel('textContent')"
       >
+          <label>
+            Template
+            <select v-model="draft.templateType" @change="save">
+              <option value="scroll">Scroll</option>
+              <option value="stack-cards">Stack Cards</option>
+            </select>
+          </label>
+
           <label>
             Name
             <div class="text-input-row">
@@ -107,6 +125,96 @@
               </span>
             </div>
           </label>
+      </CollapsibleSection>
+
+      <CollapsibleSection
+        v-if="draft.templateType === 'stack-cards' && draft.stackCards"
+        title="Stack Cards"
+        panel-id="stack-cards-panel-body"
+        :open="isStackCardsOpen"
+        body-class="text-style-panel__body text-content-panel__body"
+        @toggle="togglePanel('stackCards')"
+      >
+          <label>
+            Text Side
+            <select v-model="draft.stackCards.textSide" @change="save">
+              <option value="left">Left</option>
+              <option value="right">Right</option>
+            </select>
+          </label>
+          <label class="block-settings__toggle">
+            <div class="block-settings__toggle-row">
+              <input
+                v-model="draft.stackCards.autoPlayEnabled"
+                type="checkbox"
+                class="block-settings__toggle-input"
+                @change="save"
+              />
+              <span class="block-settings__toggle-switch" aria-hidden="true" />
+              <span class="block-settings__toggle-text">Autoplay cards</span>
+            </div>
+          </label>
+          <label>
+            Autoplay speed (s)
+            <div class="text-style-panel__range">
+              <input
+                v-model.number="draft.stackCards.autoPlaySpeed"
+                type="range"
+                :min="STACK_CARDS_AUTOPLAY_LIMITS.min"
+                :max="STACK_CARDS_AUTOPLAY_LIMITS.max"
+                :step="STACK_CARDS_AUTOPLAY_LIMITS.step"
+                :disabled="!draft.stackCards.autoPlayEnabled"
+                @input="save"
+              />
+              <span>{{ formatNumber(Number(draft.stackCards.autoPlaySpeed), 2) }}</span>
+            </div>
+          </label>
+          <label v-for="control in stackCardControls" :key="control.key">
+            {{ control.label }}
+            <div class="text-style-panel__range">
+              <input
+                v-model.number="draft.stackCards[control.key]"
+                type="range"
+                :min="control.min"
+                :max="control.max"
+                :step="control.step"
+                @input="save"
+              />
+              <span>{{ formatNumber(Number(draft.stackCards[control.key]), 2) }}</span>
+            </div>
+          </label>
+
+          <div v-for="(card, cardIndex) in draft.stackCards.cards" :key="`stack-card-item-${cardIndex}`" class="stack-card-editor">
+            <label>
+              Card {{ cardIndex + 1 }} title
+              <input v-model="card.title" type="text" @input="save" />
+            </label>
+            <label>
+              Card {{ cardIndex + 1 }} description
+              <textarea v-model="card.description" rows="2" @input="save" />
+            </label>
+            <label>
+              Card {{ cardIndex + 1 }} color
+              <div class="logo-row__tint">
+                <input v-model="card.color" type="color" @input="save" />
+                <input v-model="card.color" type="text" @input="save" />
+              </div>
+            </label>
+            <label>
+              Card {{ cardIndex + 1 }} image
+              <input v-model="card.image" type="text" placeholder="https://..." @input="save" />
+            </label>
+            <button
+              type="button"
+              class="ui-btn ui-btn--danger"
+              :disabled="draft.stackCards.cards.length <= 1"
+              @click="removeStackCard(cardIndex)"
+            >
+              Remove card
+            </button>
+          </div>
+
+          <button type="button" class="ui-btn" @click="addStackCard">Add card</button>
       </CollapsibleSection>
 
       <CollapsibleSection
@@ -216,6 +324,21 @@
                   @input="save"
                 />
                 <span>{{ formatNumber(draft.contentMaxWidth, 0) }}px</span>
+              </div>
+            </label>
+
+            <label v-if="isContentWidthContained" class="text-style-panel__field">
+              <span>Side padding</span>
+              <div class="text-style-panel__range">
+                <input
+                  v-model.number="draft.contentSidePadding"
+                  type="range"
+                  :min="textStyleRanges.contentSidePadding.min"
+                  :max="textStyleRanges.contentSidePadding.max"
+                  :step="textStyleRanges.contentSidePadding.step"
+                  @input="save"
+                />
+                <span>{{ formatNumber(draft.contentSidePadding, 0) }}px</span>
               </div>
             </label>
 
@@ -474,6 +597,7 @@
 <script setup lang="ts">
 import { toRef } from 'vue'
 import { TextSize, type Panel } from '../../../types/navigation'
+import { STACK_CARDS_AUTOPLAY_LIMITS, STACK_CARDS_CONTROLS } from '../../../constants/stackCards'
 import TextSizeSelector from '../atoms/TextSizeSelector.vue'
 import MarkdownField from '../atoms/MarkdownField.vue'
 import CollapsibleSection from '../atoms/CollapsibleSection.vue'
@@ -509,6 +633,7 @@ const emit = defineEmits<{
   close: []
   save: [panel: Panel]
   delete: []
+  'toggle-side': []
 }>()
 
 const DEFAULT_TEXT_SIZE = TextSize.Medium
@@ -544,6 +669,7 @@ const {
   isGradientEditorOpen,
   isLogoEditorOpen,
   isImageEditorOpen,
+  isStackCardsOpen,
   gradientType,
   gradientOrientation,
   gradientColors,
@@ -566,6 +692,25 @@ const {
   emitSave: (panel) => emit('save', panel),
   emitDelete: () => emit('delete')
 })
+
+const stackCardControls = STACK_CARDS_CONTROLS
+
+const addStackCard = () => {
+  if (!draft.stackCards) return
+  draft.stackCards.cards.push({
+    title: `Card ${draft.stackCards.cards.length + 1}`,
+    description: '',
+    color: '#0f172a',
+    image: ''
+  })
+  save()
+}
+
+const removeStackCard = (index: number) => {
+  if (!draft.stackCards || draft.stackCards.cards.length <= 1) return
+  draft.stackCards.cards.splice(index, 1)
+  save()
+}
 
 void fileInputRef
 void logoFileInputRef
