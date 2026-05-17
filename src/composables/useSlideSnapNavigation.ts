@@ -53,7 +53,7 @@ export function useSlideSnapNavigation(options: UseSlideSnapNavigationOptions) {
     if (!element) return false
     return Boolean(
       element.closest(
-        '.flow-creator, .flow-modal, .flow-canvas, .block-settings, input, textarea, select, button, [contenteditable="true"]'
+        '.flow-modal, .flow-canvas, .block-settings, .user-bar, .editor-hover-toggle, input, textarea, select, button, [contenteditable="true"]'
       )
     )
   }
