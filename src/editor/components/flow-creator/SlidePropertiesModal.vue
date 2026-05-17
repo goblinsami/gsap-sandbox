@@ -251,30 +251,30 @@
           </div>
       </CollapsibleSection>
 
-      <label>
-        Slide Color
-        <div class="logo-row__tint">
-          <input
-            v-model="draft.panelColor"
-            type="color"
-            @input="save"
-          />
-          <input
-            v-model="draft.panelColor"
-            type="text"
-            :placeholder="DEFAULT_SLIDE_COLOR"
-            @input="save"
-          />
-        </div>
-      </label>
-
       <CollapsibleSection
-        title="Gradient Editor"
+        title="Fill"
         panel-id="gradient-editor-panel-body"
         :open="isGradientEditorOpen"
         body-class="text-style-panel__body gradient-editor"
         @toggle="togglePanel('gradientEditor')"
       >
+          <label>
+            Slide Color
+            <div class="logo-row__tint">
+              <input
+                :value="draft.panelColor || DEFAULT_SLIDE_COLOR"
+                type="color"
+                @input="onPanelColorInput"
+              />
+              <input
+                :value="draft.panelColor"
+                type="text"
+                :placeholder="DEFAULT_SLIDE_COLOR"
+                @input="onPanelColorInput"
+              />
+            </div>
+          </label>
+
           <label>
             Type
             <select v-model="gradientType" @change="applyGradient">
@@ -318,7 +318,10 @@
             </label>
           </div>
 
-          <div class="gradient-editor__preview" :style="{ background: draft.backgroundGradient || '#111' }" />
+          <div
+            class="gradient-editor__preview"
+            :style="{ background: draft.backgroundGradient || draft.panelColor || DEFAULT_SLIDE_COLOR }"
+          />
 
           <div class="gradient-editor__actions">
             <button type="button" class="ui-btn" @click="applyGradient">Apply gradient</button>
@@ -388,71 +391,79 @@
           <small>{{ draft.logo ? DROP_LOGO_LOADED_TEXT : 'No logo (default)' }}</small>
       </CollapsibleSection>
 
-      <label>
-        Panel Image
-        <p v-if="!canUploadImages" class="upgrade-hint">Login with Google to upload persistent images.</p>
-        <div
-          class="image-dropzone"
-          :class="{ 'image-dropzone--active': isDragging }"
-          @dragenter.prevent="isDragging = true"
-          @dragover.prevent="isDragging = true"
-          @dragleave.prevent="isDragging = false"
-          @drop.prevent="onDropImage"
-        >
-          <input
-            ref="fileInputRef"
-            type="file"
-            accept="image/*"
-            class="image-dropzone__input"
-            :disabled="!canUploadImages"
-            @change="onFileChange"
-          />
-          <div class="image-dropzone__content">
-            <p>{{ draft.image ? DROP_IMAGE_LOADED_TEXT : DROP_IMAGE_EMPTY_TEXT }}</p>
-            <div class="image-dropzone__actions">
-              <button type="button" class="ui-btn" :disabled="!canUploadImages" @click="openFilePicker">Choose Image</button>
-              <button type="button" class="ui-btn" :disabled="!canUploadImages" @click="setRandomImage">Random Image</button>
-              <button v-if="draft.image" type="button" class="ui-btn" :disabled="!canUploadImages" @click="clearImage">Remove</button>
-            </div>
-          </div>
-        </div>
-      </label>
-
-      <label>
-        Image Overlay
-        <div class="overlay-controls">
-          <label class="block-settings__toggle">
-            <div class="block-settings__toggle-row">
+      <CollapsibleSection
+        title="Image"
+        panel-id="image-editor-panel-body"
+        :open="isImageEditorOpen"
+        body-class="text-style-panel__body image-editor"
+        @toggle="togglePanel('imageEditor')"
+      >
+          <label>
+            Panel Image
+            <p v-if="!canUploadImages" class="upgrade-hint">Login with Google to upload persistent images.</p>
+            <div
+              class="image-dropzone"
+              :class="{ 'image-dropzone--active': isDragging }"
+              @dragenter.prevent="isDragging = true"
+              @dragover.prevent="isDragging = true"
+              @dragleave.prevent="isDragging = false"
+              @drop.prevent="onDropImage"
+            >
               <input
-                v-model="draft.overlayEnabled"
-                type="checkbox"
-                class="block-settings__toggle-input"
-                :disabled="!draft.image"
-                @change="save"
+                ref="fileInputRef"
+                type="file"
+                accept="image/*"
+                class="image-dropzone__input"
+                :disabled="!canUploadImages"
+                @change="onFileChange"
               />
-              <span class="block-settings__toggle-switch" aria-hidden="true" />
-              <span class="block-settings__toggle-text">
-                {{ draft.image ? 'Show overlay' : 'Add image to enable' }}
-              </span>
+              <div class="image-dropzone__content">
+                <p>{{ draft.image ? DROP_IMAGE_LOADED_TEXT : DROP_IMAGE_EMPTY_TEXT }}</p>
+                <div class="image-dropzone__actions">
+                  <button type="button" class="ui-btn" :disabled="!canUploadImages" @click="openFilePicker">Choose Image</button>
+                  <button type="button" class="ui-btn" :disabled="!canUploadImages" @click="setRandomImage">Random Image</button>
+                  <button v-if="draft.image" type="button" class="ui-btn" :disabled="!canUploadImages" @click="clearImage">Remove</button>
+                </div>
+              </div>
             </div>
           </label>
-          <div class="overlay-intensity">
-            <input
-              v-model.number="draft.overlayIntensity"
-              type="range"
-              min="0"
-              max="100"
-              step="1"
-              :disabled="!draft.image || !draft.overlayEnabled"
-              @input="save"
-            />
-            <span>{{ Math.max(0, Math.min(100, Number(draft.overlayIntensity ?? 55))) }}%</span>
-          </div>
-        </div>
-      </label>
+
+          <label>
+            Image Overlay
+            <div class="overlay-controls">
+              <label class="block-settings__toggle">
+                <div class="block-settings__toggle-row">
+                  <input
+                    v-model="draft.overlayEnabled"
+                    type="checkbox"
+                    class="block-settings__toggle-input"
+                    :disabled="!draft.image"
+                    @change="save"
+                  />
+                  <span class="block-settings__toggle-switch" aria-hidden="true" />
+                  <span class="block-settings__toggle-text">
+                    {{ draft.image ? 'Show overlay' : 'Add image to enable' }}
+                  </span>
+                </div>
+              </label>
+              <div class="overlay-intensity">
+                <input
+                  v-model.number="draft.overlayIntensity"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  :disabled="!draft.image || !draft.overlayEnabled"
+                  @input="save"
+                />
+                <span>{{ Math.max(0, Math.min(100, Number(draft.overlayIntensity ?? 55))) }}%</span>
+              </div>
+            </div>
+          </label>
+      </CollapsibleSection>
 
       <div class="block-settings__actions">
-        <button class="ui-btn ui-btn--danger" @click="deleteAndClose">Delete Panel</button>
+        <button class="ui-btn ui-btn--danger" @click="deleteAndClose">Delete Slide</button>
         <button class="ui-btn" @click="cancelAndClose">Cancel</button>
         <button class="ui-btn" @click="saveAndClose">Save</button>
       </div>
@@ -532,11 +543,13 @@ const {
   isTextStyleOpen,
   isGradientEditorOpen,
   isLogoEditorOpen,
+  isImageEditorOpen,
   gradientType,
   gradientOrientation,
   gradientColors,
   orientationOptions,
   togglePanel,
+  onPanelColorInput,
   applyGradient,
   clearGradient,
   formatNumber,

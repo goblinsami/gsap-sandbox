@@ -170,7 +170,7 @@
           >
             <button
               class="flow-node__delete"
-              title="Delete panel"
+              title="Delete slide"
               @click.stop="deletePanelAt(node.index)"
             >
               &times;

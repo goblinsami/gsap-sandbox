@@ -3,6 +3,7 @@ import { ContentAlign, Direction, type Panel } from '../../types/navigation'
 import {
   DEFAULT_CONTENT_ALIGN,
   DEFAULT_CONTENT_MAX_WIDTH,
+  DEFAULT_PANEL_COLOR,
   DEFAULT_CONTENT_WIDTH_MODE,
   DEFAULT_DESCRIPTION_LINE_HEIGHT,
   DEFAULT_DESCRIPTION_MAX_WIDTH,
@@ -52,7 +53,7 @@ export const DROP_IMAGE_EMPTY_TEXT = 'Drop image here or choose file'
 export const DROP_LOGO_LOADED_TEXT = 'Logo loaded'
 export const DROP_LOGO_EMPTY_TEXT = 'Paste logo URL or choose file'
 export const DEFAULT_LOGO_TINT_COLOR = '#ffffff'
-export const DEFAULT_SLIDE_COLOR = '#111111'
+export const DEFAULT_SLIDE_COLOR = DEFAULT_PANEL_COLOR
 export const textStyleRanges = TEXT_STYLE_RANGES
 
 const clampOverlayIntensity = (value: number) => {
@@ -207,6 +208,10 @@ export function useSlidePropertiesForm(options: UseSlidePropertiesFormOptions) {
     const hadImage = Boolean(draft.image)
     reader.onload = () => {
       draft.image = typeof reader.result === 'string' ? reader.result : ''
+      draft.backgroundGradient = undefined
+      if (!draft.panelColor?.trim()) {
+        draft.panelColor = DEFAULT_SLIDE_COLOR
+      }
       if (!hadImage && draft.image) {
         draft.overlayEnabled = DEFAULT_OVERLAY_ENABLED_WITH_IMAGE
       }
@@ -253,6 +258,9 @@ export function useSlidePropertiesForm(options: UseSlidePropertiesFormOptions) {
   const clearImage = () => {
     draft.image = ''
     draft.overlayEnabled = DEFAULT_OVERLAY_ENABLED_WITHOUT_IMAGE
+    if (!draft.backgroundGradient && !draft.panelColor?.trim()) {
+      draft.panelColor = DEFAULT_SLIDE_COLOR
+    }
     save()
   }
 
@@ -260,6 +268,10 @@ export function useSlidePropertiesForm(options: UseSlidePropertiesFormOptions) {
     const hadImage = Boolean(draft.image)
     const seed = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
     draft.image = `${RANDOM_IMAGE_BASE_URL}/${RANDOM_IMAGE_WIDTH}/${RANDOM_IMAGE_HEIGHT}?random=${seed}`
+    draft.backgroundGradient = undefined
+    if (!draft.panelColor?.trim()) {
+      draft.panelColor = DEFAULT_SLIDE_COLOR
+    }
     if (!hadImage) {
       draft.overlayEnabled = DEFAULT_OVERLAY_ENABLED_WITH_IMAGE
     }

@@ -454,11 +454,123 @@ npm install
 npm run dev
 npm run build
 npm run preview
+npm run test:run
 ```
 
 ---
 
-## 19. Resumen ejecutivo
+## 19. CI/CD (GitHub + Netlify)
+
+### 19.1 CI en GitHub Actions
+
+Flujo recomendado:
+
+- trigger en `pull_request`
+- trigger en `push` a `main`
+- pasos:
+  - `npm ci`
+  - `npm run test:run`
+  - `npm run build`
+
+Archivo recomendado:
+
+- `.github/workflows/ci.yml`
+
+Ejemplo base:
+
+```yaml
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run test:run
+      - run: npm run build
+```
+
+### 19.2 CD en Netlify
+
+Configuracion recomendada:
+
+- conectar el repo GitHub a Netlify (Continuous Deployment)
+- production branch: `main`
+- build command: `npm run build`
+- publish directory: `dist`
+
+Para SPA (rutas como `/embed/:id`) hay que forzar rewrite a `index.html`:
+
+```toml
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+```
+
+### 19.3 Variables de entorno
+
+Definir en Netlify:
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+
+Recomendado: valores por contexto (`production`, `deploy-preview`) cuando corresponda.
+
+### 19.4 Proteccion de rama
+
+En GitHub para `main`:
+
+- requerir Pull Request para merge
+- requerir status checks del workflow CI
+
+---
+
+## 20. Config global de secciones en SlideProperties
+
+La apertura por defecto de secciones del modal `SlideProperties` se controla desde:
+
+- `src/config/editor.ts`
+
+Claves disponibles:
+
+- `SlidePropertiesSection.TextContent`
+- `SlidePropertiesSection.Ctas`
+- `SlidePropertiesSection.TextStyle`
+- `SlidePropertiesSection.Fill`
+- `SlidePropertiesSection.Logo`
+- `SlidePropertiesSection.Image`
+
+Configuracion:
+
+- `DEFAULT_OPEN_SLIDE_PROPERTIES_SECTIONS: SlidePropertiesSection[]`
+  - `[]`: todas cerradas por defecto
+  - lista con 1 o mas valores: abre esas secciones al abrir el modal
+
+Ejemplo:
+
+```ts
+export const DEFAULT_OPEN_SLIDE_PROPERTIES_SECTIONS: SlidePropertiesSection[] = [
+  SlidePropertiesSection.TextContent,
+  SlidePropertiesSection.TextStyle
+]
+```
+
+---
+
+## 21. Resumen ejecutivo
 
 La arquitectura actual separa bien:
 

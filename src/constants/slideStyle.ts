@@ -3,6 +3,7 @@ import { ContentAlign, ContentWidthMode, TextSize, type TextSize as SlideTextSiz
 export const DEFAULT_TEXT_SIZE = TextSize.Medium
 export const DEFAULT_CONTENT_ALIGN = ContentAlign.Left
 export const DEFAULT_CONTENT_WIDTH_MODE = ContentWidthMode.Contained
+export const DEFAULT_PANEL_COLOR = '#111111'
 
 export const DEFAULT_EYEBROW_TITLE_GAP = 24
 export const DEFAULT_TITLE_DESCRIPTION_GAP = DEFAULT_EYEBROW_TITLE_GAP

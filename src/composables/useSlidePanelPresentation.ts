@@ -12,6 +12,7 @@ import {
   DEFAULT_CONTENT_MAX_WIDTH,
   DEFAULT_CONTENT_WIDTH_MODE,
   DEFAULT_DESCRIPTION_LINE_HEIGHT,
+  DEFAULT_PANEL_COLOR,
   DEFAULT_EYEBROW_LETTER_SPACING,
   DEFAULT_EYEBROW_TITLE_GAP,
   DEFAULT_OVERLAY_INTENSITY,
@@ -219,7 +220,7 @@ export function useSlidePanelPresentation(props: Readonly<SlidePanelProps>) {
   const hasVisualBackground = computed(() => Boolean(props.image || props.backgroundGradient))
   const panelStyle = computed(() => ({
     background: props.backgroundGradient,
-    backgroundColor: props.panelColor || 'transparent'
+    backgroundColor: props.panelColor || DEFAULT_PANEL_COLOR
   }))
 
   const overlayStyle = computed(() => {
